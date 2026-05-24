@@ -1,147 +1,108 @@
-# Hole-in-One Display Platform — v1 Plan
+## Goal
 
-## Decisions I'm locking in (flag if wrong)
+Replace the single-entry DemoKiosk with a realistic clubhouse-board simulation: **one screen per par-3 hole**, three regions matching your sketch, auto-rotating between holes. Visuals are hardcoded for the demo but built so per-course theming + logos drop in cleanly later.
 
-- **URLs**: subpaths under one domain. `/<slug>` public page, `/<slug>/display` kiosk, `/admin/*` CMS. (Subdomains can come later without data migration.)
-- **Backend**: Lovable Cloud (Postgres + Auth + Storage + server functions). No external services beyond an email sender.
-- **Email** (invites, password reset, offline alerts): Resend via a stored API key.
-- **Heartbeat alerts**: pg_cron job every 5 min scanning `display_heartbeats`; emails SuperAdmins when last heartbeat > threshold.
-- **Auth**: email + password only in v1 (matches "secure auth with password reset"). No Google login unless you want it.
+## Layout (matches your sketch · 33/66 vertical · 66/33 horizontal on top)
 
----
+```
+┌──────────────────────────────────────────────────────────┐
+│ HEADER · course logo + name · "Par 3 Hole-in-One Club"   │
+│         · hole tabs:  #3 · #7 · #12 · #16                │
+├────────────────────────────────────────┬─────────────────┤
+│                                        │                 │
+│  A · FLYOVER PANEL                     │  B · TOP-DOWN   │  ← top third
+│     Ken Burns on stylized hole art     │     hole map    │     A:B = 66:33
+│     Overlay chip:                      │     tee → green │
+│     HOLE 7 · PAR 3 · 168 YD · SI 11    │     bunkers,    │
+│     ▶ FLYOVER badge                    │     pin, water  │
+│                                        │                 │
+├────────────────────────────────────────┴─────────────────┤
+│                                                          │
+│  C · WOOD PLAQUE — "HOLE-IN-ONE CLUB"                    │  ← bottom two-thirds
+│     Brass header banner                                  │
+│     Grid of brass-on-black name plates                   │
+│     (NAME · #hole · year), screw dots in corners,        │
+│     currently-spotlighted plate has a subtle gold glow   │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
 
-## Scope (v1)
+## Hole cycling
 
-Three surfaces, one backend, two roles.
+- **Auto-rotate** holes every ~9s.
+- **Manual tabs** in the header (`#3 · #7 · #12 · #16`) — click pauses auto-rotate for ~20s then resumes.
+- Inside a hole, C's "spotlight plate" cycles every ~2.5s so the board reads as live.
 
-1. **CMS** (`/admin`) — login-gated, role-aware.
-2. **Public page** (`/<slug>/hole-in-ones`) — read-only, branded, mobile-friendly.
-3. **Kiosk display** (`/<slug>/display`) — fullscreen, auto-cycling, offline-tolerant.
+## Sample data (hardcoded, inline `HOLES` constant)
 
----
+Course: **Cedar Ridge GC**, four par-3 boards:
 
-## Data model (Lovable Cloud / Postgres)
+| Hole | Par | Yards | SI | Aces shown |
+|------|-----|-------|----|-----------|
+| #3   | 3   | 142   | 15 | 6  |
+| #7   | 3   | 168   | 11 | 9  |
+| #12  | 3   | 124   | 17 | 4  |
+| #16  | 3   | 195   | 7  | 11 |
 
-- `courses` — name, slug (unique), logo_url, primary_color, secondary_color, public_enabled, display_sort (`newest` | `hole` | `year`), data_version (int, bumped on entry change), timestamps.
-- `profiles` — mirrors `auth.users`, holds email + last_login.
-- `app_role` enum (`superadmin`, `course_manager`) + `user_roles` table (user_id, role). Roles live in a separate table per security rules.
-- `course_managers` — (user_id, course_id) join for CM ↔ course assignment.
-- `entries` — course_id, golfer_name, date_achieved, hole_number (1–18), yardage, club, witness, photo_url, notes, status (`draft`|`published`|`archived`), created_by, updated_by, timestamps.
-- `audit_logs` — course_id, user_id, action, entity, entity_id, before/after JSON, timestamp.
-- `display_heartbeats` — course_id, ts, data_version, last_refresh_ts, client_info JSON. Index on (course_id, ts desc).
-- `display_alerts` — tracks whether an offline alert has already been sent for the current outage (prevents spam).
-- **Storage buckets**: `course-logos` (public), `entry-photos` (public, size/format-limited via server-fn upload helper).
+Each hole has its own plausible name list spanning ~1991-2026, echoing the real plaque you uploaded (mixed case names, hole #, year).
 
-### Helper SQL
-- `has_role(uid, role)` SECURITY DEFINER (per platform rules).
-- `is_course_manager(uid, course_id)` SECURITY DEFINER.
-- Trigger on `entries` insert/update/delete → bump `courses.data_version` and write `audit_logs` row.
+## Panel A — Flyover simulation
 
-### RLS summary
-- `courses`: read = anyone (needed for public page lookup by slug — only safe columns exposed via a server fn projection), write = superadmin.
-- `entries`: read published = public; read all = superadmin or assigned CM; write = superadmin or assigned CM.
-- `user_roles`, `course_managers`: superadmin only.
-- `audit_logs`: superadmin (all) + CM (own course).
-- `display_heartbeats`: insert open (display has no auth), read = superadmin (all) + CM (own course).
+- Inline SVG "hole" illustration per hole (fairway/rough shapes, bunkers, green, pin) — no external image needed for the demo.
+- **Ken Burns**: CSS `@keyframes` scale 1.00 → 1.08 + slow translate, ~12s loop; restarts on hole change.
+- Overlay chip top-left: `HOLE 7 · PAR 3 · 168 YD · SI 11`.
+- Bottom-right `▶ FLYOVER` badge so it reads as "this is video in production".
 
-Public reads will go through `createServerFn` + `supabaseAdmin` with explicit column projection rather than broad anon policies, so we never leak draft entries or PII.
+## Panel B — Top-down hole diagram
 
----
+- Inline SVG: tee box at bottom, fairway corridor scaled to yardage, sand bunkers (tan ellipses), green (lighter circle), pin/flag marker.
+- Per-hole variation: bunker count + placement, one hole has water.
+- Compass rose + yardage label.
 
-## Routes (TanStack Start)
+## Panel C — Wood plaque (skeuomorphic)
 
-Public:
-- `/` — marketing/landing stub (or redirect to login).
-- `/login`, `/reset-password`, `/accept-invite`
-- `/<slug>` → redirect to `/<slug>/hole-in-ones`
-- `/<slug>/hole-in-ones` — public list (filter by hole, sort, search). Branded.
-- `/<slug>/display` — kiosk view.
+- **Background**: layered CSS gradients (multiple `repeating-linear-gradient` for grain + radial highlights) — looks like walnut without an image.
+- **Brass header banner**: dark plate, gold gradient text — `CEDAR RIDGE GC · HOLE #7 · HOLE-IN-ONE CLUB`.
+- **Plate grid**: 4 cols desktop, 2 cols mobile.
+- Each plate: dark green/black gradient, gold inset border, four screw dots, gold serif text:
+  ```
+  ELEANOR WHITCOMBE
+        #7
+       2024
+  ```
+- Currently-spotlighted plate: subtle gold glow + slight scale-up.
 
-Authenticated (`_authenticated/admin/...`):
-- `/admin` — dashboard. SuperAdmin sees global health + course list; CM sees their course summary.
-- `/admin/entries` — list with search/filter/sort, draft/published/archived tabs.
-- `/admin/entries/new`, `/admin/entries/:id` — editor with **Preview** tab rendering exactly as the display will show.
-- `/admin/entries/import` — CSV import (preview + commit).
-- `/admin/settings` — course branding, sort preference, public page on/off (CM-editable).
-- `/admin/audit` — audit log for the current course.
-- `/admin/courses` (SuperAdmin only) — create/edit/delete courses, manage CM assignments, send invites, impersonate.
-- `/admin/health` (SuperAdmin only) — global display health dashboard.
+## Theming hook (future-ready, no UI added now)
 
-Server routes:
-- `POST /api/public/heartbeat` — display heartbeat ingest (no auth; rate-limited by course_id + IP).
-- `POST /api/public/cron/check-offline-displays` — pg_cron-triggered; scans heartbeats and sends Resend emails.
+All visual decisions read from a single `THEME` object at the top of the file:
 
-A SuperAdmin course-switcher (in the admin shell) sets an active `course_id` in URL/search params so every admin page is scoped consistently.
+```ts
+const THEME = {
+  courseName: "Cedar Ridge GC",
+  logoUrl: null,            // future: course-uploaded logo
+  primary: "#0b4d2c",       // header/flyover wash
+  accent:  "#d4af37",       // brass/gold
+  plaqueStyle: "walnut",    // future: "mahogany" | "slate" | "modern-dark"
+  flyoverStyle: "kenburns", // future: "video" | "static"
+};
+```
 
----
+Plus a small `PLAQUE_STYLES` map (walnut today; mahogany/slate/modern-dark stubbed as TODO comments) so swapping skins later is a one-line change. Logo: header renders `<img src={THEME.logoUrl}>` when present, else falls back to the current trophy mark. **No new UI / picker is built in this task** — this is just the seam.
 
-## Kiosk display behavior
+## Responsive
 
-- Polls a public server fn every 2 min for `{ data_version, entries }`. If `data_version` unchanged → skip re-render.
-- Stores last successful payload in `localStorage`; on fetch failure, keeps cycling cached data and shows a small "offline" indicator.
-- Cycles entries with configurable per-entry duration (default 8s) + idle/title screen every N entries.
-- Sends heartbeat to `/api/public/heartbeat` every 60s with current `data_version` and `last_refresh_ts`.
-- Layout designed for 1920×1080 landscape; uses `clamp()`-based typography to degrade to other sizes.
-- No auth required — the URL itself is the credential.
+- Desktop (≥sm): full 33/66 vertical split as above.
+- Mobile (<sm): stack vertically — tabs → A → B → C; C becomes 2-col grid showing first 8 plates + "+N more aces" link-style label; keep bezel + "live kiosk preview · cedar-ridge.aceboard.app/display" chrome (hide URL on xs).
 
----
+## Files
 
-## Public page behavior
+- **Rewrite** `src/components/DemoKiosk.tsx` — all sub-components in one file: `HoleTabs`, `FlyoverPanel`, `TopDownPanel`, `PlaqueBoard`, `NamePlate`; `HOLES` and `THEME` constants inline.
+- **No changes** to `src/routes/index.tsx` (already renders `<DemoKiosk />`).
+- **No new deps · no backend · no DB · no real video.**
 
-- Server-side data fetch via public server fn (admin-elevated, projection-safe). Returns 404 if `public_enabled = false`.
-- Search by name, filter by hole (1–18), sort (newest / hole / year).
-- Course branding (logo + colors) applied via CSS vars set at the route level.
-- Per-route SEO (`head()` with title/description/og tags) using course name.
+## Out of scope (separate future tasks)
 
----
-
-## CMS specifics
-
-- Entry editor: all spec fields, photo upload (stored, hidden on display in v1 — toggle exists but defaults off).
-- Draft → Published transition is the only thing that bumps `data_version` for display refresh.
-- CSV import: parses, validates per row, shows preview table with errors, commits as `draft` by default.
-- Audit log writes happen in DB triggers, so nothing can sneak past.
-- Course settings page: logo upload, color pickers (HSL/oklch under the hood), sort preference, public page toggle.
-- Course admin (SuperAdmin): create course (name → auto-slug, editable), upload logo, set colors, invite CMs by email (Resend → invite link → `/accept-invite` sets password).
-- Impersonation: SuperAdmin can "view as" a course (sets active course_id scope); read-only badge shown in UI.
-
----
-
-## Health monitoring
-
-- `/admin/health` (SuperAdmin): table of every course with last heartbeat, status (online if < 5 min, stale if 5–15 min, offline if > 15 min, configurable), current data version.
-- CM dashboard shows the same status row for their course only.
-- pg_cron job every 5 min calls `/api/public/cron/check-offline-displays` with a shared secret header → for each course over threshold without an open alert, sends Resend email to all SuperAdmins and records the alert. When a heartbeat resumes, the open alert is closed (so the next outage re-alerts).
-
----
-
-## Non-functional
-
-- HTTPS via Lovable hosting.
-- Daily Postgres backups: Lovable Cloud default.
-- Password reset + session timeout via Supabase Auth defaults; leaked-password (HIBP) check enabled.
-- Photo upload validates mime + size (e.g. ≤ 5 MB, jpg/png/webp) in a server fn before signing storage upload.
-
----
-
-## Build order
-
-1. Cloud enable, schema migrations (tables, enums, RLS, triggers, helper fns), storage buckets.
-2. Auth shell: login, password reset, invite acceptance, `_authenticated` layout, role/course context.
-3. SuperAdmin course CRUD + CM invites + impersonation.
-4. Entry CRUD + audit log + preview.
-5. Public page (per-slug, branded, filterable).
-6. Kiosk display (cycling, caching, heartbeat).
-7. Health dashboard + pg_cron offline-alert job + Resend wiring.
-8. CSV import.
-9. Polish: empty states, mobile CMS pass, kiosk resolution testing.
-
----
-
-## What I'll need from you during build
-
-- **Resend API key** (I'll prompt via the secrets flow when we reach step 7; I'll also set up Lovable Cloud first).
-- Confirmation on the locked-in decisions at the top.
-- A sample course logo + 1–2 sample entries so the first kiosk preview looks real (optional — I can use placeholders).
-
-Want me to proceed, or adjust anything (URL shape, auth providers, email sender, alert threshold default)?
+- Real per-course theming UI in the CMS (color/plaque-style/logo per course-hole).
+- Per-hole board data model in Supabase (today `entries.hole_number` is just an int; future board grouping = group by `hole_number` per course).
+- Real flyover video uploads + storage.
+- Editing the live `/$slug/display` kiosk route — this task is demo-page-only.
