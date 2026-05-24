@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Trophy, Play } from "lucide-react";
 import holeTopdown from "@/assets/hole-topdown.png";
+import courseLogo from "@/assets/course-logo.png";
 
 // ─── Theming seam ────────────────────────────────────────────────────────────
-// In production each course supplies its own values via the CMS. For the demo
-// these are hardcoded but the shape is the same one we'll wire in later.
 const THEME = {
-  courseName: "Cedar Ridge GC",
-  logoUrl: null as string | null, // future: course-uploaded logo
-  primary: "#0b4d2c", // header / flyover wash
-  accent: "#d4af37", // brass / gold
+  courseName: "Needwood MCG",
+  logoUrl: courseLogo as string | null,
+  primary: "#0b4d2c",
+  accent: "#d4af37",
   plaqueStyle: "walnut" as "walnut" | "mahogany" | "slate" | "modern-dark",
   flyoverStyle: "kenburns" as "kenburns" | "video" | "static",
 };
@@ -240,34 +239,59 @@ export function DemoKiosk() {
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 function Header({ hole }: { hole: Hole }) {
+  const style = PLAQUE_STYLES[THEME.plaqueStyle] ?? PLAQUE_STYLES.walnut;
+  const count = hole.aces.length;
   return (
     <div
-      className="flex items-center justify-center px-3 py-2 text-white sm:px-6 sm:py-3"
+      className="px-3 py-3 sm:px-6 sm:py-4"
       style={{
-        background: `linear-gradient(180deg, ${THEME.primary} 0%, ${shade(THEME.primary, -15)} 100%)`,
+        background: style.bg,
+        boxShadow: `inset 0 0 0 4px ${style.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
       }}
     >
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div
+        className="mx-auto flex max-w-xl items-center gap-3 rounded-md px-3 py-2 sm:gap-4 sm:px-5 sm:py-3"
+        style={{
+          background: "linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)",
+          boxShadow: `inset 0 0 0 2px ${THEME.accent}, 0 4px 12px rgba(0,0,0,0.5)`,
+        }}
+      >
         {THEME.logoUrl ? (
           <img
             src={THEME.logoUrl}
             alt={THEME.courseName}
-            className="h-7 w-7 rounded-md bg-white object-contain p-0.5 sm:h-9 sm:w-9"
+            className="h-9 w-9 shrink-0 object-contain sm:h-12 sm:w-12"
           />
         ) : (
           <div
-            className="flex h-7 w-7 items-center justify-center rounded-md sm:h-9 sm:w-9"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md sm:h-12 sm:w-12"
             style={{ background: THEME.accent }}
           >
-            <Trophy className="h-3.5 w-3.5 text-neutral-900 sm:h-5 sm:w-5" />
+            <Trophy className="h-5 w-5 text-neutral-900 sm:h-6 sm:w-6" />
           </div>
         )}
-        <div className="text-center leading-tight">
-          <div className="text-[12px] font-semibold tracking-wide sm:text-base">
+        <div className="min-w-0 flex-1 text-center leading-tight">
+          <div
+            className="font-serif text-[12px] font-bold uppercase tracking-[0.18em] sm:text-base"
+            style={{
+              background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 50%, #8a6d1f 100%)`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
             {THEME.courseName}
           </div>
-          <div className="text-[8px] uppercase tracking-[0.22em] text-white/65 sm:text-[10px]">
-            Hole #{hole.num} · Par 3 Hole-in-One Club
+          <div className="mt-0.5 flex items-center justify-center gap-2">
+            <span className="text-[8px] uppercase tracking-[0.28em] text-white/70 sm:text-[10px]">
+              Hole #{hole.num} · Hole-in-One Club
+            </span>
+            <span
+              className="rounded bg-black/40 px-1.5 py-0.5 text-[8px] font-bold sm:text-[10px]"
+              style={{ color: THEME.accent }}
+            >
+              {count} ace{count !== 1 ? "s" : ""}
+            </span>
           </div>
         </div>
       </div>
@@ -386,35 +410,7 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
         boxShadow: `inset 0 0 0 4px ${style.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
       }}
     >
-      {/* Brass header banner */}
-      <div
-        className="mx-auto mb-3 max-w-xl rounded-md px-3 py-2 text-center sm:mb-5 sm:px-6 sm:py-3"
-        style={{
-          background:
-            "linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)",
-          boxShadow: `inset 0 0 0 2px ${THEME.accent}, 0 4px 12px rgba(0,0,0,0.5)`,
-        }}
-      >
-        <div
-          className="font-serif text-[10px] font-bold uppercase leading-tight tracking-[0.2em] sm:text-sm"
-          style={{
-            background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 50%, #8a6d1f 100%)`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          {THEME.courseName}
-        </div>
-        <div className="mt-1 flex items-center justify-center gap-2">
-          <span className="text-[9px] uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
-            Hole #{hole.num} · Hole-in-One Club
-          </span>
-          <span className="rounded bg-black/40 px-1.5 py-0.5 text-[8px] font-bold text-[#d4af37] sm:text-[10px]">
-            {count} ace{count !== 1 ? "s" : ""}
-          </span>
-        </div>
-      </div>
+
 
       {/* Plates grid */}
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
