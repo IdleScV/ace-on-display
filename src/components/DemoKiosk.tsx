@@ -445,7 +445,7 @@ function NamePlate({
   const dateLabel = formatLongDate(ace.date);
   return (
     <div
-      className="relative rounded-sm px-3 py-2.5 text-center transition-all duration-500 sm:px-4 sm:py-3"
+      className="relative flex flex-col justify-center rounded-sm px-3 py-2.5 text-center transition-all duration-500 sm:px-4 sm:py-3"
       style={{
         background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
         boxShadow: spotlight
