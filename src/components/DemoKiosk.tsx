@@ -175,9 +175,8 @@ export function DemoKiosk() {
 
         {/* Screen */}
         <div className="relative overflow-hidden rounded-xl sm:rounded-2xl">
-          {/* Mobile: stack. Desktop: 33/66 vertical, top split 66/33. */}
           <div className="flex flex-col sm:block">
-            <Header hole={hole} onTab={onTab} activeIdx={holeIdx} />
+            <Header hole={hole} />
 
             {/* Top third — A | B (side by side on all viewports) */}
             <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
@@ -191,7 +190,34 @@ export function DemoKiosk() {
         </div>
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">
+      {/* Hole selector — outside the kiosk bezel since it's a demo control,
+          not part of the in-course board */}
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+          View a different hole
+        </span>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {HOLES.map((h, i) => {
+            const active = i === holeIdx;
+            return (
+              <button
+                key={h.num}
+                onClick={() => onTab(i)}
+                className="rounded-md border px-3 py-1.5 text-xs font-semibold tracking-wide transition"
+                style={{
+                  background: active ? THEME.accent : "transparent",
+                  color: active ? "#0a0a0a" : undefined,
+                  borderColor: active ? THEME.accent : "hsl(var(--border))",
+                }}
+              >
+                Hole #{h.num}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
         Demo board for hole #{hole.num}. Each par-3 gets its own screen. Each
         course chooses its own colors, plaque style, and logo.
       </p>
