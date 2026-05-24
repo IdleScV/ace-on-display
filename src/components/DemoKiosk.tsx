@@ -29,7 +29,12 @@ const PLAQUE_STYLES: Record<string, { bg: string; rim: string }> = {
 };
 
 // ─── Sample par-3 boards ─────────────────────────────────────────────────────
-type Ace = { name: string; year: number };
+type Ace = {
+  name: string;
+  nickname?: string;
+  date: string; // ISO date e.g. "2022-07-14"
+  teeTime: string; // e.g. "8:42 AM"
+};
 type Hole = {
   num: number;
   par: 3;
@@ -51,11 +56,11 @@ const HOLES: Hole[] = [
       { x: 62, y: 32, rx: 8, ry: 5 },
     ],
     aces: [
-      { name: "Bill Fortney", year: 1992 },
-      { name: "Eleanor Whitcombe", year: 2003 },
-      { name: "Tom Donnelly", year: 2011 },
-      { name: "Priya Anand", year: 2019 },
-      { name: "Jonas Berglund", year: 2022 },
+      { name: "Bill Fortney", nickname: "Bilbo", date: "1992-05-18", teeTime: "9:12 AM" },
+      { name: "Eleanor Whitcombe", date: "2003-09-04", teeTime: "10:48 AM" },
+      { name: "Tom Donnelly", nickname: "T-Bone", date: "2011-06-22", teeTime: "7:30 AM" },
+      { name: "Priya Anand", date: "2019-08-11", teeTime: "2:06 PM" },
+      { name: "Jonas Berglund", nickname: "The Viking", date: "2022-04-29", teeTime: "11:24 AM" },
     ],
   },
   {
@@ -69,15 +74,15 @@ const HOLES: Hole[] = [
       { x: 50, y: 50, rx: 7, ry: 4 },
     ],
     aces: [
-      { name: "Joan Thieme", year: 1993 },
-      { name: "Scott Miller", year: 1995 },
-      { name: "Hank Wenhold", year: 1996 },
-      { name: "Sam Carita", year: 1997 },
-      { name: "Chris Rodrigues", year: 1999 },
-      { name: "Marcus Delacroix", year: 2007 },
-      { name: "R. Lee Milroy", year: 2014 },
-      { name: "Diane Becker", year: 2020 },
-      { name: "Tom Robin, Jr.", year: 2024 },
+      { name: "Joan Thieme", date: "1993-07-14", teeTime: "8:18 AM" },
+      { name: "Scott Miller", nickname: "Scooter", date: "1995-10-02", teeTime: "1:42 PM" },
+      { name: "Hank Wenhold", date: "1996-05-25", teeTime: "9:54 AM" },
+      { name: "Sam Carita", date: "1997-08-19", teeTime: "11:06 AM" },
+      { name: "Chris Rodrigues", nickname: "Rodi", date: "1999-06-30", teeTime: "7:48 AM" },
+      { name: "Marcus Delacroix", date: "2007-09-12", teeTime: "12:30 PM" },
+      { name: "R. Lee Milroy", date: "2014-04-08", teeTime: "10:12 AM" },
+      { name: "Diane Becker", nickname: "Dee", date: "2020-07-21", teeTime: "8:36 AM" },
+      { name: "Tom Robin, Jr.", date: "2024-05-15", teeTime: "2:24 PM" },
     ],
   },
   {
@@ -88,9 +93,9 @@ const HOLES: Hole[] = [
     bunkers: [{ x: 50, y: 28, rx: 14, ry: 7 }],
     water: { x: 50, y: 60, r: 18 },
     aces: [
-      { name: "Lisa Adams", year: 1991 },
-      { name: "Mike Kresge", year: 1993 },
-      { name: "Charlie Gaskill", year: 1998 },
+      { name: "Lisa Adams", date: "1991-06-12", teeTime: "10:30 AM" },
+      { name: "Mike Kresge", nickname: "Kreg", date: "1993-08-04", teeTime: "8:00 AM" },
+      { name: "Charlie Gaskill", date: "1998-09-27", teeTime: "1:18 PM" },
     ],
   },
   {
@@ -105,21 +110,22 @@ const HOLES: Hole[] = [
       { x: 60, y: 42, rx: 7, ry: 4 },
     ],
     aces: [
-      { name: "Jim Davis", year: 1998 },
-      { name: "Tom Klementovic", year: 1991 },
-      { name: "Greg Hopstock", year: 1993 },
-      { name: "Frank Walsh", year: 1993 },
-      { name: "Bill Reichard", year: 1996 },
-      { name: "Bob McCoy", year: 1993 },
-      { name: "Sharon R. Linard", year: 1997 },
-      { name: "Eddie McLaughlin", year: 1997 },
-      { name: "Danny Conahan", year: 2000 },
-      { name: "Joe Falotico", year: 2000 },
-      { name: "Clayton Schiier", year: 1998 },
-      { name: "Margaret O'Brien", year: 2025 },
+      { name: "Jim Davis", nickname: "Jimbo", date: "1998-05-09", teeTime: "9:24 AM" },
+      { name: "Tom Klementovic", date: "1991-07-22", teeTime: "11:48 AM" },
+      { name: "Greg Hopstock", date: "1993-08-15", teeTime: "8:06 AM" },
+      { name: "Frank Walsh", nickname: "Frankie", date: "1993-10-03", teeTime: "1:30 PM" },
+      { name: "Bill Reichard", date: "1996-06-18", teeTime: "10:42 AM" },
+      { name: "Bob McCoy", date: "1993-04-27", teeTime: "7:54 AM" },
+      { name: "Sharon R. Linard", nickname: "Shari", date: "1997-09-11", teeTime: "12:18 PM" },
+      { name: "Eddie McLaughlin", date: "1997-08-24", teeTime: "9:00 AM" },
+      { name: "Danny Conahan", nickname: "DC", date: "2000-05-06", teeTime: "2:42 PM" },
+      { name: "Joe Falotico", date: "2000-07-19", teeTime: "11:12 AM" },
+      { name: "Clayton Schiier", date: "1998-10-14", teeTime: "8:30 AM" },
+      { name: "Margaret O'Brien", nickname: "Maggie", date: "2025-06-08", teeTime: "10:06 AM" },
     ],
   },
 ];
+
 
 const HOLE_MS = 9000;
 const SPOT_MS = 2500;
