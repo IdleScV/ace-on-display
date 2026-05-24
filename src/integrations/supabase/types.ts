@@ -14,16 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          after: Json | null
+          before: Json | null
+          course_id: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          after?: Json | null
+          before?: Json | null
+          course_id?: string | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          after?: Json | null
+          before?: Json | null
+          course_id?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_managers: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_managers_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          data_version: number
+          display_sort: Database["public"]["Enums"]["display_sort"]
+          id: string
+          logo_url: string | null
+          name: string
+          primary_color: string
+          public_enabled: boolean
+          secondary_color: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_version?: number
+          display_sort?: Database["public"]["Enums"]["display_sort"]
+          id?: string
+          logo_url?: string | null
+          name: string
+          primary_color?: string
+          public_enabled?: boolean
+          secondary_color?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_version?: number
+          display_sort?: Database["public"]["Enums"]["display_sort"]
+          id?: string
+          logo_url?: string | null
+          name?: string
+          primary_color?: string
+          public_enabled?: boolean
+          secondary_color?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      display_alerts: {
+        Row: {
+          closed_at: string | null
+          course_id: string
+          id: string
+          notified_at: string | null
+          opened_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          course_id: string
+          id?: string
+          notified_at?: string | null
+          opened_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          course_id?: string
+          id?: string
+          notified_at?: string | null
+          opened_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "display_alerts_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      display_heartbeats: {
+        Row: {
+          client_info: Json | null
+          course_id: string
+          data_version: number | null
+          id: number
+          last_refresh_at: string | null
+          ts: string
+        }
+        Insert: {
+          client_info?: Json | null
+          course_id: string
+          data_version?: number | null
+          id?: number
+          last_refresh_at?: string | null
+          ts?: string
+        }
+        Update: {
+          client_info?: Json | null
+          course_id?: string
+          data_version?: number | null
+          id?: number
+          last_refresh_at?: string | null
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "display_heartbeats_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entries: {
+        Row: {
+          club: string | null
+          course_id: string
+          created_at: string
+          created_by: string | null
+          date_achieved: string
+          golfer_name: string
+          hole_number: number
+          id: string
+          notes: string | null
+          photo_url: string | null
+          status: Database["public"]["Enums"]["entry_status"]
+          updated_at: string
+          updated_by: string | null
+          witness: string | null
+          yardage: number | null
+        }
+        Insert: {
+          club?: string | null
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          date_achieved: string
+          golfer_name: string
+          hole_number: number
+          id?: string
+          notes?: string | null
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["entry_status"]
+          updated_at?: string
+          updated_by?: string | null
+          witness?: string | null
+          yardage?: number | null
+        }
+        Update: {
+          club?: string | null
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          date_achieved?: string
+          golfer_name?: string
+          hole_number?: number
+          id?: string
+          notes?: string | null
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["entry_status"]
+          updated_at?: string
+          updated_by?: string | null
+          witness?: string | null
+          yardage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entries_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          last_login_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_course_manager: {
+        Args: { _course_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_superadmin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "superadmin" | "course_manager"
+      display_sort: "newest" | "hole" | "year"
+      entry_status: "draft" | "published" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +448,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["superadmin", "course_manager"],
+      display_sort: ["newest", "hole", "year"],
+      entry_status: ["draft", "published", "archived"],
+    },
   },
 } as const
