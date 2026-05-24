@@ -460,7 +460,7 @@ function NamePlate({
       <Screw className="bottom-1 left-1" />
       <Screw className="bottom-1 right-1" />
 
-      {/* Row 1: name + optional nickname */}
+      {/* Name (centered) */}
       <div
         className="font-serif text-[9px] font-bold uppercase leading-tight tracking-wider sm:text-[11px]"
         style={{
@@ -471,14 +471,19 @@ function NamePlate({
         }}
       >
         {ace.name}
-        {ace.nickname && (
-          <span className="ml-1 italic normal-case tracking-normal opacity-90">
-            "{ace.nickname}"
-          </span>
-        )}
       </div>
 
-      {/* Row 2: yards · full date · tee time */}
+      {/* Optional nickname on its own line */}
+      {ace.nickname && (
+        <div
+          className="font-serif text-[8px] italic leading-tight sm:text-[10px]"
+          style={{ color: THEME.accent, opacity: 0.85 }}
+        >
+          “{ace.nickname}”
+        </div>
+      )}
+
+      {/* yards · full date · tee time */}
       <div
         className="mt-0.5 font-serif text-[8px] font-semibold leading-tight tracking-wide sm:text-[9px]"
         style={{ color: THEME.accent, opacity: 0.9 }}
