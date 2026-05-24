@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/heartbeat")({
             course_id: parsed.course_id,
             data_version: parsed.data_version ?? null,
             last_refresh_at: parsed.last_refresh_at ?? null,
-            client_info: parsed.client_info ?? null,
+            client_info: (parsed.client_info ?? null) as any,
           });
           if (error) {
             console.error("heartbeat insert error", error);
