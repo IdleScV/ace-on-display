@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Trophy, Play } from "lucide-react";
+import holeTopdown from "@/assets/hole-topdown.png";
 
 // ─── Theming seam ────────────────────────────────────────────────────────────
 // In production each course supplies its own values via the CMS. For the demo
@@ -179,8 +180,8 @@ export function DemoKiosk() {
           <div className="flex flex-col sm:block">
             <Header hole={hole} onTab={onTab} activeIdx={holeIdx} />
 
-            {/* Top third — A | B */}
-            <div className="flex flex-col sm:grid sm:h-[28vh] sm:max-h-[280px] sm:min-h-[180px] sm:grid-cols-[2fr_1fr]">
+            {/* Top third — A | B (side by side on all viewports) */}
+            <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
               <FlyoverPanel hole={hole} />
               <TopDownPanel hole={hole} />
             </div>
@@ -274,20 +275,20 @@ function Header({
 // ─── Panel A: Flyover ────────────────────────────────────────────────────────
 function FlyoverPanel({ hole }: { hole: Hole }) {
   return (
-    <div className="relative aspect-[16/9] overflow-hidden bg-black sm:aspect-auto sm:h-full">
+    <div className="relative h-full overflow-hidden bg-black">
       <div key={hole.num} className="absolute inset-0 animate-kenburns">
         <HoleArt hole={hole} />
       </div>
       {/* Overlay chip */}
-      <div className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-[9px] font-semibold tracking-widest text-white backdrop-blur sm:left-4 sm:top-4 sm:text-[11px]">
-        HOLE {hole.num} · PAR {hole.par} · {hole.yards} YD · SI {hole.si}
+      <div className="absolute left-1.5 top-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-white backdrop-blur sm:left-4 sm:top-4 sm:px-2 sm:py-1 sm:text-[11px]">
+        HOLE {hole.num} · PAR {hole.par} · {hole.yards} YD
       </div>
       {/* Flyover badge */}
       <div
-        className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-black sm:bottom-3 sm:right-3 sm:px-2.5 sm:py-1 sm:text-[10px]"
+        className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-black sm:bottom-3 sm:right-3 sm:gap-1 sm:px-2.5 sm:py-1 sm:text-[10px]"
         style={{ background: THEME.accent }}
       >
-        <Play className="h-2.5 w-2.5 fill-current sm:h-3 sm:w-3" />
+        <Play className="h-2 w-2 fill-current sm:h-3 sm:w-3" />
         Flyover
       </div>
       {/* Vignette */}
@@ -353,52 +354,17 @@ function HoleArt({ hole }: { hole: Hole }) {
 // ─── Panel B: Top-down ───────────────────────────────────────────────────────
 function TopDownPanel({ hole }: { hole: Hole }) {
   return (
-    <div className="relative aspect-square overflow-hidden border-t border-black/30 bg-[#1a3a1f] sm:aspect-auto sm:h-full sm:border-l sm:border-t-0">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
-        <defs>
-          <pattern id={`rough-${hole.num}`} width="3" height="3" patternUnits="userSpaceOnUse">
-            <rect width="3" height="3" fill="#1a3a1f" />
-            <circle cx="1.5" cy="1.5" r="0.3" fill="#244e29" />
-          </pattern>
-        </defs>
-        <rect width="100" height="100" fill={`url(#rough-${hole.num})`} />
-        {/* fairway corridor — width scales gently with yardage */}
-        <path
-          d={`M${50 - 14},92 L${50 + 14},92 L${50 + 10},18 L${50 - 10},18 Z`}
-          fill="#4a8a3f"
-        />
-        {/* green */}
-        <circle cx="50" cy="18" r="11" fill="#7dbf5a" stroke="#3a6b2a" strokeWidth="0.4" />
-        {/* pin + flag */}
-        <circle cx="50" cy="18" r="0.9" fill="#222" />
-        <line x1="50" y1="18" x2="50" y2="11" stroke="#222" strokeWidth="0.5" />
-        <polygon points="50,11 56,12.4 50,13.8" fill="#d33" />
-        {/* bunkers */}
-        {hole.bunkers.map((b, i) => (
-          <ellipse key={i} cx={b.x} cy={b.y} rx={b.rx} ry={b.ry} fill="#eedfb6" stroke="#bfa771" strokeWidth="0.3" />
-        ))}
-        {/* water */}
-        {hole.water && (
-          <circle cx={hole.water.x} cy={hole.water.y} r={hole.water.r} fill="#5b9bcc" opacity="0.9" />
-        )}
-        {/* tee box */}
-        <rect x="46" y="88" width="8" height="3" rx="0.6" fill="#d6d6cf" stroke="#888" strokeWidth="0.3" />
-        {/* yardage label */}
-        <g>
-          <line x1="68" y1="88" x2="68" y2="22" stroke="white" strokeWidth="0.3" strokeDasharray="1 1" opacity="0.6" />
-          <text x="70" y="56" fill="white" fontSize="5" fontWeight="700" opacity="0.9">
-            {hole.yards} yd
-          </text>
-        </g>
-        {/* compass */}
-        <g transform="translate(88,12)">
-          <circle r="5" fill="black" opacity="0.35" />
-          <text x="0" y="-1.2" textAnchor="middle" fill="white" fontSize="3.2" fontWeight="700">N</text>
-          <polygon points="0,-4 0.8,0 -0.8,0" fill="#d33" />
-        </g>
-      </svg>
-      <div className="absolute left-2 top-2 rounded bg-black/55 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white sm:text-[10px]">
+    <div className="relative h-full overflow-hidden border-l border-black/30 bg-[#1a1a1a]">
+      <img
+        src={holeTopdown}
+        alt={`Top-down view of hole ${hole.num}`}
+        className="h-full w-full object-contain"
+      />
+      <div className="absolute left-1.5 top-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-widest text-white sm:left-2 sm:top-2 sm:px-2 sm:text-[10px]">
         Top-down
+      </div>
+      <div className="absolute bottom-1.5 right-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[8px] font-bold text-white sm:bottom-2 sm:right-2 sm:px-2 sm:text-[10px]">
+        {hole.yards} yd
       </div>
     </div>
   );
