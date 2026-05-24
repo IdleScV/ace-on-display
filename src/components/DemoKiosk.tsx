@@ -445,7 +445,7 @@ function NamePlate({
   const dateLabel = formatLongDate(ace.date);
   return (
     <div
-      className="relative rounded-sm px-3 py-2.5 text-center transition-all duration-500 sm:px-4 sm:py-3"
+      className="relative flex flex-col items-center rounded-sm px-3 py-2.5 text-center transition-all duration-500 sm:px-4 sm:py-3"
       style={{
         background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
         boxShadow: spotlight
@@ -462,7 +462,7 @@ function NamePlate({
 
       {/* Row 1: name + optional nickname */}
       <div
-        className="font-serif text-[9px] font-bold uppercase leading-tight tracking-wider sm:text-[11px]"
+        className="w-full text-center font-serif text-[9px] font-bold uppercase leading-tight tracking-wider sm:text-[11px]"
         style={{
           background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 60%, #8a6d1f 100%)`,
           WebkitBackgroundClip: "text",
@@ -480,7 +480,7 @@ function NamePlate({
 
       {/* Row 2: yards · full date · tee time */}
       <div
-        className="mt-0.5 font-serif text-[8px] font-semibold leading-tight tracking-wide sm:text-[9px]"
+        className="mt-1 w-full text-center font-serif text-[8px] font-semibold leading-tight tracking-wide sm:text-[9px]"
         style={{ color: THEME.accent, opacity: 0.9 }}
       >
         {yards} yd · {dateLabel} · {ace.teeTime}
