@@ -1,28 +1,164 @@
-import { useEffect, useState } from "react";
-import { Trophy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Trophy, Play } from "lucide-react";
 
-const SAMPLE = [
-  { golfer: "Eleanor Whitcombe", date: "May 12, 2026", hole: 7, yardage: 142, club: "8-iron", witness: "T. Park, R. Singh", course: "Cedar Ridge GC" },
-  { golfer: "Marcus Delacroix", date: "Apr 28, 2026", hole: 12, yardage: 168, club: "6-iron", witness: "J. O'Connor", course: "Cedar Ridge GC" },
-  { golfer: "Priya Anand", date: "Apr 03, 2026", hole: 3, yardage: 124, club: "Pitching wedge", witness: "M. Chen, L. Hayes", course: "Cedar Ridge GC" },
-  { golfer: "Jonas Berglund", date: "Mar 21, 2026", hole: 16, yardage: 195, club: "5-iron", witness: "K. Williams", course: "Cedar Ridge GC" },
+// ─── Theming seam ────────────────────────────────────────────────────────────
+// In production each course supplies its own values via the CMS. For the demo
+// these are hardcoded but the shape is the same one we'll wire in later.
+const THEME = {
+  courseName: "Cedar Ridge GC",
+  logoUrl: null as string | null, // future: course-uploaded logo
+  primary: "#0b4d2c", // header / flyover wash
+  accent: "#d4af37", // brass / gold
+  plaqueStyle: "walnut" as "walnut" | "mahogany" | "slate" | "modern-dark",
+  flyoverStyle: "kenburns" as "kenburns" | "video" | "static",
+};
+
+// Future: more skins drop in here. Today only walnut is rendered.
+const PLAQUE_STYLES: Record<string, { bg: string; rim: string }> = {
+  walnut: {
+    bg:
+      "repeating-linear-gradient(92deg, #5a3a1d 0px, #6b4524 2px, #7a5230 4px, #6b4524 7px, #5a3a1d 11px), " +
+      "repeating-linear-gradient(180deg, rgba(0,0,0,0.18) 0px, rgba(255,255,255,0.04) 3px, rgba(0,0,0,0.15) 7px), " +
+      "radial-gradient(ellipse at 30% 20%, rgba(255,220,160,0.18), transparent 60%)",
+    rim: "#3a2410",
+  },
+  // TODO: mahogany, slate, modern-dark
+  mahogany: { bg: "#3a1a10", rim: "#1a0a05" },
+  slate: { bg: "#2a2f36", rim: "#15181c" },
+  "modern-dark": { bg: "#0b0b0c", rim: "#000" },
+};
+
+// ─── Sample par-3 boards ─────────────────────────────────────────────────────
+type Ace = { name: string; year: number };
+type Hole = {
+  num: number;
+  par: 3;
+  yards: number;
+  si: number;
+  bunkers: { x: number; y: number; rx: number; ry: number }[];
+  water?: { x: number; y: number; r: number };
+  aces: Ace[];
+};
+
+const HOLES: Hole[] = [
+  {
+    num: 3,
+    par: 3,
+    yards: 142,
+    si: 15,
+    bunkers: [
+      { x: 38, y: 28, rx: 10, ry: 6 },
+      { x: 62, y: 32, rx: 8, ry: 5 },
+    ],
+    aces: [
+      { name: "Bill Fortney", year: 1992 },
+      { name: "Eleanor Whitcombe", year: 2003 },
+      { name: "Tom Donnelly", year: 2011 },
+      { name: "Priya Anand", year: 2019 },
+      { name: "Jonas Berglund", year: 2022 },
+      { name: "Margaret Chen", year: 2025 },
+    ],
+  },
+  {
+    num: 7,
+    par: 3,
+    yards: 168,
+    si: 11,
+    bunkers: [
+      { x: 35, y: 24, rx: 9, ry: 6 },
+      { x: 64, y: 26, rx: 11, ry: 7 },
+      { x: 50, y: 50, rx: 7, ry: 4 },
+    ],
+    aces: [
+      { name: "Joan Thieme", year: 1993 },
+      { name: "Scott Miller", year: 1995 },
+      { name: "Hank Wenhold", year: 1996 },
+      { name: "Sam Carita", year: 1997 },
+      { name: "Chris Rodrigues", year: 1999 },
+      { name: "Marcus Delacroix", year: 2007 },
+      { name: "R. Lee Milroy", year: 2014 },
+      { name: "Diane Becker", year: 2020 },
+      { name: "Tom Robin, Jr.", year: 2024 },
+    ],
+  },
+  {
+    num: 12,
+    par: 3,
+    yards: 124,
+    si: 17,
+    bunkers: [{ x: 50, y: 28, rx: 14, ry: 7 }],
+    water: { x: 50, y: 60, r: 18 },
+    aces: [
+      { name: "Lisa Adams", year: 1991 },
+      { name: "Mike Kresge", year: 1993 },
+      { name: "Charlie Gaskill", year: 1998 },
+      { name: "Tim Deemer", year: 2017 },
+    ],
+  },
+  {
+    num: 16,
+    par: 3,
+    yards: 195,
+    si: 7,
+    bunkers: [
+      { x: 32, y: 22, rx: 8, ry: 5 },
+      { x: 68, y: 22, rx: 8, ry: 5 },
+      { x: 40, y: 42, rx: 7, ry: 4 },
+      { x: 60, y: 42, rx: 7, ry: 4 },
+    ],
+    aces: [
+      { name: "Jim Davis", year: 1998 },
+      { name: "Tom Klementovic", year: 1991 },
+      { name: "Greg Hopstock", year: 1993 },
+      { name: "Frank Walsh", year: 1993 },
+      { name: "Bill Reichard", year: 1996 },
+      { name: "Bob McCoy", year: 1993 },
+      { name: "Sharon R. Linard", year: 1997 },
+      { name: "Eddie McLaughlin", year: 1997 },
+      { name: "Danny Conahan", year: 2000 },
+      { name: "Joe Falotico", year: 2000 },
+      { name: "Clayton Schiier", year: 1998 },
+    ],
+  },
 ];
 
-const PRIMARY = "#0b4d2c";
-const ACCENT = "#d4af37";
+const HOLE_MS = 9000;
+const SPOT_MS = 2500;
+const PAUSE_MS = 20000;
 
 export function DemoKiosk() {
-  const [i, setI] = useState(0);
+  const [holeIdx, setHoleIdx] = useState(0);
+  const [spotIdx, setSpotIdx] = useState(0);
+  const pausedUntil = useRef<number>(0);
 
+  // Auto-rotate holes
   useEffect(() => {
-    const id = setInterval(() => setI((n) => (n + 1) % SAMPLE.length), 4500);
+    const id = setInterval(() => {
+      if (Date.now() < pausedUntil.current) return;
+      setHoleIdx((i) => (i + 1) % HOLES.length);
+    }, HOLE_MS);
     return () => clearInterval(id);
   }, []);
 
-  const e = SAMPLE[i];
+  // Spotlight plate inside current hole
+  useEffect(() => {
+    setSpotIdx(0);
+    const id = setInterval(
+      () => setSpotIdx((i) => (i + 1) % HOLES[holeIdx].aces.length),
+      SPOT_MS,
+    );
+    return () => clearInterval(id);
+  }, [holeIdx]);
+
+  const onTab = (i: number) => {
+    pausedUntil.current = Date.now() + PAUSE_MS;
+    setHoleIdx(i);
+  };
+
+  const hole = HOLES[holeIdx];
 
   return (
-    <div className="relative mx-auto w-full max-w-5xl">
+    <div className="relative mx-auto w-full max-w-6xl">
       {/* Bezel */}
       <div className="rounded-2xl bg-neutral-900 p-1.5 shadow-2xl ring-1 ring-black/20 sm:rounded-[28px] sm:p-3">
         <div className="flex items-center justify-between px-2 pb-1.5 sm:px-3 sm:pb-2">
@@ -32,103 +168,381 @@ export function DemoKiosk() {
             <span className="h-2 w-2 rounded-full bg-green-500/80 sm:h-2.5 sm:w-2.5" />
           </div>
           <span className="hidden text-[10px] uppercase tracking-widest text-neutral-400 sm:inline">
-            Live kiosk preview · cedar-ridge.aceboard.app/display
+            Live kiosk preview · cedar-ridge.aceboard.app/display/hole-{hole.num}
           </span>
           <span className="text-[9px] text-neutral-500 sm:text-[10px]">1920 × 1080</span>
         </div>
 
         {/* Screen */}
-        <div
-          className="relative aspect-[16/10] w-full overflow-hidden rounded-xl sm:aspect-video sm:rounded-2xl"
-          style={{
-            background: `radial-gradient(ellipse at top, ${PRIMARY} 0%, #06301b 60%, #03190e 100%)`,
-          }}
-        >
-          {/* Subtle pattern */}
-          <div
-            className="absolute inset-2 opacity-[0.06] sm:inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-              backgroundSize: "32px 32px",
-            }}
-          />
+        <div className="relative overflow-hidden rounded-xl sm:rounded-2xl">
+          {/* Mobile: stack. Desktop: 33/66 vertical, top split 66/33. */}
+          <div className="flex flex-col sm:block">
+            <Header hole={hole} onTab={onTab} activeIdx={holeIdx} />
 
-          {/* Header */}
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 py-3 sm:px-10 sm:py-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div
-                className="flex h-7 w-7 items-center justify-center rounded-full sm:h-10 sm:w-10"
-                style={{ background: ACCENT }}
-              >
-                <Trophy className="h-3.5 w-3.5 text-neutral-900 sm:h-5 sm:w-5" />
-              </div>
-              <div className="leading-tight text-white">
-                <div className="text-[11px] font-semibold tracking-wide sm:text-sm">{e.course}</div>
-                <div className="text-[9px] uppercase tracking-[0.2em] text-white/60 sm:text-[11px] sm:tracking-[0.25em]">
-                  Hole-in-One Wall
-                </div>
-              </div>
+            {/* Top third — A | B */}
+            <div className="flex flex-col sm:grid sm:h-[28vh] sm:max-h-[280px] sm:min-h-[180px] sm:grid-cols-[2fr_1fr]">
+              <FlyoverPanel hole={hole} />
+              <TopDownPanel hole={hole} />
             </div>
-            <div className="text-right text-white/70">
-              <div className="text-[9px] uppercase tracking-[0.2em] sm:text-[11px] sm:tracking-[0.25em]">Ace</div>
-              <div className="font-mono text-[10px] sm:text-sm">
-                {String(i + 1).padStart(2, "0")} / {String(SAMPLE.length).padStart(2, "0")}
-              </div>
-            </div>
-          </div>
 
-          {/* Main card */}
-          <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-10">
-            <div key={i} className="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div
-                className="text-[9px] font-medium uppercase tracking-[0.25em] sm:text-[11px] sm:tracking-[0.35em]"
-                style={{ color: ACCENT }}
-              >
-                {e.date}
-              </div>
-              <h2 className="mt-2 text-2xl font-bold leading-tight text-white sm:mt-3 sm:text-5xl md:text-6xl lg:text-7xl">
-                {e.golfer}
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-white/85 sm:mt-6 sm:gap-x-8 sm:gap-y-3">
-                <Stat label="Hole" value={`#${e.hole}`} />
-                <Stat label="Yardage" value={`${e.yardage} yd`} />
-                <Stat label="Club" value={e.club} />
-                <Stat label="Witness" value={e.witness} />
-              </div>
-            </div>
-          </div>
-
-          {/* Progress dots */}
-          <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2 sm:bottom-6">
-            {SAMPLE.map((_, n) => (
-              <span
-                key={n}
-                className="h-1 rounded-full transition-all duration-500 sm:h-1.5"
-                style={{
-                  width: n === i ? 24 : 6,
-                  background: n === i ? ACCENT : "rgba(255,255,255,0.25)",
-                }}
-              />
-            ))}
+            {/* Bottom two-thirds — C */}
+            <PlaqueBoard hole={hole} spotIdx={spotIdx} />
           </div>
         </div>
       </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Demo data. Real kiosks pull from your CMS and refresh automatically.
+        Demo board for hole #{hole.num}. Each par-3 gets its own screen. Each
+        course chooses its own colors, plaque style, and logo.
       </p>
+
+      <style>{`
+        @keyframes kenburns {
+          0%   { transform: scale(1.00) translate(0%, 0%); }
+          50%  { transform: scale(1.08) translate(-2%, -1.5%); }
+          100% { transform: scale(1.00) translate(0%, 0%); }
+        }
+        .animate-kenburns { animation: kenburns 14s ease-in-out infinite; }
+        @keyframes platepop {
+          from { transform: scale(1); box-shadow: 0 0 0 rgba(212,175,55,0); }
+          to   { transform: scale(1.04); box-shadow: 0 0 28px rgba(212,175,55,0.55); }
+        }
+      `}</style>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+// ─── Header ──────────────────────────────────────────────────────────────────
+function Header({
+  hole,
+  onTab,
+  activeIdx,
+}: {
+  hole: Hole;
+  onTab: (i: number) => void;
+  activeIdx: number;
+}) {
   return (
-    <div>
-      <div className="text-[9px] uppercase tracking-[0.15em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
-        {label}
+    <div
+      className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-white sm:px-6 sm:py-3"
+      style={{
+        background: `linear-gradient(180deg, ${THEME.primary} 0%, ${shade(THEME.primary, -15)} 100%)`,
+      }}
+    >
+      <div className="flex items-center gap-2 sm:gap-3">
+        {THEME.logoUrl ? (
+          <img src={THEME.logoUrl} alt={THEME.courseName} className="h-7 w-7 rounded-md bg-white object-contain p-0.5 sm:h-9 sm:w-9" />
+        ) : (
+          <div
+            className="flex h-7 w-7 items-center justify-center rounded-md sm:h-9 sm:w-9"
+            style={{ background: THEME.accent }}
+          >
+            <Trophy className="h-3.5 w-3.5 text-neutral-900 sm:h-5 sm:w-5" />
+          </div>
+        )}
+        <div className="leading-tight">
+          <div className="text-[11px] font-semibold tracking-wide sm:text-sm">
+            {THEME.courseName}
+          </div>
+          <div className="text-[8px] uppercase tracking-[0.22em] text-white/65 sm:text-[10px]">
+            Par 3 Hole-in-One Club
+          </div>
+        </div>
       </div>
-      <div className="mt-0.5 text-sm font-medium sm:mt-1 sm:text-lg md:text-xl">{value}</div>
+      <div className="flex items-center gap-1 sm:gap-1.5">
+        {HOLES.map((h, i) => {
+          const active = i === activeIdx;
+          return (
+            <button
+              key={h.num}
+              onClick={() => onTab(i)}
+              className="rounded-md px-2 py-1 text-[10px] font-semibold tracking-wide transition sm:px-3 sm:py-1.5 sm:text-xs"
+              style={{
+                background: active ? THEME.accent : "rgba(255,255,255,0.10)",
+                color: active ? "#0a0a0a" : "rgba(255,255,255,0.85)",
+              }}
+            >
+              #{h.num}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
+}
+
+// ─── Panel A: Flyover ────────────────────────────────────────────────────────
+function FlyoverPanel({ hole }: { hole: Hole }) {
+  return (
+    <div className="relative aspect-[16/9] overflow-hidden bg-black sm:aspect-auto sm:h-full">
+      <div key={hole.num} className="absolute inset-0 animate-kenburns">
+        <HoleArt hole={hole} />
+      </div>
+      {/* Overlay chip */}
+      <div className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-[9px] font-semibold tracking-widest text-white backdrop-blur sm:left-4 sm:top-4 sm:text-[11px]">
+        HOLE {hole.num} · PAR {hole.par} · {hole.yards} YD · SI {hole.si}
+      </div>
+      {/* Flyover badge */}
+      <div
+        className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-black sm:bottom-3 sm:right-3 sm:px-2.5 sm:py-1 sm:text-[10px]"
+        style={{ background: THEME.accent }}
+      >
+        <Play className="h-2.5 w-2.5 fill-current sm:h-3 sm:w-3" />
+        Flyover
+      </div>
+      {/* Vignette */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.55)_100%)]" />
+    </div>
+  );
+}
+
+// Stylized hole illustration (skybox + ground + green) for the flyover panel
+function HoleArt({ hole }: { hole: Hole }) {
+  return (
+    <svg viewBox="0 0 100 56" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
+      <defs>
+        <linearGradient id={`sky-${hole.num}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7fb4d8" />
+          <stop offset="100%" stopColor="#cfe4ee" />
+        </linearGradient>
+        <linearGradient id={`fair-${hole.num}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#3a7a3a" />
+          <stop offset="100%" stopColor="#5fa15a" />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="22" fill={`url(#sky-${hole.num})`} />
+      {/* distant hills */}
+      <path d="M0,22 Q20,14 40,20 T80,18 T100,22 L100,22 L0,22 Z" fill="#2f5d3a" opacity="0.8" />
+      {/* fairway perspective trapezoid */}
+      <path d="M30,56 L70,56 L62,22 L38,22 Z" fill={`url(#fair-${hole.num})`} />
+      {/* rough sides */}
+      <path d="M0,56 L30,56 L38,22 L0,22 Z" fill="#2d5a2d" />
+      <path d="M70,56 L100,56 L100,22 L62,22 Z" fill="#2d5a2d" />
+      {/* green */}
+      <ellipse cx="50" cy="24" rx="9" ry="3" fill="#9bd47a" stroke="#4a7a3a" strokeWidth="0.3" />
+      {/* pin */}
+      <line x1="50" y1="24" x2="50" y2="17" stroke="#222" strokeWidth="0.35" />
+      <polygon points="50,17 54,18.2 50,19.5" fill="#d33" />
+      {/* bunkers (project to perspective) */}
+      {hole.bunkers.map((b, i) => (
+        <ellipse
+          key={i}
+          cx={b.x}
+          cy={22 + (b.y / 100) * 30}
+          rx={b.rx * 0.7}
+          ry={b.ry * 0.5}
+          fill="#e9d8a8"
+          stroke="#c9b07a"
+          strokeWidth="0.2"
+        />
+      ))}
+      {hole.water && (
+        <ellipse
+          cx={hole.water.x}
+          cy={22 + (hole.water.y / 100) * 30}
+          rx={hole.water.r * 0.7}
+          ry={hole.water.r * 0.3}
+          fill="#6ea8d4"
+          opacity="0.85"
+        />
+      )}
+    </svg>
+  );
+}
+
+// ─── Panel B: Top-down ───────────────────────────────────────────────────────
+function TopDownPanel({ hole }: { hole: Hole }) {
+  return (
+    <div className="relative aspect-square overflow-hidden border-t border-black/30 bg-[#1a3a1f] sm:aspect-auto sm:h-full sm:border-l sm:border-t-0">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
+        <defs>
+          <pattern id={`rough-${hole.num}`} width="3" height="3" patternUnits="userSpaceOnUse">
+            <rect width="3" height="3" fill="#1a3a1f" />
+            <circle cx="1.5" cy="1.5" r="0.3" fill="#244e29" />
+          </pattern>
+        </defs>
+        <rect width="100" height="100" fill={`url(#rough-${hole.num})`} />
+        {/* fairway corridor — width scales gently with yardage */}
+        <path
+          d={`M${50 - 14},92 L${50 + 14},92 L${50 + 10},18 L${50 - 10},18 Z`}
+          fill="#4a8a3f"
+        />
+        {/* green */}
+        <circle cx="50" cy="18" r="11" fill="#7dbf5a" stroke="#3a6b2a" strokeWidth="0.4" />
+        {/* pin + flag */}
+        <circle cx="50" cy="18" r="0.9" fill="#222" />
+        <line x1="50" y1="18" x2="50" y2="11" stroke="#222" strokeWidth="0.5" />
+        <polygon points="50,11 56,12.4 50,13.8" fill="#d33" />
+        {/* bunkers */}
+        {hole.bunkers.map((b, i) => (
+          <ellipse key={i} cx={b.x} cy={b.y} rx={b.rx} ry={b.ry} fill="#eedfb6" stroke="#bfa771" strokeWidth="0.3" />
+        ))}
+        {/* water */}
+        {hole.water && (
+          <circle cx={hole.water.x} cy={hole.water.y} r={hole.water.r} fill="#5b9bcc" opacity="0.9" />
+        )}
+        {/* tee box */}
+        <rect x="46" y="88" width="8" height="3" rx="0.6" fill="#d6d6cf" stroke="#888" strokeWidth="0.3" />
+        {/* yardage label */}
+        <g>
+          <line x1="68" y1="88" x2="68" y2="22" stroke="white" strokeWidth="0.3" strokeDasharray="1 1" opacity="0.6" />
+          <text x="70" y="56" fill="white" fontSize="5" fontWeight="700" opacity="0.9">
+            {hole.yards} yd
+          </text>
+        </g>
+        {/* compass */}
+        <g transform="translate(88,12)">
+          <circle r="5" fill="black" opacity="0.35" />
+          <text x="0" y="-1.2" textAnchor="middle" fill="white" fontSize="3.2" fontWeight="700">N</text>
+          <polygon points="0,-4 0.8,0 -0.8,0" fill="#d33" />
+        </g>
+      </svg>
+      <div className="absolute left-2 top-2 rounded bg-black/55 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white sm:text-[10px]">
+        Top-down
+      </div>
+    </div>
+  );
+}
+
+// ─── Panel C: Plaque ─────────────────────────────────────────────────────────
+function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
+  const style = PLAQUE_STYLES[THEME.plaqueStyle] ?? PLAQUE_STYLES.walnut;
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? hole.aces : hole.aces.slice(0, 8);
+  const hidden = hole.aces.length - visible.length;
+
+  return (
+    <div
+      className="relative px-3 py-4 sm:px-6 sm:py-6"
+      style={{
+        background: style.bg,
+        boxShadow: `inset 0 0 0 4px ${style.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
+      }}
+    >
+      {/* Brass header banner */}
+      <div
+        className="mx-auto mb-3 max-w-xl rounded-md px-3 py-2 text-center sm:mb-5 sm:px-6 sm:py-3"
+        style={{
+          background:
+            "linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)",
+          boxShadow: `inset 0 0 0 2px ${THEME.accent}, 0 4px 12px rgba(0,0,0,0.5)`,
+        }}
+      >
+        <div
+          className="font-serif text-[10px] font-bold uppercase leading-tight tracking-[0.2em] sm:text-sm"
+          style={{
+            background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 50%, #8a6d1f 100%)`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          {THEME.courseName}
+        </div>
+        <div className="mt-0.5 text-[9px] uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
+          Hole #{hole.num} · Hole-in-One Club
+        </div>
+      </div>
+
+      {/* Plates grid */}
+      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        {visible.map((ace, i) => (
+          <NamePlate
+            key={`${hole.num}-${ace.name}-${ace.year}`}
+            ace={ace}
+            holeNum={hole.num}
+            spotlight={i === spotIdx % visible.length}
+          />
+        ))}
+      </div>
+
+      {/* Mobile +N more */}
+      {hidden > 0 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="mx-auto mt-3 block text-[10px] uppercase tracking-widest text-white/70 underline-offset-4 hover:underline sm:hidden"
+        >
+          + {hidden} more {hidden === 1 ? "ace" : "aces"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function NamePlate({
+  ace,
+  holeNum,
+  spotlight,
+}: {
+  ace: Ace;
+  holeNum: number;
+  spotlight: boolean;
+}) {
+  return (
+    <div
+      className="relative rounded-sm px-2 py-2 text-center transition-all duration-500 sm:px-3 sm:py-2.5"
+      style={{
+        background:
+          "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
+        boxShadow: spotlight
+          ? `inset 0 0 0 1.5px ${THEME.accent}, 0 0 24px ${THEME.accent}66`
+          : `inset 0 0 0 1.5px ${THEME.accent}aa`,
+        transform: spotlight ? "scale(1.03)" : "scale(1)",
+      }}
+    >
+      {/* screws */}
+      <Screw className="left-1 top-1" />
+      <Screw className="right-1 top-1" />
+      <Screw className="bottom-1 left-1" />
+      <Screw className="bottom-1 right-1" />
+
+      <div
+        className="font-serif text-[10px] font-bold uppercase leading-tight tracking-wider sm:text-[12px]"
+        style={{
+          background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 60%, #8a6d1f 100%)`,
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        {ace.name}
+      </div>
+      <div
+        className="mt-0.5 font-serif text-[9px] font-semibold leading-tight sm:text-[11px]"
+        style={{ color: THEME.accent, opacity: 0.85 }}
+      >
+        #{holeNum}
+      </div>
+      <div
+        className="font-serif text-[9px] font-semibold leading-tight sm:text-[11px]"
+        style={{ color: THEME.accent, opacity: 0.85 }}
+      >
+        {ace.year}
+      </div>
+    </div>
+  );
+}
+
+function Screw({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`absolute h-1.5 w-1.5 rounded-full ${className}`}
+      style={{
+        background:
+          "radial-gradient(circle at 30% 30%, #c9c9c9 0%, #6a6a6a 60%, #2a2a2a 100%)",
+        boxShadow: "0 0 1px rgba(0,0,0,0.6)",
+      }}
+    />
+  );
+}
+
+// ─── utils ───────────────────────────────────────────────────────────────────
+function shade(hex: string, percent: number) {
+  const c = hex.replace("#", "");
+  const n = parseInt(c, 16);
+  const adj = (v: number) => Math.max(0, Math.min(255, v + Math.round((255 * percent) / 100)));
+  const r = adj(n >> 16);
+  const g = adj((n >> 8) & 0xff);
+  const b = adj(n & 0xff);
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
 }
