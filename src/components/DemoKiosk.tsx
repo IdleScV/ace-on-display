@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Trophy, Play } from "lucide-react";
 import holeTopdown from "@/assets/hole-topdown.png";
+import courseLogo from "@/assets/course-logo.png";
 
 // ─── Theming seam ────────────────────────────────────────────────────────────
-// In production each course supplies its own values via the CMS. For the demo
-// these are hardcoded but the shape is the same one we'll wire in later.
 const THEME = {
-  courseName: "Cedar Ridge GC",
-  logoUrl: null as string | null, // future: course-uploaded logo
-  primary: "#0b4d2c", // header / flyover wash
-  accent: "#d4af37", // brass / gold
+  courseName: "Needwood MCG",
+  logoUrl: courseLogo as string | null,
+  primary: "#0b4d2c",
+  accent: "#d4af37",
   plaqueStyle: "walnut" as "walnut" | "mahogany" | "slate" | "modern-dark",
   flyoverStyle: "kenburns" as "kenburns" | "video" | "static",
 };
