@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin/courses")({
 function CoursesPage() {
   const { isSuperadmin } = useAuth();
   const listFn = useServerFn(listAllCourses);
+  const delFn = useServerFn(deleteCourse);
   const qc = useQueryClient();
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ["all-courses"],
