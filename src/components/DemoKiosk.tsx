@@ -419,7 +419,7 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
 
 
       {/* Plates grid */}
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-1.5 sm:grid-cols-4 sm:gap-2">
         {hole.aces.map((ace, i) => (
           <NamePlate
             key={`${hole.num}-${ace.name}-${ace.date}`}
@@ -462,7 +462,7 @@ function NamePlate({
 
       {/* Row 1: name + optional nickname */}
       <div
-        className="font-serif text-[11px] font-bold uppercase leading-tight tracking-wider sm:text-[13px]"
+        className="font-serif text-[9px] font-bold uppercase leading-tight tracking-wider sm:text-[11px]"
         style={{
           background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 60%, #8a6d1f 100%)`,
           WebkitBackgroundClip: "text",
@@ -480,7 +480,7 @@ function NamePlate({
 
       {/* Row 2: yards · full date · tee time */}
       <div
-        className="mt-1 font-serif text-[9px] font-semibold leading-tight tracking-wide sm:text-[10.5px]"
+        className="mt-0.5 font-serif text-[8px] font-semibold leading-tight tracking-wide sm:text-[9px]"
         style={{ color: THEME.accent, opacity: 0.9 }}
       >
         {yards} yd · {dateLabel} · {ace.teeTime}
@@ -492,7 +492,7 @@ function NamePlate({
 function formatLongDate(iso: string) {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-US", {
-    month: "long",
+    month: "numeric",
     day: "numeric",
     year: "numeric",
   });
