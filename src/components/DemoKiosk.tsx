@@ -125,10 +125,10 @@ export function DemoKiosk() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+      <div className="text-[9px] uppercase tracking-[0.15em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
         {label}
       </div>
-      <div className="mt-1 text-lg font-medium md:text-xl">{value}</div>
+      <div className="mt-0.5 text-sm font-medium sm:mt-1 sm:text-lg md:text-xl">{value}</div>
     </div>
   );
 }
