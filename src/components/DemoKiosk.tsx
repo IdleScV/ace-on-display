@@ -410,35 +410,7 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
         boxShadow: `inset 0 0 0 4px ${style.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
       }}
     >
-      {/* Brass header banner */}
-      <div
-        className="mx-auto mb-3 max-w-xl rounded-md px-3 py-2 text-center sm:mb-5 sm:px-6 sm:py-3"
-        style={{
-          background:
-            "linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)",
-          boxShadow: `inset 0 0 0 2px ${THEME.accent}, 0 4px 12px rgba(0,0,0,0.5)`,
-        }}
-      >
-        <div
-          className="font-serif text-[10px] font-bold uppercase leading-tight tracking-[0.2em] sm:text-sm"
-          style={{
-            background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 50%, #8a6d1f 100%)`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          {THEME.courseName}
-        </div>
-        <div className="mt-1 flex items-center justify-center gap-2">
-          <span className="text-[9px] uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
-            Hole #{hole.num} · Hole-in-One Club
-          </span>
-          <span className="rounded bg-black/40 px-1.5 py-0.5 text-[8px] font-bold text-[#d4af37] sm:text-[10px]">
-            {count} ace{count !== 1 ? "s" : ""}
-          </span>
-        </div>
-      </div>
+
 
       {/* Plates grid */}
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
