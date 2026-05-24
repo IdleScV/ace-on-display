@@ -1,0 +1,134 @@
+import { useEffect, useState } from "react";
+import { Trophy } from "lucide-react";
+
+const SAMPLE = [
+  { golfer: "Eleanor Whitcombe", date: "May 12, 2026", hole: 7, yardage: 142, club: "8-iron", witness: "T. Park, R. Singh", course: "Cedar Ridge GC" },
+  { golfer: "Marcus Delacroix", date: "Apr 28, 2026", hole: 12, yardage: 168, club: "6-iron", witness: "J. O'Connor", course: "Cedar Ridge GC" },
+  { golfer: "Priya Anand", date: "Apr 03, 2026", hole: 3, yardage: 124, club: "Pitching wedge", witness: "M. Chen, L. Hayes", course: "Cedar Ridge GC" },
+  { golfer: "Jonas Berglund", date: "Mar 21, 2026", hole: 16, yardage: 195, club: "5-iron", witness: "K. Williams", course: "Cedar Ridge GC" },
+];
+
+const PRIMARY = "#0b4d2c";
+const ACCENT = "#d4af37";
+
+export function DemoKiosk() {
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setI((n) => (n + 1) % SAMPLE.length), 4500);
+    return () => clearInterval(id);
+  }, []);
+
+  const e = SAMPLE[i];
+
+  return (
+    <div className="relative mx-auto w-full max-w-5xl">
+      {/* Bezel */}
+      <div className="rounded-[28px] bg-neutral-900 p-3 shadow-2xl ring-1 ring-black/20">
+        <div className="flex items-center justify-between px-3 pb-2">
+          <div className="flex gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
+          </div>
+          <span className="text-[10px] uppercase tracking-widest text-neutral-400">
+            Live kiosk preview · cedar-ridge.aceboard.app/display
+          </span>
+          <span className="text-[10px] text-neutral-500">1920 × 1080</span>
+        </div>
+
+        {/* Screen */}
+        <div
+          className="relative aspect-video w-full overflow-hidden rounded-2xl"
+          style={{
+            background: `radial-gradient(ellipse at top, ${PRIMARY} 0%, #06301b 60%, #03190e 100%)`,
+          }}
+        >
+          {/* Subtle pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+              backgroundSize: "32px 32px",
+            }}
+          />
+
+          {/* Header */}
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between px-10 py-6">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{ background: ACCENT }}
+              >
+                <Trophy className="h-5 w-5 text-neutral-900" />
+              </div>
+              <div className="leading-tight text-white">
+                <div className="text-sm font-semibold tracking-wide">{e.course}</div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-white/60">
+                  Hole-in-One Wall
+                </div>
+              </div>
+            </div>
+            <div className="text-right text-white/70">
+              <div className="text-[11px] uppercase tracking-[0.25em]">Ace</div>
+              <div className="font-mono text-sm">
+                {String(i + 1).padStart(2, "0")} / {String(SAMPLE.length).padStart(2, "0")}
+              </div>
+            </div>
+          </div>
+
+          {/* Main card */}
+          <div className="absolute inset-0 flex items-center justify-center px-10">
+            <div key={i} className="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div
+                className="text-[11px] font-medium uppercase tracking-[0.35em]"
+                style={{ color: ACCENT }}
+              >
+                {e.date}
+              </div>
+              <h2 className="mt-3 text-5xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
+                {e.golfer}
+              </h2>
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-white/85">
+                <Stat label="Hole" value={`#${e.hole}`} />
+                <Stat label="Yardage" value={`${e.yardage} yd`} />
+                <Stat label="Club" value={e.club} />
+                <Stat label="Witness" value={e.witness} />
+              </div>
+            </div>
+          </div>
+
+          {/* Progress dots */}
+          <div className="absolute inset-x-0 bottom-6 flex justify-center gap-2">
+            {SAMPLE.map((_, n) => (
+              <span
+                key={n}
+                className="h-1.5 rounded-full transition-all duration-500"
+                style={{
+                  width: n === i ? 28 : 8,
+                  background: n === i ? ACCENT : "rgba(255,255,255,0.25)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        Demo data. Real kiosks pull from your CMS and refresh automatically.
+      </p>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+        {label}
+      </div>
+      <div className="mt-1 text-lg font-medium md:text-xl">{value}</div>
+    </div>
+  );
+}

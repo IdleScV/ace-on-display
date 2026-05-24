@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy, MonitorPlay, Settings } from "lucide-react";
+import { DemoKiosk } from "@/components/DemoKiosk";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -45,6 +46,16 @@ function Landing() {
               Open the CMS
             </Link>
           </div>
+        </div>
+
+        <div className="mt-20">
+          <div className="mx-auto mb-6 max-w-3xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight">See it in action</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              A live preview of the clubhouse kiosk, cycling through sample aces.
+            </p>
+          </div>
+          <DemoKiosk />
         </div>
 
         <div className="mx-auto mt-20 grid max-w-5xl gap-6 md:grid-cols-3">
