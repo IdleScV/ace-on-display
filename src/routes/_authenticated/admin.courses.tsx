@@ -84,7 +84,7 @@ function CoursesPage() {
                       onClick={async () => {
                         if (!confirm(`Delete "${c.name}" and ALL its entries?`)) return;
                         try {
-                          await useServerFn(deleteCourse)({ data: { id: c.id } } as any);
+                          await delFn({ data: { id: c.id } } as any);
                           toast.success("Course deleted");
                           qc.invalidateQueries({ queryKey: ["all-courses"] });
                           qc.invalidateQueries({ queryKey: ["my-courses"] });
