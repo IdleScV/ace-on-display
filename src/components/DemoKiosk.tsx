@@ -419,12 +419,12 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
 
 
       {/* Plates grid */}
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
         {hole.aces.map((ace, i) => (
           <NamePlate
-            key={`${hole.num}-${ace.name}-${ace.year}`}
+            key={`${hole.num}-${ace.name}-${ace.date}`}
             ace={ace}
-            holeNum={hole.num}
+            yards={hole.yards}
             spotlight={i === spotIdx % count}
           />
         ))}
@@ -435,19 +435,19 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
 
 function NamePlate({
   ace,
-  holeNum,
+  yards,
   spotlight,
 }: {
   ace: Ace;
-  holeNum: number;
+  yards: number;
   spotlight: boolean;
 }) {
+  const dateLabel = formatLongDate(ace.date);
   return (
     <div
-      className="relative rounded-sm px-2 py-2 text-center transition-all duration-500 sm:px-3 sm:py-2.5"
+      className="relative rounded-sm px-3 py-2.5 text-center transition-all duration-500 sm:px-4 sm:py-3"
       style={{
-        background:
-          "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
+        background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
         boxShadow: spotlight
           ? `inset 0 0 0 1.5px ${THEME.accent}, 0 0 24px ${THEME.accent}66`
           : `inset 0 0 0 1.5px ${THEME.accent}aa`,
@@ -460,8 +460,9 @@ function NamePlate({
       <Screw className="bottom-1 left-1" />
       <Screw className="bottom-1 right-1" />
 
+      {/* Row 1: name + optional nickname */}
       <div
-        className="font-serif text-[10px] font-bold uppercase leading-tight tracking-wider sm:text-[12px]"
+        className="font-serif text-[11px] font-bold uppercase leading-tight tracking-wider sm:text-[13px]"
         style={{
           background: `linear-gradient(180deg, #f5e3a3 0%, ${THEME.accent} 60%, #8a6d1f 100%)`,
           WebkitBackgroundClip: "text",
@@ -470,22 +471,33 @@ function NamePlate({
         }}
       >
         {ace.name}
+        {ace.nickname && (
+          <span className="ml-1 italic normal-case tracking-normal opacity-90">
+            "{ace.nickname}"
+          </span>
+        )}
       </div>
+
+      {/* Row 2: yards · full date · tee time */}
       <div
-        className="mt-0.5 font-serif text-[9px] font-semibold leading-tight sm:text-[11px]"
-        style={{ color: THEME.accent, opacity: 0.85 }}
+        className="mt-1 font-serif text-[9px] font-semibold leading-tight tracking-wide sm:text-[10.5px]"
+        style={{ color: THEME.accent, opacity: 0.9 }}
       >
-        #{holeNum}
-      </div>
-      <div
-        className="font-serif text-[9px] font-semibold leading-tight sm:text-[11px]"
-        style={{ color: THEME.accent, opacity: 0.85 }}
-      >
-        {ace.year}
+        {yards} yd · {dateLabel} · {ace.teeTime}
       </div>
     </div>
   );
 }
+
+function formatLongDate(iso: string) {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 
 function Screw({ className = "" }: { className?: string }) {
   return (
