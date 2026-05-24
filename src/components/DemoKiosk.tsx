@@ -239,25 +239,21 @@ export function DemoKiosk() {
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function Header({
-  hole,
-  onTab,
-  activeIdx,
-}: {
-  hole: Hole;
-  onTab: (i: number) => void;
-  activeIdx: number;
-}) {
+function Header({ hole }: { hole: Hole }) {
   return (
     <div
-      className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-white sm:px-6 sm:py-3"
+      className="flex items-center justify-center px-3 py-2 text-white sm:px-6 sm:py-3"
       style={{
         background: `linear-gradient(180deg, ${THEME.primary} 0%, ${shade(THEME.primary, -15)} 100%)`,
       }}
     >
       <div className="flex items-center gap-2 sm:gap-3">
         {THEME.logoUrl ? (
-          <img src={THEME.logoUrl} alt={THEME.courseName} className="h-7 w-7 rounded-md bg-white object-contain p-0.5 sm:h-9 sm:w-9" />
+          <img
+            src={THEME.logoUrl}
+            alt={THEME.courseName}
+            className="h-7 w-7 rounded-md bg-white object-contain p-0.5 sm:h-9 sm:w-9"
+          />
         ) : (
           <div
             className="flex h-7 w-7 items-center justify-center rounded-md sm:h-9 sm:w-9"
@@ -266,32 +262,14 @@ function Header({
             <Trophy className="h-3.5 w-3.5 text-neutral-900 sm:h-5 sm:w-5" />
           </div>
         )}
-        <div className="leading-tight">
-          <div className="text-[11px] font-semibold tracking-wide sm:text-sm">
+        <div className="text-center leading-tight">
+          <div className="text-[12px] font-semibold tracking-wide sm:text-base">
             {THEME.courseName}
           </div>
           <div className="text-[8px] uppercase tracking-[0.22em] text-white/65 sm:text-[10px]">
-            Par 3 Hole-in-One Club
+            Hole #{hole.num} · Par 3 Hole-in-One Club
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-1 sm:gap-1.5">
-        {HOLES.map((h, i) => {
-          const active = i === activeIdx;
-          return (
-            <button
-              key={h.num}
-              onClick={() => onTab(i)}
-              className="rounded-md px-2 py-1 text-[10px] font-semibold tracking-wide transition sm:px-3 sm:py-1.5 sm:text-xs"
-              style={{
-                background: active ? THEME.accent : "rgba(255,255,255,0.10)",
-                color: active ? "#0a0a0a" : "rgba(255,255,255,0.85)",
-              }}
-            >
-              #{h.num}
-            </button>
-          );
-        })}
       </div>
     </div>
   );
