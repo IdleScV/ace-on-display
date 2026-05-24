@@ -372,9 +372,7 @@ function TopDownPanel({ hole }: { hole: Hole }) {
 // ─── Panel C: Plaque ─────────────────────────────────────────────────────────
 function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
   const style = PLAQUE_STYLES[THEME.plaqueStyle] ?? PLAQUE_STYLES.walnut;
-  const [showAll, setShowAll] = useState(false);
-  const visible = showAll ? hole.aces : hole.aces.slice(0, 8);
-  const hidden = hole.aces.length - visible.length;
+  const count = hole.aces.length;
 
   return (
     <div
@@ -404,32 +402,27 @@ function PlaqueBoard({ hole, spotIdx }: { hole: Hole; spotIdx: number }) {
         >
           {THEME.courseName}
         </div>
-        <div className="mt-0.5 text-[9px] uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
-          Hole #{hole.num} · Hole-in-One Club
+        <div className="mt-1 flex items-center justify-center gap-2">
+          <span className="text-[9px] uppercase tracking-[0.3em] text-white/70 sm:text-[11px]">
+            Hole #{hole.num} · Hole-in-One Club
+          </span>
+          <span className="rounded bg-black/40 px-1.5 py-0.5 text-[8px] font-bold text-[#d4af37] sm:text-[10px]">
+            {count} ace{count !== 1 ? "s" : ""}
+          </span>
         </div>
       </div>
 
       {/* Plates grid */}
       <div className="mx-auto grid max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-        {visible.map((ace, i) => (
+        {hole.aces.map((ace, i) => (
           <NamePlate
             key={`${hole.num}-${ace.name}-${ace.year}`}
             ace={ace}
             holeNum={hole.num}
-            spotlight={i === spotIdx % visible.length}
+            spotlight={i === spotIdx % count}
           />
         ))}
       </div>
-
-      {/* Mobile +N more */}
-      {hidden > 0 && (
-        <button
-          onClick={() => setShowAll(true)}
-          className="mx-auto mt-3 block text-[10px] uppercase tracking-widest text-white/70 underline-offset-4 hover:underline sm:hidden"
-        >
-          + {hidden} more {hidden === 1 ? "ace" : "aces"}
-        </button>
-      )}
     </div>
   );
 }
