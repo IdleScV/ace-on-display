@@ -8,6 +8,15 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
+import "@fontsource/cormorant-garamond/400.css";
+import "@fontsource/cormorant-garamond/500.css";
+import "@fontsource/cormorant-garamond/600.css";
+import "@fontsource/cormorant-garamond/700.css";
+import "@fontsource/karla/400.css";
+import "@fontsource/karla/500.css";
+import "@fontsource/karla/600.css";
+import "@fontsource/karla/700.css";
+
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
 
