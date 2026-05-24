@@ -14,7 +14,16 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
+import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicHeartbeatRouteImport } from './routes/api/public/heartbeat'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin.import'
+import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
+import { Route as AuthenticatedAdminEntriesRouteImport } from './routes/_authenticated/admin.entries'
+import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
+import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -40,25 +49,92 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const SlugHoleInOnesRoute = SlugHoleInOnesRouteImport.update({
+  id: '/$slug/hole-in-ones',
+  path: '/$slug/hole-in-ones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugDisplayRoute = SlugDisplayRouteImport.update({
+  id: '/$slug/display',
+  path: '/$slug/display',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const ApiPublicHeartbeatRoute = ApiPublicHeartbeatRouteImport.update({
   id: '/api/public/heartbeat',
   path: '/api/public/heartbeat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminImportRoute =
+  AuthenticatedAdminImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHealthRoute =
+  AuthenticatedAdminHealthRouteImport.update({
+    id: '/health',
+    path: '/health',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminEntriesRoute =
+  AuthenticatedAdminEntriesRouteImport.update({
+    id: '/entries',
+    path: '/entries',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCoursesRoute =
+  AuthenticatedAdminCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/admin/entries': typeof AuthenticatedAdminEntriesRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/admin/entries': typeof AuthenticatedAdminEntriesRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -66,8 +142,17 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
+  '/_authenticated/admin/entries': typeof AuthenticatedAdminEntriesRoute
+  '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/_authenticated/admin/import': typeof AuthenticatedAdminImportRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -75,18 +160,49 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/$slug/display'
+    | '/$slug/hole-in-ones'
     | '/admin'
+    | '/admin/audit'
+    | '/admin/courses'
+    | '/admin/entries'
+    | '/admin/health'
+    | '/admin/import'
+    | '/admin/settings'
     | '/api/public/heartbeat'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/reset-password' | '/admin' | '/api/public/heartbeat'
+  to:
+    | '/'
+    | '/login'
+    | '/reset-password'
+    | '/$slug/display'
+    | '/$slug/hole-in-ones'
+    | '/admin/audit'
+    | '/admin/courses'
+    | '/admin/entries'
+    | '/admin/health'
+    | '/admin/import'
+    | '/admin/settings'
+    | '/api/public/heartbeat'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/reset-password'
+    | '/$slug/display'
+    | '/$slug/hole-in-ones'
     | '/_authenticated/admin'
+    | '/_authenticated/admin/audit'
+    | '/_authenticated/admin/courses'
+    | '/_authenticated/admin/entries'
+    | '/_authenticated/admin/health'
+    | '/_authenticated/admin/import'
+    | '/_authenticated/admin/settings'
     | '/api/public/heartbeat'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +210,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SlugDisplayRoute: typeof SlugDisplayRoute
+  SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
 }
 
@@ -134,6 +252,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/$slug/hole-in-ones': {
+      id: '/$slug/hole-in-ones'
+      path: '/$slug/hole-in-ones'
+      fullPath: '/$slug/hole-in-ones'
+      preLoaderRoute: typeof SlugHoleInOnesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$slug/display': {
+      id: '/$slug/display'
+      path: '/$slug/display'
+      fullPath: '/$slug/display'
+      preLoaderRoute: typeof SlugDisplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/heartbeat': {
       id: '/api/public/heartbeat'
       path: '/api/public/heartbeat'
@@ -141,15 +280,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHeartbeatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/import': {
+      id: '/_authenticated/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AuthenticatedAdminImportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/health': {
+      id: '/_authenticated/admin/health'
+      path: '/health'
+      fullPath: '/admin/health'
+      preLoaderRoute: typeof AuthenticatedAdminHealthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/entries': {
+      id: '/_authenticated/admin/entries'
+      path: '/entries'
+      fullPath: '/admin/entries'
+      preLoaderRoute: typeof AuthenticatedAdminEntriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/courses': {
+      id: '/_authenticated/admin/courses'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/audit': {
+      id: '/_authenticated/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
+  AuthenticatedAdminCoursesRoute: typeof AuthenticatedAdminCoursesRoute
+  AuthenticatedAdminEntriesRoute: typeof AuthenticatedAdminEntriesRoute
+  AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
+  AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
+  AuthenticatedAdminCoursesRoute: AuthenticatedAdminCoursesRoute,
+  AuthenticatedAdminEntriesRoute: AuthenticatedAdminEntriesRoute,
+  AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
+  AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -161,6 +365,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SlugDisplayRoute: SlugDisplayRoute,
+  SlugHoleInOnesRoute: SlugHoleInOnesRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
 }
 export const routeTree = rootRouteImport
