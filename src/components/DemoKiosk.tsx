@@ -57,7 +57,6 @@ const HOLES: Hole[] = [
       { name: "Tom Donnelly", year: 2011 },
       { name: "Priya Anand", year: 2019 },
       { name: "Jonas Berglund", year: 2022 },
-      { name: "Margaret Chen", year: 2025 },
     ],
   },
   {
@@ -93,7 +92,6 @@ const HOLES: Hole[] = [
       { name: "Lisa Adams", year: 1991 },
       { name: "Mike Kresge", year: 1993 },
       { name: "Charlie Gaskill", year: 1998 },
-      { name: "Tim Deemer", year: 2017 },
     ],
   },
   {
@@ -119,6 +117,7 @@ const HOLES: Hole[] = [
       { name: "Danny Conahan", year: 2000 },
       { name: "Joe Falotico", year: 2000 },
       { name: "Clayton Schiier", year: 1998 },
+      { name: "Margaret O'Brien", year: 2025 },
     ],
   },
 ];
