@@ -1,7 +1,6 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useAuth } from "@/lib/auth-context";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthGate,
