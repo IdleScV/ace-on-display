@@ -58,6 +58,44 @@ export type Database = {
           },
         ]
       }
+      course_holes: {
+        Row: {
+          course_id: string
+          created_at: string
+          hole_number: number
+          id: string
+          par: number
+          updated_at: string
+          yardage: number | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          hole_number: number
+          id?: string
+          par?: number
+          updated_at?: string
+          yardage?: number | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          hole_number?: number
+          id?: string
+          par?: number
+          updated_at?: string
+          yardage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_holes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_managers: {
         Row: {
           course_id: string
