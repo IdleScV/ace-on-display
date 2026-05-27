@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminEntriesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as SlugHoleHoleNumberRouteImport } from './routes/$slug.hole.$holeNumber'
+import { Route as AuthenticatedAdminCourseCourseIdRouteImport } from './routes/_authenticated/admin.course.$courseId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -116,6 +117,12 @@ const SlugHoleHoleNumberRoute = SlugHoleHoleNumberRouteImport.update({
   path: '/$slug/hole/$holeNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminCourseCourseIdRoute =
+  AuthenticatedAdminCourseCourseIdRouteImport.update({
+    id: '/course/$courseId',
+    path: '/course/$courseId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/api/public/heartbeat'
     | '/admin/'
+    | '/admin/course/$courseId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/api/public/heartbeat'
     | '/admin'
+    | '/admin/course/$courseId'
   id:
     | '__root__'
     | '/'
@@ -227,6 +239,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/api/public/heartbeat'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/course/$courseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugHoleHoleNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/course/$courseId': {
+      id: '/_authenticated/admin/course/$courseId'
+      path: '/course/$courseId'
+      fullPath: '/admin/course/$courseId'
+      preLoaderRoute: typeof AuthenticatedAdminCourseCourseIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
@@ -373,6 +393,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCourseCourseIdRoute: typeof AuthenticatedAdminCourseCourseIdRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -383,6 +404,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCourseCourseIdRoute: AuthenticatedAdminCourseCourseIdRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =

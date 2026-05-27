@@ -1,0 +1,296 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { useCourseCtx } from "@/lib/course-context";
+import { useAuth } from "@/lib/auth-context";
+import { getCourseHealth } from "@/lib/health.functions";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
+  component: CourseDashboard,
+});
+
+function CourseDashboard() {
+  const { courseId } = Route.useParams();
+  const { isSuperadmin } = useAuth();
+  const { courses, loading } = useCourseCtx();
+  const course = courses.find((c) => c.id === courseId) ?? null;
+
+  const healthFn = useServerFn(getCourseHealth);
+  const { data: health } = useQuery({
+    queryKey: ["course-health", courseId],
+    enabled: !!courseId,
+    queryFn: () => healthFn({ data: { course_id: courseId } } as any),
+    refetchInterval: 30_000,
+  });
+
+  const { data: holes = [] } = useQuery({
+    queryKey: ["course-holes-full", courseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("course_holes")
+        .select("id,hole_number,par,yardage")
+        .eq("course_id", courseId)
+        .order("hole_number");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: entries = [] } = useQuery({
+    queryKey: ["course-entries-summary", courseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("entries")
+        .select("id,hole_number,status,date_achieved,golfer_name")
+        .eq("course_id", courseId);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (!course) return <p className="text-sm text-muted-foreground">Course not found or access denied.</p>;
+
+  const published = entries.filter((e: any) => e.status === "published");
+  const drafts = entries.filter((e: any) => e.status !== "published");
+  const countsByHole = new Map<number, number>();
+  for (const e of published) countsByHole.set(e.hole_number, (countsByHole.get(e.hole_number) ?? 0) + 1);
+
+  const aceableHoles = holes.length > 0 ? holes : [];
+  const totalAces = published.length;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {isSuperadmin && (
+            <Link to="/admin/courses" className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:bg-accent">
+              <ArrowLeft className="h-3.5 w-3.5" /> All courses
+            </Link>
+          )}
+          {course.logo_url && (
+            <img src={course.logo_url} alt="" className="h-10 w-10 rounded border bg-white object-contain" />
+          )}
+          <div>
+            <h1 className="text-2xl font-semibold">{course.name}</h1>
+            <p className="text-xs text-muted-foreground">/{course.slug}</p>
+          </div>
+        </div>
+        <Link
+          to="/admin/settings"
+          className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+        >
+          <Pencil className="h-4 w-4" /> Edit setup
+        </Link>
+      </div>
+
+      {/* Stat tiles */}
+      <div className="grid gap-3 sm:grid-cols-4">
+        <Stat label="Total aces" value={totalAces} />
+        <Stat label="Drafts" value={drafts.length} />
+        <Stat label="Aceable holes" value={aceableHoles.length} />
+        <Stat
+          label="Display health"
+          value={<HealthBadge s={(health?.status as any) ?? "never"} />}
+          sub={health?.last_heartbeat_at ? `${Math.round(health.minutes_since ?? 0)}m ago` : "No heartbeat"}
+        />
+      </div>
+
+      {/* Board links */}
+      <Section title="Boards" desc="Open public-facing views in a new tab.">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <BoardLink href={`/${course.slug}/hole-in-ones`} icon={<ExternalLink className="h-4 w-4" />}
+            title="Public board" desc="Main hall-of-fame view, grouped by hole." />
+          <BoardLink href={`/${course.slug}/rotate?interval=10`} icon={<Repeat className="h-4 w-4" />}
+            title="Rotating board" desc="Auto-cycles through every hole. ?interval= seconds, &all=1 includes empty holes." />
+          <BoardLink href={`/${course.slug}/display`} icon={<Monitor className="h-4 w-4" />}
+            title="Kiosk display" desc="Fullscreen kiosk view with heartbeat reporting." />
+        </div>
+        {aceableHoles.length > 0 && (
+          <div className="mt-5">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <ListOrdered className="h-3.5 w-3.5" /> Per-hole boards
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {aceableHoles.map((h: any) => (
+                <a
+                  key={h.id}
+                  href={`/${course.slug}/hole/${h.hole_number}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm hover:bg-accent"
+                >
+                  <span className="font-medium">#{h.hole_number}</span>
+                  <span className="text-xs text-muted-foreground">Par {h.par}{h.yardage ? ` · ${h.yardage}y` : ""}</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                    {countsByHole.get(h.hole_number) ?? 0}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </Section>
+
+      {/* Aces per hole */}
+      <Section title="Aces per hole" desc="Counts include published entries only.">
+        {aceableHoles.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No holes defined yet. <Link to="/admin/settings" className="text-primary hover:underline">Add aceable holes</Link>.
+          </p>
+        ) : (
+          <div className="overflow-hidden rounded-md border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2">Hole</th>
+                  <th className="px-3 py-2">Par</th>
+                  <th className="px-3 py-2">Yardage</th>
+                  <th className="px-3 py-2 text-right">Aces</th>
+                  <th className="px-3 py-2 text-right">Board</th>
+                </tr>
+              </thead>
+              <tbody>
+                {aceableHoles.map((h: any) => {
+                  const count = countsByHole.get(h.hole_number) ?? 0;
+                  return (
+                    <tr key={h.id} className="border-t">
+                      <td className="px-3 py-2 font-medium">#{h.hole_number}</td>
+                      <td className="px-3 py-2">Par {h.par}</td>
+                      <td className="px-3 py-2">{h.yardage ? `${h.yardage} yd` : "—"}</td>
+                      <td className="px-3 py-2 text-right">
+                        <span className={count > 0 ? "font-semibold" : "text-muted-foreground"}>{count}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <a
+                          href={`/${course.slug}/hole/${h.hole_number}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Open ↗
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      {/* Setup summary */}
+      <Section title="Setup" desc="Branding and display configuration." action={
+        <Link to="/admin/settings" className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent">
+          <Settings className="h-3.5 w-3.5" /> Open settings
+        </Link>
+      }>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <SetupRow label="Primary color">
+            <span className="inline-flex items-center gap-2">
+              <span className="inline-block h-4 w-4 rounded border" style={{ background: course.primary_color }} />
+              <code className="text-xs">{course.primary_color}</code>
+            </span>
+          </SetupRow>
+          <SetupRow label="Secondary color">
+            <span className="inline-flex items-center gap-2">
+              <span className="inline-block h-4 w-4 rounded border" style={{ background: course.secondary_color }} />
+              <code className="text-xs">{course.secondary_color}</code>
+            </span>
+          </SetupRow>
+          <SetupRow label="Public page">{course.public_enabled ? "Enabled" : "Disabled"}</SetupRow>
+          <SetupRow label="Display sort">{course.display_sort}</SetupRow>
+        </dl>
+      </Section>
+
+      {/* Health */}
+      <Section title="Display health" desc="Heartbeats refresh every 30 seconds.">
+        {!health ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <div className="grid gap-3 text-sm sm:grid-cols-3">
+            <SetupRow label="Status"><HealthBadge s={health.status} /></SetupRow>
+            <SetupRow label="Last heartbeat">
+              {health.last_heartbeat_at
+                ? `${new Date(health.last_heartbeat_at).toLocaleString()} (${Math.round(health.minutes_since ?? 0)}m ago)`
+                : "Never"}
+            </SetupRow>
+            <SetupRow label="Data version">
+              {(health.data_version_seen ?? "—")} / {health.data_version_current}
+              {health.data_version_seen != null && health.data_version_seen < health.data_version_current && (
+                <span className="ml-2 inline-flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">
+                  <ShieldAlert className="h-3 w-3" /> stale
+                </span>
+              )}
+            </SetupRow>
+          </div>
+        )}
+      </Section>
+    </div>
+  );
+}
+
+function Section({ title, desc, action, children }: { title: string; desc?: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border bg-card p-5">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">{title}</h2>
+          {desc && <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
+  return (
+    <div className="rounded-xl border bg-card p-4">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-1 text-2xl font-semibold">{value}</div>
+      {sub && <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>}
+    </div>
+  );
+}
+
+function SetupRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
+      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  );
+}
+
+function BoardLink({ href, icon, title, desc }: { href: string; icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="group rounded-xl border bg-background p-4 hover:bg-accent"
+    >
+      <div className="flex items-center justify-between">
+        <div className="font-medium">{title}</div>
+        <span className="text-muted-foreground group-hover:text-foreground">{icon}</span>
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
+      <div className="mt-2 truncate text-xs text-primary">{href}</div>
+    </a>
+  );
+}
+
+function HealthBadge({ s }: { s: "online" | "stale" | "offline" | "never" }) {
+  const map: Record<string, string> = {
+    online: "bg-green-500/15 text-green-700 dark:text-green-400",
+    stale: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    offline: "bg-destructive/15 text-destructive",
+    never: "bg-muted text-muted-foreground",
+  };
+  return <span className={`inline-block rounded-md px-2 py-0.5 text-sm font-medium ${map[s]}`}>{s}</span>;
+}
