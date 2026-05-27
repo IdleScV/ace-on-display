@@ -5,9 +5,9 @@ import {
   listAllCourses, createCourse, updateCourse, deleteCourse,
   listCourseManagers, createCourseManager, removeCourseManager,
 } from "@/lib/courses.functions";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Users, Plus, Pencil } from "lucide-react";
+import { Trash2, Users, Plus, Pencil, Upload, ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
