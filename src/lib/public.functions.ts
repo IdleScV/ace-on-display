@@ -39,26 +39,43 @@ export const getPublicCourseBySlug = createServerFn({ method: "GET" })
     return (row as PublicCourse) ?? null;
   });
 
+export interface PublicHole {
+  hole_number: number;
+  par: number;
+  yardage: number | null;
+}
+
 export const getPublicEntries = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => slugSchema.parse(input))
-  .handler(async ({ data }): Promise<{ course: PublicCourse | null; entries: PublicEntry[] }> => {
+  .handler(async ({ data }): Promise<{ course: PublicCourse | null; entries: PublicEntry[]; holes: PublicHole[] }> => {
     const { data: course } = await supabaseAdmin
       .from("courses")
       .select("id,name,slug,logo_url,primary_color,secondary_color,public_enabled,display_sort,data_version")
       .eq("slug", data.slug)
       .maybeSingle();
-    if (!course) return { course: null, entries: [] };
+    if (!course) return { course: null, entries: [], holes: [] };
 
     const sortCol = course.display_sort === "hole" ? "hole_number" : "date_achieved";
-    const { data: entries, error } = await supabaseAdmin
-      .from("entries")
-      .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes")
-      .eq("course_id", course.id)
-      .eq("status", "published")
-      .order(sortCol, { ascending: course.display_sort === "hole" });
+    const [{ data: entries, error }, { data: holes }] = await Promise.all([
+      supabaseAdmin
+        .from("entries")
+        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes")
+        .eq("course_id", course.id)
+        .eq("status", "published")
+        .order(sortCol, { ascending: course.display_sort === "hole" }),
+      supabaseAdmin
+        .from("course_holes")
+        .select("hole_number,par,yardage")
+        .eq("course_id", course.id)
+        .order("hole_number"),
+    ]);
     if (error) throw error;
 
-    return { course: course as PublicCourse, entries: (entries ?? []) as PublicEntry[] };
+    return {
+      course: course as PublicCourse,
+      entries: (entries ?? []) as PublicEntry[],
+      holes: (holes ?? []) as PublicHole[],
+    };
   });
 
 // For kiosk display: returns data_version + minimal payload
