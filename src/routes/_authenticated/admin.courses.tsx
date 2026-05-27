@@ -47,6 +47,7 @@ function CoursesPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
             <tr>
+              <th className="px-4 py-2">Logo</th>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Slug</th>
               <th className="px-4 py-2">Public</th>
@@ -56,13 +57,16 @@ function CoursesPage() {
           </thead>
           <tbody>
             {isLoading && (
-              <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">Loading…</td></tr>
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">Loading…</td></tr>
             )}
             {!isLoading && courses.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">No courses yet.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">No courses yet.</td></tr>
             )}
             {courses.map((c: any) => (
               <tr key={c.id} className="border-t">
+                <td className="px-4 py-2">
+                  <LogoCell course={c} onUpdated={() => qc.invalidateQueries({ queryKey: ["all-courses"] })} />
+                </td>
                 <td className="px-4 py-2">
                   <div className="flex items-center gap-2">
                     <span className="inline-block h-4 w-4 rounded" style={{ background: c.primary_color }} />
