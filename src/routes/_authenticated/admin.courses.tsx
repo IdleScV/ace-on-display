@@ -78,10 +78,18 @@ function CoursesPage() {
                 <td className="px-4 py-2">{c.display_sort}</td>
                 <td className="px-4 py-2 text-right">
                   <div className="inline-flex gap-2">
-                    <button onClick={() => setManaging(c)} className="rounded-md border px-2 py-1 hover:bg-accent">
+                    <Link
+                      to="/admin/course/$courseId"
+                      params={{ courseId: c.id }}
+                      className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent"
+                      title="Open course dashboard"
+                    >
+                      <LayoutDashboard className="h-4 w-4" /> Dashboard
+                    </Link>
+                    <button onClick={() => setManaging(c)} className="rounded-md border px-2 py-1 hover:bg-accent" title="Managers">
                       <Users className="h-4 w-4" />
                     </button>
-                    <button onClick={() => setEditing(c)} className="rounded-md border px-2 py-1 hover:bg-accent">
+                    <button onClick={() => setEditing(c)} className="rounded-md border px-2 py-1 hover:bg-accent" title="Edit">
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
@@ -95,6 +103,7 @@ function CoursesPage() {
                         } catch (e: any) { toast.error(e.message); }
                       }}
                       className="rounded-md border px-2 py-1 text-destructive hover:bg-destructive/10"
+                      title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
