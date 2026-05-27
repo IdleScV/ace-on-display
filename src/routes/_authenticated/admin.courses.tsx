@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -7,7 +7,7 @@ import {
 } from "@/lib/courses.functions";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Users, Plus, Pencil, Upload, ImageIcon } from "lucide-react";
+import { Trash2, Users, Plus, Pencil, Upload, ImageIcon, LayoutDashboard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
