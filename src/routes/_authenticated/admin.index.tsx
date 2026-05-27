@@ -72,8 +72,18 @@ function AdminHome() {
         )}
         {activeCourse && (
           <>
+            <Link
+              to="/admin/course/$courseId"
+              params={{ courseId: activeCourse.id }}
+              className="rounded-xl border bg-card p-5 hover:bg-accent md:col-span-2 lg:col-span-3"
+            >
+              <div className="font-medium">Course dashboard — {activeCourse.name}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Boards, per-hole aces, setup summary, and display health in one place.
+              </div>
+            </Link>
             <NavCard to="/admin/entries" title="Entries" desc="Manage hole-in-one records" />
-            <NavCard to="/admin/settings" title="Course settings" desc="Branding, public page, display sort" />
+            <NavCard to="/admin/settings" title="Course settings" desc="Branding, public page, aceable holes" />
             <NavCard to="/admin/audit" title="Audit log" desc="Track every change" />
             <a
               href={`/${activeCourse.slug}/display`}
@@ -90,8 +100,17 @@ function AdminHome() {
               rel="noreferrer"
               className="rounded-xl border bg-card p-5 hover:bg-accent"
             >
-              <div className="font-medium">View public page</div>
+              <div className="font-medium">View public board</div>
               <div className="mt-1 text-xs text-muted-foreground">/{activeCourse.slug}/hole-in-ones</div>
+            </a>
+            <a
+              href={`/${activeCourse.slug}/rotate?interval=10`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border bg-card p-5 hover:bg-accent"
+            >
+              <div className="font-medium">Rotating board</div>
+              <div className="mt-1 text-xs text-muted-foreground">Auto-cycles through every hole</div>
             </a>
           </>
         )}
