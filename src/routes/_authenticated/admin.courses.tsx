@@ -275,6 +275,69 @@ function ManagersDialog({ course, onClose }: { course: any; onClose: () => void 
 
 const inputCls = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
+function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const updateFn = useServerFn(updateCourse);
+  const [busy, setBusy] = useState(false);
+
+  const upload = async (file: File) => {
+    setBusy(true);
+    try {
+      const path = `${course.slug}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error } = await supabase.storage.from("course-logos").upload(path, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("course-logos").getPublicUrl(path);
+      await updateFn({ data: { id: course.id, logo_url: data.publicUrl } } as any);
+      toast.success("Logo updated");
+      onUpdated();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); if (inputRef.current) inputRef.current.value = ""; }
+  };
+
+  const remove = async () => {
+    setBusy(true);
+    try {
+      await updateFn({ data: { id: course.id, logo_url: null } } as any);
+      toast.success("Logo removed");
+      onUpdated();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        className="group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border bg-white hover:border-primary disabled:opacity-50"
+        title="Click to upload logo"
+      >
+        {course.logo_url ? (
+          <img src={course.logo_url} alt="" className="h-full w-full object-contain" />
+        ) : (
+          <ImageIcon className="h-5 w-5 text-muted-foreground" />
+        )}
+        <span className="absolute inset-0 hidden items-center justify-center bg-black/40 text-white group-hover:flex">
+          <Upload className="h-4 w-4" />
+        </span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+      />
+      {course.logo_url && (
+        <button type="button" onClick={remove} disabled={busy} className="text-xs text-muted-foreground hover:text-destructive">
+          Remove
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div><label className="text-xs font-medium text-muted-foreground">{label}</label><div className="mt-1">{children}</div></div>;
 }
