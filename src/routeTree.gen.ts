@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
 import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -49,6 +50,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const SlugRotateRoute = SlugRotateRouteImport.update({
+  id: '/$slug/rotate',
+  path: '/$slug/rotate',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SlugHoleInOnesRoute = SlugHoleInOnesRouteImport.update({
   id: '/$slug/hole-in-ones',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/$slug/rotate': typeof SlugRotateRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
+  '/$slug/rotate': typeof SlugRotateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
+    | '/$slug/rotate'
     | '/admin'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
+    | '/$slug/rotate'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
     | '/admin/courses'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
+    | '/$slug/rotate'
     | '/_authenticated/admin'
     | '/$slug/hole/$holeNumber'
     | '/_authenticated/admin/audit'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SlugDisplayRoute: typeof SlugDisplayRoute
   SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
+  SlugRotateRoute: typeof SlugRotateRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
 }
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/$slug/rotate': {
+      id: '/$slug/rotate'
+      path: '/$slug/rotate'
+      fullPath: '/$slug/rotate'
+      preLoaderRoute: typeof SlugRotateRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$slug/hole-in-ones': {
       id: '/$slug/hole-in-ones'
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SlugDisplayRoute: SlugDisplayRoute,
   SlugHoleInOnesRoute: SlugHoleInOnesRoute,
+  SlugRotateRoute: SlugRotateRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
 }
