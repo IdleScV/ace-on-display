@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 460" font-family="Arial, Helvetica, sans-serif">
+  <!-- Bold "C": top arc forest green, bottom arc amber gold -->
+  <!-- Circle center (250, 220), radius 120, stroke width 58 -->
+
+  <!-- TOP HALF (forest green) -->
+  <path d="M 355 145 A 120 120 0 0 0 130 220"
+        fill="none" stroke="#1f7a3a" stroke-width="58" stroke-linecap="butt"/>
+
+  <!-- BOTTOM HALF (amber gold) -->
+  <path d="M 130 220 A 120 120 0 0 0 355 295"
+        fill="none" stroke="#c98a2b" stroke-width="58" stroke-linecap="butt"/>
+
+  <!-- Interlocking tabs at the seam (left side) for the Needwood-style overlap -->
+  <rect x="98" y="214" width="30" height="14" fill="#155a28"/>
+  <rect x="98" y="220" width="30" height="14" fill="#8a5d18"/>
+
+  <!-- Subtle inner highlight for 3D feel -->
+  <path d="M 348 158 A 108 108 0 0 0 142 220"
+        fill="none" stroke="#266b35" stroke-width="3" opacity="0.6"/>
+  <path d="M 142 220 A 108 108 0 0 0 348 282"
+        fill="none" stroke="#d99a3b" stroke-width="3" opacity="0.6"/>
+
+  <!-- Flagstick rising through the C opening -->
+  <line x1="378" y1="70" x2="378" y2="275" stroke="#2c2c2c" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="378,75 438,92 378,110" fill="#1f7a3a"/>
+  <circle cx="378" cy="275" r="5" fill="#2c2c2c"/>
+
+  <!-- CPC monogram top-right -->
+  <text x="478" y="102" font-size="28" font-weight="800" fill="#1a4d8a" text-anchor="middle" letter-spacing="1.5">CPC</text>
+
+  <!-- Wordmark -->
+  <text x="260" y="435" font-size="48" font-weight="800" fill="#1a4d8a" text-anchor="middle" letter-spacing="2">CYPRESS PINES</text>
+</svg>
