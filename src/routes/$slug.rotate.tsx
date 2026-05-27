@@ -28,7 +28,9 @@ export const Route = createFileRoute("/$slug/rotate")({
 
 function RotatePage() {
   const { slug } = Route.useParams();
-  const { interval, all } = Route.useSearch();
+  const search = Route.useSearch();
+  const interval = search.interval ?? 10;
+  const all = search.all ?? false;
   const fn = useServerFn(getPublicEntries);
   const { data, isLoading } = useQuery({
     queryKey: ["public-entries", slug],
