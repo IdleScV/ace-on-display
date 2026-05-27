@@ -1,20 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
 import { getPublicEntries, type PublicEntry, type PublicHole } from "@/lib/public.functions";
 import { useEffect, useMemo, useState } from "react";
 import { HoleSection, CourseHeader } from "@/components/hole-section";
 
-const searchSchema = z.object({
-  interval: fallback(z.number().int().min(3).max(120), 10).default(10),
-  all: fallback(z.boolean(), false).default(false),
-});
+type RotateSearch = { interval?: number; all?: boolean };
 
 export const Route = createFileRoute("/$slug/rotate")({
   component: RotatePage,
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (raw: Record<string, unknown>): RotateSearch => {
+    const intervalRaw = Number(raw.interval);
+    const interval =
+      Number.isFinite(intervalRaw) && intervalRaw >= 3 && intervalRaw <= 120
+        ? Math.floor(intervalRaw)
+        : 10;
+    const all = raw.all === true || raw.all === "true";
+    return { interval, all };
+  },
   head: ({ params }) => ({
     meta: [
       { title: `Rotating Holes — ${params.slug}` },
