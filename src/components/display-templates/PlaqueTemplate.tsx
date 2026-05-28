@@ -263,3 +263,67 @@ function Screw({ className = "" }: { className?: string }) {
     />
   );
 }
+
+function PhotoSlideshow({
+  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "",
+}: {
+  aces: DisplayEntry[];
+  skin: BoardSkin;
+  fallbackVideoUrl?: string | null;
+  muted?: boolean;
+  reloadKey?: string | number;
+  className?: string;
+}) {
+  const photos = useMemo(() => aces.filter((a) => !!a.photo_url), [aces]);
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    setIdx(0);
+    if (photos.length <= 1) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % photos.length), PHOTO_MS);
+    return () => clearInterval(t);
+  }, [photos, reloadKey]);
+
+  // No ace photos for this hole — gracefully fall back to flyover or placeholder.
+  if (photos.length === 0) {
+    return (
+      <HoleMediaSlot
+        kind="video"
+        url={fallbackVideoUrl}
+        skin={skin}
+        muted={muted}
+        reloadKey={reloadKey}
+        className={className}
+      />
+    );
+  }
+
+  const current = photos[idx];
+
+  return (
+    <figure
+      className={`relative overflow-hidden rounded-md ${className}`}
+      style={{
+        background: "#000",
+        boxShadow: `inset 0 0 0 1.5px ${skin.accent}aa, 0 4px 14px rgba(0,0,0,0.45)`,
+      }}
+    >
+      {photos.map((p, i) => (
+        <img
+          key={p.id}
+          src={p.photo_url!}
+          alt={p.golfer_name}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          style={{ opacity: i === idx ? 1 : 0 }}
+        />
+      ))}
+      <figcaption
+        className="absolute bottom-1 left-1 right-1 flex items-center justify-between rounded px-2 py-1 text-[10px] font-bold uppercase tracking-widest"
+        style={{ background: "rgba(0,0,0,0.6)", color: skin.accent }}
+      >
+        <span className="truncate" style={{ color: "#fff" }}>{current.golfer_name}</span>
+        <span>{idx + 1}/{photos.length}</span>
+      </figcaption>
+    </figure>
+  );
+}
