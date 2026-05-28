@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate, useLocation } from "@tansta
 import { useAuth } from "@/lib/auth-context";
 import { CourseProvider, useCourseCtx } from "@/lib/course-context";
 import { Trophy, LogOut } from "lucide-react";
+import { TutorChat } from "@/components/tutor-chat";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: () => (
