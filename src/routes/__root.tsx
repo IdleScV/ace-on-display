@@ -19,6 +19,7 @@ import "@fontsource/karla/700.css";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
+import { RoleOverrideProvider } from "@/lib/role-override";
 
 function NotFoundComponent() {
   return (
