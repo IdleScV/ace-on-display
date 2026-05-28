@@ -14,6 +14,7 @@ import { z } from "zod";
 const searchSchema = z.object({
   template: z.enum(["spotlight", "plaque", "ultrawide"]).optional(),
   style: z.enum(["walnut", "mahogany", "slate", "modern"]).optional(),
+  sound: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute("/$slug/display")({
