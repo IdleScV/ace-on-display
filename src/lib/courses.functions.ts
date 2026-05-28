@@ -139,12 +139,21 @@ export const listCourseManagers = createServerFn({ method: "GET" })
     await requireSuperadmin(context.userId);
     const { data: cms, error } = await supabaseAdmin
       .from("course_managers")
-      .select("user_id, created_at, profiles:user_id(email)")
+      .select("user_id, created_at")
       .eq("course_id", data.course_id);
     if (error) throw new Error(error.message);
-    return (cms ?? []).map((r: any) => ({
+    const ids = (cms ?? []).map((r) => r.user_id);
+    let emails: Record<string, string> = {};
+    if (ids.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email")
+        .in("id", ids);
+      emails = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p.email]));
+    }
+    return (cms ?? []).map((r) => ({
       user_id: r.user_id,
-      email: r.profiles?.email ?? "(unknown)",
+      email: emails[r.user_id] ?? "(unknown)",
       created_at: r.created_at,
     }));
   });
