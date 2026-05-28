@@ -26,6 +26,7 @@ interface DisplayEntry {
   hole_number: number;
   yardage: number | null;
   club: string | null;
+  photo_url: string | null;
 }
 interface DisplayPayload {
   course: {
@@ -159,19 +160,28 @@ function DisplayPage() {
             <p className="mt-[1vh] opacity-70" style={{ fontSize: "clamp(16px, 1.4vw, 24px)" }}>Will it be you?</p>
           </div>
         ) : (
-          <div key={entry.id} className="animate-fadein">
-            <p style={{ fontSize: "clamp(16px, 1.6vw, 32px)" }} className="opacity-70 uppercase tracking-widest">Hole-in-One</p>
-            <h2 style={{ fontSize: "clamp(56px, 8vw, 160px)" }} className="mt-[1vh] font-extrabold leading-[0.95] tracking-tight">
-              {entry.golfer_name}
-            </h2>
-            <div className="mt-[3vh] flex flex-wrap items-center justify-center gap-[2vw]">
-              <Stat label="Hole" value={`#${entry.hole_number}`} />
-              {entry.yardage != null && <Stat label="Yardage" value={`${entry.yardage} yd`} />}
-              {entry.club && <Stat label="Club" value={entry.club} />}
+          <div key={entry.id} className="flex w-full max-w-[90vw] animate-fadein flex-col items-center gap-[3vh] lg:flex-row lg:items-center lg:justify-center lg:gap-[4vw]">
+            {entry.photo_url && (
+              <img
+                src={entry.photo_url}
+                alt={entry.golfer_name}
+                className="max-h-[55vh] w-auto rounded-2xl object-cover shadow-2xl ring-4 ring-white/30"
+              />
+            )}
+            <div>
+              <p style={{ fontSize: "clamp(16px, 1.6vw, 32px)" }} className="opacity-70 uppercase tracking-widest">Hole-in-One</p>
+              <h2 style={{ fontSize: "clamp(48px, 6.5vw, 130px)" }} className="mt-[1vh] font-extrabold leading-[0.95] tracking-tight">
+                {entry.golfer_name}
+              </h2>
+              <div className="mt-[3vh] flex flex-wrap items-center justify-center gap-[2vw] lg:justify-start">
+                <Stat label="Hole" value={`#${entry.hole_number}`} />
+                {entry.yardage != null && <Stat label="Yardage" value={`${entry.yardage} yd`} />}
+                {entry.club && <Stat label="Club" value={entry.club} />}
+              </div>
+              <p className="mt-[3vh] opacity-80" style={{ fontSize: "clamp(20px, 2vw, 40px)" }}>
+                {new Date(entry.date_achieved).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
+              </p>
             </div>
-            <p className="mt-[3vh] opacity-80" style={{ fontSize: "clamp(20px, 2vw, 40px)" }}>
-              {new Date(entry.date_achieved).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
-            </p>
           </div>
         )}
       </main>

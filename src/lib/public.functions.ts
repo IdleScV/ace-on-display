@@ -25,6 +25,7 @@ export interface PublicEntry {
   club: string | null;
   witness: string | null;
   notes: string | null;
+  photo_url: string | null;
 }
 
 export const getPublicCourseBySlug = createServerFn({ method: "GET" })
@@ -59,7 +60,7 @@ export const getPublicEntries = createServerFn({ method: "GET" })
     const [{ data: entries, error }, { data: holes }] = await Promise.all([
       supabaseAdmin
         .from("entries")
-        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes")
+        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes,photo_url")
         .eq("course_id", course.id)
         .eq("status", "published")
         .order(sortCol, { ascending: course.display_sort === "hole" }),
@@ -91,7 +92,7 @@ export const getDisplayData = createServerFn({ method: "GET" })
     const sortCol = course.display_sort === "hole" ? "hole_number" : "date_achieved";
     const { data: entries } = await supabaseAdmin
       .from("entries")
-      .select("id,golfer_name,date_achieved,hole_number,yardage,club")
+      .select("id,golfer_name,date_achieved,hole_number,yardage,club,photo_url")
       .eq("course_id", course.id)
       .eq("status", "published")
       .order(sortCol, { ascending: course.display_sort === "hole" });
