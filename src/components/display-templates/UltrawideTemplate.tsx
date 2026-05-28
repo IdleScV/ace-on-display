@@ -1,7 +1,8 @@
 import { Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ACCENT, ACCENT_HI, ACCENT_LO, WALNUT_BG, formatLongDate, shade,
+  formatLongDate, resolveSkin, shade,
+  type BoardSkin, type BoardStyle,
   type DisplayCourse, type DisplayEntry, type DisplayHole,
 } from "./types";
 
@@ -17,8 +18,14 @@ const SPOT_MS = 2_800;
  * Designed for 21:9 or 32:9 displays above the bar.
  */
 export function UltrawideTemplate({
-  course, entries, holes,
-}: { course: DisplayCourse; entries: DisplayEntry[]; holes: DisplayHole[] }) {
+  course, entries, holes, style = "walnut",
+}: {
+  course: DisplayCourse;
+  entries: DisplayEntry[];
+  holes: DisplayHole[];
+  style?: BoardStyle;
+}) {
+  const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   const grouped = useMemo(() => {
     const byHole = new Map<number, DisplayEntry[]>();
     for (const e of entries) {
