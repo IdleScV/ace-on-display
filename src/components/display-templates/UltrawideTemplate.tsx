@@ -5,25 +5,27 @@ import {
   type BoardSkin, type BoardStyle,
   type DisplayCourse, type DisplayEntry, type DisplayHole,
 } from "./types";
+import { HoleMediaSlot } from "./HoleMediaSlot";
 
 const HOLE_MS = 10_000;
 const SPOT_MS = 2_800;
 
 /**
  * Long-monitor (ultrawide) layout. Three vertical columns:
- *   1. Featured ace (big photo / name / stats)
- *   2. Plaque wall for the currently featured hole
+ *   1. Featured ace (big photo / name / stats) + per-hole media strip
+ *   2. Plaque wall for the currently featured hole (with top-down watermark)
  *   3. Hole index sidebar with counts
  *
  * Designed for 21:9 or 32:9 displays above the bar.
  */
 export function UltrawideTemplate({
-  course, entries, holes, style = "walnut",
+  course, entries, holes, style = "walnut", muted = true,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
+  muted?: boolean;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   const grouped = useMemo(() => {
