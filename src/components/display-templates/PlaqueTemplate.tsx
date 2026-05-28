@@ -279,14 +279,22 @@ function PhotoSlideshow({
   className?: string;
 }) {
   const photos = useMemo(() => aces.filter((a) => !!a.photo_url), [aces]);
+  const hasVideo = !!fallbackVideoUrl;
+  // Slot indexes 0..photos.length-1 = photos; photos.length = video (if available)
+  const totalSlots = photos.length + (hasVideo ? 1 : 0);
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
     setIdx(0);
-    if (photos.length <= 1) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % photos.length), PHOTO_MS);
-    return () => clearInterval(t);
-  }, [photos, reloadKey]);
+  }, [reloadKey, photos.length, hasVideo]);
+
+  // Advance through photos on a timer. The video slot advances via onEnded.
+  useEffect(() => {
+    if (totalSlots <= 1) return;
+    if (hasVideo && idx === photos.length) return; // video controls its own advance
+    const t = setTimeout(() => setIdx((i) => (i + 1) % totalSlots), PHOTO_MS);
+    return () => clearTimeout(t);
+  }, [idx, totalSlots, hasVideo, photos.length]);
 
   // No ace photos for this hole — gracefully fall back to flyover or placeholder.
   if (photos.length === 0) {
@@ -302,7 +310,7 @@ function PhotoSlideshow({
     );
   }
 
-  const current = photos[idx];
+  const showingVideo = hasVideo && idx === photos.length;
 
   return (
     <figure
@@ -318,16 +326,21 @@ function PhotoSlideshow({
           src={p.photo_url!}
           alt={p.golfer_name}
           className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
-          style={{ opacity: i === idx ? 1 : 0 }}
+          style={{ opacity: !showingVideo && i === idx ? 1 : 0 }}
         />
       ))}
-      <figcaption
-        className="absolute bottom-1 left-1 right-1 flex items-center justify-between rounded px-2 py-1 text-[10px] font-bold uppercase tracking-widest"
-        style={{ background: "rgba(0,0,0,0.6)", color: skin.accent }}
-      >
-        <span className="truncate" style={{ color: "#fff" }}>{current.golfer_name}</span>
-        <span>{idx + 1}/{photos.length}</span>
-      </figcaption>
+      {hasVideo && (
+        <video
+          key={`${reloadKey}-video`}
+          src={fallbackVideoUrl ?? undefined}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          style={{ opacity: showingVideo ? 1 : 0 }}
+          muted={muted}
+          playsInline
+          autoPlay={showingVideo}
+          onEnded={() => setIdx(0)}
+        />
+      )}
     </figure>
   );
 }
