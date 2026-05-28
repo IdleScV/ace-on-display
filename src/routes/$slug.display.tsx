@@ -26,6 +26,7 @@ interface DisplayEntry {
   hole_number: number;
   yardage: number | null;
   club: string | null;
+  photo_url: string | null;
 }
 interface DisplayPayload {
   course: {
