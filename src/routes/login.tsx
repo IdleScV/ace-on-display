@@ -31,6 +31,13 @@ function LoginPage() {
         if (error) throw error;
         toast.success("Welcome back");
         navigate({ to: "/admin" });
+      } else if (mode === "magic") {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: `${window.location.origin}/admin` },
+        });
+        if (error) throw error;
+        toast.success("Check your email for a sign-in link");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
