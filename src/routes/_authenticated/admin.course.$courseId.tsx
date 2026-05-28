@@ -7,10 +7,11 @@ import { useAuth } from "@/lib/auth-context";
 import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
-import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay, Users } from "lucide-react";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay, Users, Sparkles } from "lucide-react";
 import { TEMPLATES, STYLES, SKINS, resolveSkin, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
 import { useState } from "react";
 import { NameManager } from "@/components/name-manager";
+import { PlateCustomizer } from "@/components/plate-customizer";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
@@ -158,6 +159,19 @@ function CourseDashboard() {
         }
       >
         <NameManager course={course} />
+      </Section>
+
+      {/* Customizable plates */}
+      <Section
+        title="Customize name plates"
+        desc="Add a tagline, badge, accent color, or highlight to any plate. Preview updates live."
+        action={
+          <span className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5" /> Per-entry styling
+          </span>
+        }
+      >
+        <PlateCustomizer courseId={course.id} />
       </Section>
 
 
