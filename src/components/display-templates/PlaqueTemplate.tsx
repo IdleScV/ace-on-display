@@ -12,7 +12,7 @@ const SPOT_MS = 2_500;
 const PHOTO_MS = 3_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut", muted = true, photos = "cards",
+  course, entries, holes, style = "walnut", muted = true, photos = "slideshow",
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
