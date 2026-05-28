@@ -25,6 +25,7 @@ export interface PublicEntry {
   club: string | null;
   witness: string | null;
   notes: string | null;
+  photo_url: string | null;
 }
 
 export const getPublicCourseBySlug = createServerFn({ method: "GET" })
