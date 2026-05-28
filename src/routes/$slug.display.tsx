@@ -13,6 +13,7 @@ import { z } from "zod";
 
 const searchSchema = z.object({
   template: z.enum(["spotlight", "plaque", "ultrawide"]).optional(),
+  style: z.enum(["walnut", "mahogany", "slate", "modern"]).optional(),
 });
 
 export const Route = createFileRoute("/$slug/display")({
@@ -40,6 +41,7 @@ function DisplayPage() {
   const { slug } = Route.useParams();
   const search = useSearch({ from: "/$slug/display" });
   const template: DisplayTemplate = search.template ?? "spotlight";
+  const style = search.style ?? "walnut";
   const fetchFn = useServerFn(getDisplayData);
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +102,7 @@ function DisplayPage() {
 
   const { course, entries, holes } = data;
 
-  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} />;
-  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} />;
+  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
+  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
   return <SpotlightTemplate course={course} entries={entries} />;
 }
