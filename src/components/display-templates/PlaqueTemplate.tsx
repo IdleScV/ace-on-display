@@ -97,6 +97,7 @@ export function PlaqueTemplate({
                 muted={muted}
                 reloadKey={current.hole.hole_number}
                 className="h-full w-full"
+                onCycleComplete={() => setHoleIdx((i) => (i + 1) % grouped.length)}
               />
             ) : (
               <HoleMediaSlot
