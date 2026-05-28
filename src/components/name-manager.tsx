@@ -74,7 +74,7 @@ export function NameManager({ course }: { course: CourseLite }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("course_holes")
-        .select("hole_number,par,yardage")
+        .select("hole_number,par,yardage,topdown_url,video_url")
         .eq("course_id", course.id)
         .order("hole_number");
       if (error) throw error;

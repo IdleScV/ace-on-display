@@ -52,6 +52,8 @@ export interface PublicHole {
   hole_number: number;
   par: number;
   yardage: number | null;
+  topdown_url?: string | null;
+  video_url?: string | null;
 }
 
 export const getPublicEntries = createServerFn({ method: "GET" })
@@ -74,7 +76,7 @@ export const getPublicEntries = createServerFn({ method: "GET" })
         .order(sortCol, { ascending: course.display_sort === "hole" }),
       supabaseAdmin
         .from("course_holes")
-        .select("hole_number,par,yardage")
+        .select("hole_number,par,yardage,topdown_url,video_url")
         .eq("course_id", course.id)
         .order("hole_number"),
     ]);
@@ -107,7 +109,7 @@ export const getDisplayData = createServerFn({ method: "GET" })
         .order(sortCol, { ascending: course.display_sort === "hole" }),
       supabaseAdmin
         .from("course_holes")
-        .select("hole_number,par,yardage")
+        .select("hole_number,par,yardage,topdown_url,video_url")
         .eq("course_id", course.id)
         .order("hole_number"),
     ]);

@@ -12,6 +12,7 @@ import { TEMPLATES, STYLES, SKINS, resolveSkin, type DisplayTemplate, type Board
 import { useState } from "react";
 import { NameManager } from "@/components/name-manager";
 import { PlateCustomizer } from "@/components/plate-customizer";
+import { HoleMediaEditor } from "@/components/hole-media-editor";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
@@ -172,6 +173,14 @@ function CourseDashboard() {
         }
       >
         <PlateCustomizer courseId={course.id} />
+      </Section>
+
+      {/* Per-hole media */}
+      <Section
+        title="Hole media"
+        desc="Upload a top-down view image and a flyover/video for each aceable hole."
+      >
+        <HoleMediaEditor courseId={course.id} />
       </Section>
 
 
