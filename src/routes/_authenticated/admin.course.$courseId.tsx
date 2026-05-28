@@ -459,3 +459,119 @@ function shadeHex(hex: string, percent: number) {
   b = Math.max(0, Math.min(255, b));
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
+
+function TemplateCard({
+  courseSlug,
+  tpl,
+  course,
+}: {
+  courseSlug: string;
+  tpl: { id: DisplayTemplate; label: string; desc: string; longMonitor?: boolean };
+  course: { name: string; logo_url: string | null; primary_color: string; secondary_color: string };
+}) {
+  const href = `/${courseSlug}/display?template=${tpl.id}`;
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border bg-background">
+      <div className="relative aspect-[16/9] overflow-hidden border-b bg-neutral-950">
+        <TemplateThumb id={tpl.id} course={course} />
+        {tpl.longMonitor && (
+          <span className="absolute right-2 top-2 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-900">
+            Long monitor
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex items-center justify-between">
+          <div className="font-semibold">{tpl.label}</div>
+          <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">?template={tpl.id}</code>
+        </div>
+        <p className="flex-1 text-xs text-muted-foreground">{tpl.desc}</p>
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-1 inline-flex items-center justify-center gap-1 rounded-md border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent"
+        >
+          <MonitorPlay className="h-3.5 w-3.5" /> Open template
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function TemplateThumb({
+  id,
+  course,
+}: {
+  id: DisplayTemplate;
+  course: { name: string; logo_url: string | null; primary_color: string; secondary_color: string };
+}) {
+  if (id === "spotlight") {
+    return (
+      <div
+        className="flex h-full w-full flex-col items-center justify-center text-white"
+        style={{ background: `linear-gradient(135deg, ${course.primary_color} 0%, ${shadeHex(course.primary_color, -20)} 100%)` }}
+      >
+        <div className="text-[8px] uppercase tracking-widest opacity-70">Hole-in-One</div>
+        <div className="mt-1 text-lg font-extrabold leading-none">Sample Golfer</div>
+        <div className="mt-1.5 flex gap-1">
+          <span className="rounded bg-white/15 px-1.5 py-0.5 text-[8px]">#7</span>
+          <span className="rounded bg-white/15 px-1.5 py-0.5 text-[8px]">165 yd</span>
+        </div>
+      </div>
+    );
+  }
+  if (id === "plaque") {
+    return (
+      <div
+        className="flex h-full w-full flex-col p-1.5"
+        style={{
+          background:
+            "repeating-linear-gradient(92deg, #5a3a1d 0px, #6b4524 2px, #7a5230 4px, #6b4524 7px, #5a3a1d 11px)",
+        }}
+      >
+        <div className="mx-auto mb-1.5 rounded bg-gradient-to-b from-neutral-900 to-black px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest"
+          style={{ color: "#d4af37", boxShadow: "inset 0 0 0 1px #d4af37" }}>
+          Hole #7 · 3 aces
+        </div>
+        <div className="grid flex-1 grid-cols-3 gap-1">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="rounded-sm bg-gradient-to-b from-neutral-900 to-black"
+              style={{ boxShadow: `inset 0 0 0 1px #d4af37${i === 1 ? "" : "88"}` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  // ultrawide
+  return (
+    <div className="grid h-full w-full grid-cols-[1.2fr_2fr_0.7fr] gap-0.5 bg-black">
+      <div
+        className="flex flex-col items-center justify-center p-1 text-white"
+        style={{ background: `linear-gradient(160deg, ${course.primary_color} 0%, ${shadeHex(course.primary_color, -30)} 100%)` }}
+      >
+        <div className="text-[7px] uppercase tracking-widest opacity-70">Featured</div>
+        <div className="text-[10px] font-extrabold leading-none">Sample</div>
+      </div>
+      <div
+        className="grid grid-cols-3 gap-0.5 p-1"
+        style={{
+          background:
+            "repeating-linear-gradient(92deg, #5a3a1d 0px, #6b4524 2px, #7a5230 4px, #6b4524 7px, #5a3a1d 11px)",
+        }}
+      >
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="rounded-[1px] bg-gradient-to-b from-neutral-900 to-black"
+            style={{ boxShadow: "inset 0 0 0 1px #d4af3788" }} />
+        ))}
+      </div>
+      <div className="flex flex-col gap-0.5 bg-neutral-950 p-1">
+        {[7, 12, 16].map((n) => (
+          <div key={n} className="flex items-center justify-between rounded-sm border border-neutral-800 px-1 py-0.5 text-[7px] text-white/70">
+            <span>#{n}</span><span>·</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
