@@ -60,9 +60,15 @@ function LoginPage() {
           <Trophy className="h-5 w-5 text-primary" />
           <span className="font-semibold">Ace Board</span>
         </Link>
-        <h1 className="text-2xl font-semibold">{mode === "signin" ? "Sign in" : "Reset password"}</h1>
+        <h1 className="text-2xl font-semibold">
+          {mode === "signin" ? "Sign in" : mode === "magic" ? "Magic link" : "Reset password"}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signin" ? "Access your course's CMS" : "We'll email you a reset link"}
+          {mode === "signin"
+            ? "Access your course's CMS"
+            : mode === "magic"
+            ? "We'll email you a one-click sign-in link"
+            : "We'll email you a reset link"}
         </p>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
@@ -92,15 +98,32 @@ function LoginPage() {
             disabled={submitting}
             className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {submitting ? "Working…" : mode === "signin" ? "Sign in" : "Send reset link"}
+            {submitting
+              ? "Working…"
+              : mode === "signin"
+              ? "Sign in"
+              : mode === "magic"
+              ? "Send magic link"
+              : "Send reset link"}
           </button>
         </form>
-        <button
-          onClick={() => setMode(mode === "signin" ? "forgot" : "signin")}
-          className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground"
-        >
-          {mode === "signin" ? "Forgot password?" : "Back to sign in"}
-        </button>
+        <div className="mt-4 flex flex-col gap-1 text-center text-xs text-muted-foreground">
+          {mode !== "magic" && (
+            <button onClick={() => setMode("magic")} className="hover:text-foreground">
+              Sign in with magic link
+            </button>
+          )}
+          {mode !== "signin" && (
+            <button onClick={() => setMode("signin")} className="hover:text-foreground">
+              Sign in with password
+            </button>
+          )}
+          {mode !== "forgot" && (
+            <button onClick={() => setMode("forgot")} className="hover:text-foreground">
+              Forgot password?
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
