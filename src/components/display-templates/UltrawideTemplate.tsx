@@ -1,7 +1,8 @@
 import { Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ACCENT, ACCENT_HI, ACCENT_LO, WALNUT_BG, formatLongDate, shade,
+  formatLongDate, resolveSkin, shade,
+  type BoardSkin, type BoardStyle,
   type DisplayCourse, type DisplayEntry, type DisplayHole,
 } from "./types";
 
@@ -17,8 +18,14 @@ const SPOT_MS = 2_800;
  * Designed for 21:9 or 32:9 displays above the bar.
  */
 export function UltrawideTemplate({
-  course, entries, holes,
-}: { course: DisplayCourse; entries: DisplayEntry[]; holes: DisplayHole[] }) {
+  course, entries, holes, style = "walnut",
+}: {
+  course: DisplayCourse;
+  entries: DisplayEntry[];
+  holes: DisplayHole[];
+  style?: BoardStyle;
+}) {
+  const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   const grouped = useMemo(() => {
     const byHole = new Map<number, DisplayEntry[]>();
     for (const e of entries) {
@@ -110,20 +117,20 @@ export function UltrawideTemplate({
       {/* COL 2 — Plaque wall for current hole */}
       <div
         className="relative flex flex-col overflow-hidden"
-        style={{ background: WALNUT_BG, boxShadow: "inset 0 0 0 4px #3a2410, inset 0 0 60px rgba(0,0,0,0.55)" }}
+        style={{ background: skin.background, boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 60px rgba(0,0,0,0.55)` }}
       >
         <div className="flex items-center justify-center px-6 pt-4">
           <div
             className="rounded-md px-6 py-2"
             style={{
-              background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
-              boxShadow: `inset 0 0 0 2px ${ACCENT}, 0 4px 12px rgba(0,0,0,0.5)`,
+              background: skin.plateBg,
+              boxShadow: `inset 0 0 0 2px ${skin.accent}, 0 4px 12px rgba(0,0,0,0.5)`,
             }}
           >
             <div
               className="font-serif text-[clamp(18px,1.6vw,32px)] font-bold uppercase tracking-[0.28em]"
               style={{
-                background: `linear-gradient(180deg, ${ACCENT_HI} 0%, ${ACCENT} 50%, ${ACCENT_LO} 100%)`,
+                background: `linear-gradient(180deg, ${skin.accentHi} 0%, ${skin.accent} 50%, ${skin.accentLo} 100%)`,
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
               }}
             >
@@ -137,7 +144,7 @@ export function UltrawideTemplate({
 
         <div className="grid flex-1 auto-rows-min grid-cols-3 gap-3 overflow-hidden p-6 xl:grid-cols-4">
           {current.aces.map((ace, i) => (
-            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} />
+            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} skin={skin} />
           ))}
         </div>
       </div>
@@ -153,12 +160,12 @@ export function UltrawideTemplate({
                 key={g.hole.hole_number}
                 className="flex items-center justify-between rounded-md border px-3 py-2 transition"
                 style={{
-                  borderColor: active ? ACCENT : "#222",
-                  background: active ? `${ACCENT}22` : "transparent",
+                  borderColor: active ? skin.accent : "#222",
+                  background: active ? `${skin.accent}22` : "transparent",
                 }}
               >
                 <div>
-                  <div className="font-serif text-[clamp(16px,1.3vw,26px)] font-bold" style={{ color: active ? ACCENT : "#ddd" }}>
+                  <div className="font-serif text-[clamp(16px,1.3vw,26px)] font-bold" style={{ color: active ? skin.accent : "#ddd" }}>
                     #{g.hole.hole_number}
                   </div>
                   <div className="text-[clamp(9px,0.65vw,12px)] uppercase tracking-widest text-white/50">
@@ -167,7 +174,7 @@ export function UltrawideTemplate({
                 </div>
                 <div
                   className="rounded-full px-2 py-0.5 text-[clamp(10px,0.8vw,16px)] font-bold"
-                  style={{ background: active ? ACCENT : "#222", color: active ? "#0a0a0a" : "#ccc" }}
+                  style={{ background: active ? skin.accent : "#222", color: active ? "#0a0a0a" : "#ccc" }}
                 >
                   {g.aces.length}
                 </div>
@@ -188,28 +195,28 @@ export function UltrawideTemplate({
   );
 }
 
-function UltraNamePlate({ ace, spotlight }: { ace: DisplayEntry; spotlight: boolean }) {
+function UltraNamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
   return (
     <div
       className="relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500"
       style={{
-        background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
+        background: skin.plateBg,
         boxShadow: spotlight
-          ? `inset 0 0 0 1.5px ${ACCENT}, 0 0 24px ${ACCENT}66`
-          : `inset 0 0 0 1.5px ${ACCENT}aa`,
+          ? `inset 0 0 0 1.5px ${skin.accent}, 0 0 24px ${skin.accent}66`
+          : `inset 0 0 0 1.5px ${skin.accent}aa`,
         transform: spotlight ? "scale(1.04)" : "scale(1)",
       }}
     >
       <div
         className="font-serif text-[clamp(11px,0.9vw,16px)] font-bold uppercase leading-tight tracking-wider"
         style={{
-          background: `linear-gradient(180deg, ${ACCENT_HI} 0%, ${ACCENT} 60%, ${ACCENT_LO} 100%)`,
+          background: `linear-gradient(180deg, ${skin.accentHi} 0%, ${skin.accent} 60%, ${skin.accentLo} 100%)`,
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
         }}
       >
         {ace.golfer_name}
       </div>
-      <div className="mt-1 font-serif text-[clamp(9px,0.7vw,12px)] font-semibold tracking-wide" style={{ color: ACCENT, opacity: 0.9 }}>
+      <div className="mt-1 font-serif text-[clamp(9px,0.7vw,12px)] font-semibold tracking-wide" style={{ color: skin.accent, opacity: 0.9 }}>
         {ace.yardage ? `${ace.yardage} yd · ` : ""}{formatLongDate(ace.date_achieved)}
       </div>
     </div>
