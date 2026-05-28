@@ -85,7 +85,36 @@ function HolePage() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+      <main className="container mx-auto space-y-8 px-4 py-8 sm:px-6 sm:py-12">
+        {(hole.topdown_url || hole.video_url) && (
+          <section className="grid gap-4 md:grid-cols-2">
+            {hole.topdown_url && (
+              <figure className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900">
+                <img
+                  src={hole.topdown_url}
+                  alt={`Hole ${hole.hole_number} top-down view`}
+                  className="aspect-video w-full object-cover"
+                />
+                <figcaption className="px-3 py-2 text-xs uppercase tracking-widest text-neutral-400">
+                  Top-down view
+                </figcaption>
+              </figure>
+            )}
+            {hole.video_url && (
+              <figure className="overflow-hidden rounded-xl border border-neutral-800 bg-black">
+                <video
+                  src={hole.video_url}
+                  controls
+                  preload="metadata"
+                  className="aspect-video w-full object-cover"
+                />
+                <figcaption className="px-3 py-2 text-xs uppercase tracking-widest text-neutral-400">
+                  Flyover
+                </figcaption>
+              </figure>
+            )}
+          </section>
+        )}
         <HoleSection hole={hole} aces={aces} />
       </main>
 
