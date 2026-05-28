@@ -147,6 +147,21 @@ function CourseDashboard() {
         <TemplatesAndStyles course={course} />
       </Section>
 
+      {/* Names on the board */}
+      <Section
+        title="Names on the board"
+        desc="Edit golfer names inline and preview how they will appear, in any sort order."
+        action={
+          <span className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground">
+            <Users className="h-3.5 w-3.5" /> Published entries
+          </span>
+        }
+      >
+        <NameManager course={course} />
+      </Section>
+
+
+
 
       {/* Aces per hole */}
       <Section title="Aces per hole" desc="Counts include published entries only.">
