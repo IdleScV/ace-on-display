@@ -45,6 +45,7 @@ function DisplayPage() {
   const template: DisplayTemplate = search.template ?? "spotlight";
   const style = search.style ?? "walnut";
   const muted = !search.sound;
+  const photos = search.photos ?? "cards";
   const fetchFn = useServerFn(getDisplayData);
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
