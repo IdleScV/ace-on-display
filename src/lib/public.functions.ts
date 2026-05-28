@@ -52,6 +52,8 @@ export interface PublicHole {
   hole_number: number;
   par: number;
   yardage: number | null;
+  topdown_url?: string | null;
+  video_url?: string | null;
 }
 
 export const getPublicEntries = createServerFn({ method: "GET" })
