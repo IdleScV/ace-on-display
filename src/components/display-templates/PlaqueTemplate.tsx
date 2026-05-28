@@ -313,7 +313,7 @@ function PhotoSlideshow({
           key={p.id}
           src={p.photo_url!}
           alt={p.golfer_name}
-          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
           style={{ opacity: i === idx ? 1 : 0 }}
         />
       ))}
