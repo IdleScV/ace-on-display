@@ -159,13 +159,22 @@ export const listAuditLogs = createServerFn({ method: "GET" })
     await assertCourseAccess(context.userId, data.course_id);
     const { data: rows, error } = await supabaseAdmin
       .from("audit_logs")
-      .select("id,action,entity,entity_id,before,after,created_at,user_id,profiles:user_id(email)")
+      .select("id,action,entity,entity_id,before,after,created_at,user_id")
       .eq("course_id", data.course_id)
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
     if (error) throw new Error(error.message);
-    return (rows ?? []).map((r: any) => ({
+    const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id).filter((v): v is string => !!v)));
+    let emailMap = new Map<string, string>();
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id,email")
+        .in("id", userIds);
+      emailMap = new Map((profs ?? []).map((p) => [p.id, p.email]));
+    }
+    return (rows ?? []).map((r) => ({
       ...r,
-      user_email: r.profiles?.email ?? null,
+      user_email: r.user_id ? emailMap.get(r.user_id) ?? null : null,
     }));
   });
