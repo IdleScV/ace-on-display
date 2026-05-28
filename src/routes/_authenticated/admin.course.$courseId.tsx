@@ -8,7 +8,8 @@ import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
 import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay } from "lucide-react";
-import { TEMPLATES, type DisplayTemplate } from "@/components/display-templates/types";
+import { TEMPLATES, STYLES, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
