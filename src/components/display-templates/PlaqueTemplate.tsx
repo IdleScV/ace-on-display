@@ -9,15 +9,17 @@ import { HoleMediaSlot } from "./HoleMediaSlot";
 
 const HOLE_MS = 12_000;
 const SPOT_MS = 2_500;
+const PHOTO_MS = 3_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut", muted = true,
+  course, entries, holes, style = "walnut", muted = true, photos = "cards",
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
   muted?: boolean;
+  photos?: "cards" | "slideshow";
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
 
