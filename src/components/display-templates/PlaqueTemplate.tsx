@@ -1,7 +1,7 @@
 import { Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  formatLongDate, resolveSkin,
+  formatLongDate, resolveSkin, shade,
   type BoardSkin, type BoardStyle,
   type DisplayCourse, type DisplayEntry, type DisplayHole,
 } from "./types";
