@@ -39,11 +39,24 @@ export function PlaqueTemplate({
   const [holeIdx, setHoleIdx] = useState(0);
   const [spotIdx, setSpotIdx] = useState(0);
 
+  const currentPreview = grouped[holeIdx % grouped.length];
+  // In slideshow mode, the PhotoSlideshow drives hole advance via
+  // onCycleComplete so the flyover video always gets a chance to play.
+  // Fall back to a timer when there are no photos AND no video, or in cards mode.
+  const slideshowDrivesAdvance =
+    photos === "slideshow" &&
+    !!currentPreview &&
+    (currentPreview.aces.some((a) => !!a.photo_url) || !!currentPreview.hole.video_url);
+
   useEffect(() => {
     if (grouped.length <= 1) return;
-    const t = setInterval(() => setHoleIdx((i) => (i + 1) % grouped.length), HOLE_MS);
+    if (slideshowDrivesAdvance) return;
+    const t = setInterval(
+      () => setHoleIdx((i) => (i + 1) % grouped.length),
+      HOLE_MS,
+    );
     return () => clearInterval(t);
-  }, [grouped.length]);
+  }, [grouped.length, slideshowDrivesAdvance, holeIdx]);
 
   useEffect(() => {
     setSpotIdx(0);
