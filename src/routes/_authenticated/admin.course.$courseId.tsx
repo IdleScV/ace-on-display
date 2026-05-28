@@ -309,3 +309,140 @@ function HealthBadge({ s }: { s: "online" | "stale" | "offline" | "never" }) {
   };
   return <span className={`inline-block rounded-md px-2 py-0.5 text-sm font-medium ${map[s]}`}>{s}</span>;
 }
+
+function StylePreview({
+  course,
+  sampleEntry,
+  sampleHole,
+}: {
+  course: { id: string; name: string; slug: string; logo_url: string | null; primary_color: string; secondary_color: string };
+  sampleEntry?: { id: string; golfer_name: string; date_achieved: string; hole_number: number } | undefined;
+  sampleHole?: { hole_number: number; par: number; yardage: number | null } | undefined;
+}) {
+  const hole: PublicHole = sampleHole
+    ? { hole_number: sampleHole.hole_number, par: sampleHole.par, yardage: sampleHole.yardage }
+    : { hole_number: 7, par: 3, yardage: 165 };
+  const sampleAces: PublicEntry[] = [
+    {
+      id: "preview-1",
+      golfer_name: sampleEntry?.golfer_name ?? "Sample Golfer",
+      date_achieved: sampleEntry?.date_achieved ?? new Date().toISOString().slice(0, 10),
+      hole_number: hole.hole_number,
+      yardage: hole.yardage,
+      club: "7 Iron",
+      witness: "Jane Doe",
+      notes: null,
+      photo_url: null,
+    },
+    {
+      id: "preview-2",
+      golfer_name: "Alex Rivera",
+      date_achieved: "2024-06-12",
+      hole_number: hole.hole_number,
+      yardage: hole.yardage,
+      club: "Pitching Wedge",
+      witness: null,
+      notes: null,
+      photo_url: null,
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Tokens */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <TokenSwatch label="Primary" value={course.primary_color} />
+        <TokenSwatch label="Secondary" value={course.secondary_color} />
+        <div className="flex items-center gap-3 rounded-md border bg-background px-3 py-2">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">Logo</div>
+          <div className="ml-auto">
+            {course.logo_url ? (
+              <img src={course.logo_url} alt="" className="h-8 w-8 rounded border bg-white object-contain" />
+            ) : (
+              <span className="text-xs text-muted-foreground">No logo</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* CourseHeader */}
+      <PreviewBlock label="CourseHeader" desc="Used at the top of all public boards.">
+        <div className="overflow-hidden rounded-lg border bg-neutral-950">
+          <CourseHeader course={course} subtitle="Hole-in-One Club · 12 aces" />
+        </div>
+      </PreviewBlock>
+
+      {/* HoleSection + NamePlate */}
+      <PreviewBlock label="HoleSection / NamePlate" desc="Per-hole grouping shown on the main and per-hole boards.">
+        <div className="overflow-hidden rounded-lg border bg-neutral-950 p-4">
+          <HoleSection hole={hole} aces={sampleAces} />
+        </div>
+      </PreviewBlock>
+
+      {/* Kiosk hero */}
+      <PreviewBlock label="Kiosk display hero" desc="Fullscreen kiosk uses primary color for the background gradient.">
+        <div
+          className="flex h-56 items-center justify-center rounded-lg border text-white"
+          style={{
+            background: `linear-gradient(135deg, ${course.primary_color} 0%, ${shadeHex(course.primary_color, -20)} 100%)`,
+          }}
+        >
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3">
+              {course.logo_url ? (
+                <img src={course.logo_url} alt="" className="h-10 w-10 rounded bg-white object-contain p-1" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded bg-white/15">
+                  <Trophy className="h-5 w-5" />
+                </div>
+              )}
+              <div className="text-left">
+                <div className="text-lg font-bold leading-tight">{course.name}</div>
+                <div className="text-[11px] uppercase tracking-widest opacity-80">Hole-in-One Honor Roll</div>
+              </div>
+            </div>
+            <div className="mt-3 text-3xl font-extrabold tracking-tight">{sampleAces[0].golfer_name}</div>
+            <div className="mt-1 text-xs uppercase tracking-widest opacity-80">
+              Hole #{hole.hole_number} · {hole.yardage ?? "—"} yd
+            </div>
+          </div>
+        </div>
+      </PreviewBlock>
+    </div>
+  );
+}
+
+function TokenSwatch({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-3 rounded-md border bg-background px-3 py-2">
+      <span className="inline-block h-6 w-6 rounded border" style={{ background: value }} />
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <code className="ml-auto text-xs">{value}</code>
+    </div>
+  );
+}
+
+function PreviewBlock({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+        {desc && <div className="text-[11px] text-muted-foreground">{desc}</div>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function shadeHex(hex: string, percent: number) {
+  const h = hex.replace("#", "");
+  if (h.length !== 6) return hex;
+  const num = parseInt(h, 16);
+  let r = (num >> 16) + Math.round((percent / 100) * 255);
+  let g = ((num >> 8) & 0x00ff) + Math.round((percent / 100) * 255);
+  let b = (num & 0x0000ff) + Math.round((percent / 100) * 255);
+  r = Math.max(0, Math.min(255, r));
+  g = Math.max(0, Math.min(255, g));
+  b = Math.max(0, Math.min(255, b));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+}
