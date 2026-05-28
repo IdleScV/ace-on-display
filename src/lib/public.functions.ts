@@ -16,6 +16,13 @@ export interface PublicCourse {
   data_version: number;
 }
 
+export interface CustomPlate {
+  tagline?: string | null;
+  badge?: string | null;
+  accent_color?: string | null;
+  highlight?: boolean | null;
+}
+
 export interface PublicEntry {
   id: string;
   golfer_name: string;
@@ -26,6 +33,7 @@ export interface PublicEntry {
   witness: string | null;
   notes: string | null;
   photo_url: string | null;
+  custom_plate: CustomPlate | null;
 }
 
 export const getPublicCourseBySlug = createServerFn({ method: "GET" })
