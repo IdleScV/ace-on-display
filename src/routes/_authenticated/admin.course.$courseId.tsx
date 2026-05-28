@@ -8,7 +8,7 @@ import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
 import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay } from "lucide-react";
-import { TEMPLATES, STYLES, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
+import { TEMPLATES, STYLES, SKINS, resolveSkin, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
@@ -516,7 +516,7 @@ function TemplateCard({
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border bg-background">
       <div className="relative aspect-[16/9] overflow-hidden border-b bg-neutral-950">
-        <TemplateThumb id={tpl.id} course={course} />
+        <TemplateThumb id={tpl.id} course={course} style={style} />
         {tpl.longMonitor && (
           <span className="absolute right-2 top-2 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-900">
             Long monitor
@@ -526,7 +526,7 @@ function TemplateCard({
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-center justify-between">
           <div className="font-semibold">{tpl.label}</div>
-          <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">?template={tpl.id}</code>
+          <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">?template={tpl.id}&amp;style={style}</code>
         </div>
         <p className="flex-1 text-xs text-muted-foreground">{tpl.desc}</p>
         <a
@@ -545,10 +545,13 @@ function TemplateCard({
 function TemplateThumb({
   id,
   course,
+  style,
 }: {
   id: DisplayTemplate;
   course: { name: string; logo_url: string | null; primary_color: string; secondary_color: string };
+  style: BoardStyle;
 }) {
+  const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   if (id === "spotlight") {
     return (
       <div
@@ -561,26 +564,21 @@ function TemplateThumb({
           <span className="rounded bg-white/15 px-1.5 py-0.5 text-[8px]">#7</span>
           <span className="rounded bg-white/15 px-1.5 py-0.5 text-[8px]">165 yd</span>
         </div>
+        <div className="mt-1.5 text-[7px] uppercase tracking-widest opacity-50">(Spotlight ignores board style)</div>
       </div>
     );
   }
   if (id === "plaque") {
     return (
-      <div
-        className="flex h-full w-full flex-col p-1.5"
-        style={{
-          background:
-            "repeating-linear-gradient(92deg, #5a3a1d 0px, #6b4524 2px, #7a5230 4px, #6b4524 7px, #5a3a1d 11px)",
-        }}
-      >
-        <div className="mx-auto mb-1.5 rounded bg-gradient-to-b from-neutral-900 to-black px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest"
-          style={{ color: "#d4af37", boxShadow: "inset 0 0 0 1px #d4af37" }}>
+      <div className="flex h-full w-full flex-col p-1.5" style={{ background: skin.background }}>
+        <div className="mx-auto mb-1.5 rounded px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest"
+          style={{ background: skin.plateBg, color: skin.accent, boxShadow: `inset 0 0 0 1px ${skin.accent}` }}>
           Hole #7 · 3 aces
         </div>
         <div className="grid flex-1 grid-cols-3 gap-1">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="rounded-sm bg-gradient-to-b from-neutral-900 to-black"
-              style={{ boxShadow: `inset 0 0 0 1px #d4af37${i === 1 ? "" : "88"}` }} />
+            <div key={i} className="rounded-sm"
+              style={{ background: skin.plateBg, boxShadow: `inset 0 0 0 1px ${skin.accent}${i === 1 ? "" : "88"}` }} />
           ))}
         </div>
       </div>
@@ -596,21 +594,16 @@ function TemplateThumb({
         <div className="text-[7px] uppercase tracking-widest opacity-70">Featured</div>
         <div className="text-[10px] font-extrabold leading-none">Sample</div>
       </div>
-      <div
-        className="grid grid-cols-3 gap-0.5 p-1"
-        style={{
-          background:
-            "repeating-linear-gradient(92deg, #5a3a1d 0px, #6b4524 2px, #7a5230 4px, #6b4524 7px, #5a3a1d 11px)",
-        }}
-      >
+      <div className="grid grid-cols-3 gap-0.5 p-1" style={{ background: skin.background }}>
         {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="rounded-[1px] bg-gradient-to-b from-neutral-900 to-black"
-            style={{ boxShadow: "inset 0 0 0 1px #d4af3788" }} />
+          <div key={i} className="rounded-[1px]"
+            style={{ background: skin.plateBg, boxShadow: `inset 0 0 0 1px ${skin.accent}88` }} />
         ))}
       </div>
       <div className="flex flex-col gap-0.5 bg-neutral-950 p-1">
         {[7, 12, 16].map((n) => (
-          <div key={n} className="flex items-center justify-between rounded-sm border border-neutral-800 px-1 py-0.5 text-[7px] text-white/70">
+          <div key={n} className="flex items-center justify-between rounded-sm border px-1 py-0.5 text-[7px]"
+            style={{ borderColor: "#222", color: skin.accent }}>
             <span>#{n}</span><span>·</span>
           </div>
         ))}
