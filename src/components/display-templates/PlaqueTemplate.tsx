@@ -74,7 +74,7 @@ export function PlaqueTemplate({
         className="plaque-fade flex flex-1 flex-col overflow-hidden"
       >
         {/* Top third — Flyover/Slideshow (2fr) | Top-down (1fr) */}
-        <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr]">
+        <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr] gap-1 p-1">
           {photos === "slideshow" ? (
             <PhotoSlideshow
               aces={current.aces}
@@ -82,7 +82,8 @@ export function PlaqueTemplate({
               fallbackVideoUrl={current.hole.video_url}
               muted={muted}
               reloadKey={current.hole.hole_number}
-              className="h-full w-full"
+              className="h-full w-full rounded-md border-2"
+              style={{ borderColor: skin.accent }}
             />
           ) : (
             <HoleMediaSlot
@@ -91,7 +92,8 @@ export function PlaqueTemplate({
               skin={skin}
               muted={muted}
               reloadKey={current.hole.hole_number}
-              className="h-full w-full"
+              className="h-full w-full rounded-md border-2"
+              style={{ borderColor: skin.accent }}
             />
           )}
           <HoleMediaSlot
@@ -99,7 +101,8 @@ export function PlaqueTemplate({
             url={current.hole.topdown_url}
             skin={skin}
             reloadKey={current.hole.hole_number}
-            className="h-full w-full border-l border-black/30"
+            className="h-full w-full rounded-md border-2"
+            style={{ borderColor: skin.accent }}
           />
         </div>
 
