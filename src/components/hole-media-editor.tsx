@@ -3,8 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listCourseHoles, updateHoleMedia } from "@/lib/holes.functions";
-import { Image as ImageIcon, Video, Trash2, Loader2, Upload } from "lucide-react";
+import { Image as ImageIcon, Video, Trash2, Loader2, Upload, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
@@ -116,14 +118,26 @@ function HoleCard({
           accept="image/*"
           url={hole.topdown_url}
           busy={busy === "image"}
+          previewTitle={`Hole ${hole.hole_number} — Top-down`}
           onUpload={(f) => upload("image", f)}
           onClear={() => clear("image")}
-          preview={
+          renderPreview={(onOpen) =>
+            hole.topdown_url ? (
+              <PreviewButton onClick={onOpen}>
+                <img
+                  src={hole.topdown_url}
+                  alt={`Hole ${hole.hole_number} top-down`}
+                  className="aspect-video w-full rounded object-cover"
+                />
+              </PreviewButton>
+            ) : null
+          }
+          renderFullView={() =>
             hole.topdown_url ? (
               <img
                 src={hole.topdown_url}
                 alt={`Hole ${hole.hole_number} top-down`}
-                className="aspect-video w-full rounded object-cover"
+                className="max-h-[80vh] w-full rounded object-contain"
               />
             ) : null
           }
@@ -134,21 +148,59 @@ function HoleCard({
           accept="video/*"
           url={hole.video_url}
           busy={busy === "video"}
+          previewTitle={`Hole ${hole.hole_number} — Video`}
           onUpload={(f) => upload("video", f)}
           onClear={() => clear("video")}
-          preview={
+          renderPreview={(onOpen) =>
+            hole.video_url ? (
+              <div className="relative">
+                <video
+                  src={hole.video_url}
+                  controls
+                  preload="metadata"
+                  className="aspect-video w-full rounded bg-black object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  className="absolute right-1 top-1 rounded-md bg-black/60 p-1 text-white opacity-80 hover:opacity-100"
+                  title="Preview"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : null
+          }
+          renderFullView={() =>
             hole.video_url ? (
               <video
                 src={hole.video_url}
                 controls
-                preload="metadata"
-                className="aspect-video w-full rounded bg-black object-cover"
+                autoPlay
+                className="max-h-[80vh] w-full rounded bg-black object-contain"
               />
             ) : null
           }
         />
       </div>
+
     </div>
+  );
+}
+
+function PreviewButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative block w-full overflow-hidden rounded"
+      title="Preview"
+    >
+      {children}
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100">
+        <Maximize2 className="h-5 w-5 text-white" />
+      </span>
+    </button>
   );
 }
 
@@ -160,7 +212,9 @@ function MediaSlot({
   busy,
   onUpload,
   onClear,
-  preview,
+  previewTitle,
+  renderPreview,
+  renderFullView,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -169,8 +223,12 @@ function MediaSlot({
   busy: boolean;
   onUpload: (file: File) => void;
   onClear: () => void;
-  preview: React.ReactNode;
+  previewTitle: string;
+  renderPreview: (onOpen: () => void) => React.ReactNode;
+  renderFullView: () => React.ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const preview = renderPreview(() => setOpen(true));
   return (
     <div className="rounded-md border bg-card p-2">
       <div className="mb-1 flex items-center justify-between text-xs font-medium">
@@ -207,6 +265,13 @@ function MediaSlot({
           }}
         />
       </label>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-5xl">
+          <DialogTitle className="text-sm">{previewTitle}</DialogTitle>
+          {renderFullView()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

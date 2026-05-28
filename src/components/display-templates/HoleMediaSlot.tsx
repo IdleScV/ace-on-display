@@ -41,7 +41,7 @@ export function HoleMediaSlot({
             key={reloadKey}
             src={url}
             alt={caption}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
             loading="lazy"
           />
         ) : (
