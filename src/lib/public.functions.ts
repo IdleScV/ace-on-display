@@ -79,7 +79,7 @@ export const getPublicEntries = createServerFn({ method: "GET" })
     };
   });
 
-// For kiosk display: returns data_version + minimal payload
+// For kiosk display: returns data_version + minimal payload (entries + holes)
 export const getDisplayData = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => slugSchema.parse(input))
   .handler(async ({ data }) => {
@@ -90,11 +90,18 @@ export const getDisplayData = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!course) return null;
     const sortCol = course.display_sort === "hole" ? "hole_number" : "date_achieved";
-    const { data: entries } = await supabaseAdmin
-      .from("entries")
-      .select("id,golfer_name,date_achieved,hole_number,yardage,club,photo_url")
-      .eq("course_id", course.id)
-      .eq("status", "published")
-      .order(sortCol, { ascending: course.display_sort === "hole" });
-    return { course, entries: entries ?? [] };
+    const [{ data: entries }, { data: holes }] = await Promise.all([
+      supabaseAdmin
+        .from("entries")
+        .select("id,golfer_name,date_achieved,hole_number,yardage,club,photo_url")
+        .eq("course_id", course.id)
+        .eq("status", "published")
+        .order(sortCol, { ascending: course.display_sort === "hole" }),
+      supabaseAdmin
+        .from("course_holes")
+        .select("hole_number,par,yardage")
+        .eq("course_id", course.id)
+        .order("hole_number"),
+    ]);
+    return { course, entries: entries ?? [], holes: holes ?? [] };
   });
