@@ -111,8 +111,23 @@ export function UltrawideTemplate({
           </p>
         </div>
 
-        <div className="absolute bottom-[2vh] left-0 right-0 text-center text-[clamp(10px,0.7vw,14px)] opacity-60">
-          {entries.length} total {entries.length === 1 ? "ace" : "aces"}
+        {/* Per-hole media strip */}
+        <div className="absolute bottom-[2vh] left-[1.5vw] right-[1.5vw] grid grid-cols-2 gap-2">
+          <HoleMediaSlot
+            kind="image"
+            url={current.hole.topdown_url}
+            skin={skin}
+            reloadKey={current.hole.hole_number}
+            className="aspect-video w-full"
+          />
+          <HoleMediaSlot
+            kind="video"
+            url={current.hole.video_url}
+            skin={skin}
+            muted={muted}
+            reloadKey={current.hole.hole_number}
+            className="aspect-video w-full"
+          />
         </div>
       </div>
 
@@ -121,6 +136,15 @@ export function UltrawideTemplate({
         className="relative flex flex-col overflow-hidden"
         style={{ background: skin.background, boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 60px rgba(0,0,0,0.55)` }}
       >
+        {current.hole.topdown_url && (
+          <img
+            key={`wm-${current.hole.hole_number}`}
+            src={current.hole.topdown_url}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-[28%] w-full object-cover opacity-15 mix-blend-luminosity"
+          />
+        )}
         <div className="flex items-center justify-center px-6 pt-4">
           <div
             className="rounded-md px-6 py-2"
