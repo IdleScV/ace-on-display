@@ -104,7 +104,7 @@ function DisplayPage() {
 
   const { course, entries, holes } = data;
 
-  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
-  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
+  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
+  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
   return <SpotlightTemplate course={course} entries={entries} />;
 }
