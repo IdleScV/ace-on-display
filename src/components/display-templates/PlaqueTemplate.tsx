@@ -69,33 +69,35 @@ export function PlaqueTemplate({
       <PlaqueHeader course={course} hole={current.hole} count={current.aces.length} skin={skin} />
       <div
         key={current.hole.hole_number}
-        className="plaque-fade flex flex-1 flex-col gap-3 overflow-hidden px-6 py-4 md:flex-row"
-        style={{
-          background: skin.background,
-          boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
-        }}
+        className="plaque-fade flex flex-1 flex-col overflow-hidden"
       >
-        {/* Hole media panel */}
-        <aside className="flex w-full shrink-0 flex-col gap-3 md:w-[38%] md:max-w-[560px]">
-          <HoleMediaSlot
-            kind="image"
-            url={current.hole.topdown_url}
-            skin={skin}
-            reloadKey={current.hole.hole_number}
-            className="aspect-video w-full"
-          />
+        {/* Top third — Flyover (2fr) | Top-down (1fr) */}
+        <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr]">
           <HoleMediaSlot
             kind="video"
             url={current.hole.video_url}
             skin={skin}
             muted={muted}
             reloadKey={current.hole.hole_number}
-            className="aspect-video w-full"
+            className="h-full w-full"
           />
-        </aside>
+          <HoleMediaSlot
+            kind="image"
+            url={current.hole.topdown_url}
+            skin={skin}
+            reloadKey={current.hole.hole_number}
+            className="h-full w-full border-l border-black/30"
+          />
+        </div>
 
-        {/* Plaque grid */}
-        <div className="min-w-0 flex-1">
+        {/* Bottom two-thirds — Plaque board */}
+        <div
+          className="min-h-0 flex-1 overflow-hidden px-6 py-4"
+          style={{
+            background: skin.background,
+            boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
+          }}
+        >
           <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} />
         </div>
       </div>
