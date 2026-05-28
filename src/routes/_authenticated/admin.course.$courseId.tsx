@@ -138,17 +138,14 @@ function CourseDashboard() {
         )}
       </Section>
 
-      {/* Display templates */}
+      {/* Display templates + styles */}
       <Section
         title="Display templates"
-        desc="Pick the kiosk layout for the clubhouse TV. Each opens in a new tab — bookmark the one you want on the monitor."
+        desc="Pick a layout and a board style. Open in a new tab and bookmark on the clubhouse TV."
       >
-        <div className="grid gap-3 md:grid-cols-3">
-          {TEMPLATES.map((t) => (
-            <TemplateCard key={t.id} courseSlug={course.slug} tpl={t} course={course} />
-          ))}
-        </div>
+        <TemplatesAndStyles course={course} />
       </Section>
+
 
       {/* Aces per hole */}
       <Section title="Aces per hole" desc="Counts include published entries only.">
