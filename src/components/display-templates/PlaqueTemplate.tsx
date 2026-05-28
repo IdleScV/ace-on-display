@@ -184,19 +184,19 @@ export function PlaqueHeader({
   );
 }
 
-export function PlaqueBoard({ aces, spotIdx, skin }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin }) {
+export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean }) {
   return (
     <div className="h-full">
       <div className="grid h-full auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {aces.map((ace, i) => (
-          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} />
+          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} />
         ))}
       </div>
     </div>
   );
 }
 
-function NamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
+function NamePlate({ ace, spotlight, skin, hidePhoto = false }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; hidePhoto?: boolean }) {
   const cp = ace.custom_plate ?? {};
   const accent = cp.accent_color || skin.accent;
   const useCustomAccent = !!cp.accent_color;
@@ -225,7 +225,7 @@ function NamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boo
           {cp.badge}
         </div>
       )}
-      {ace.photo_url && (
+      {!hidePhoto && ace.photo_url && (
         <div className="mx-auto mb-2 overflow-hidden rounded-sm" style={{ boxShadow: `inset 0 0 0 1px ${accent}66` }}>
           <img src={ace.photo_url} alt="" className="aspect-[4/3] w-full max-w-[160px] object-cover" loading="lazy" />
         </div>
