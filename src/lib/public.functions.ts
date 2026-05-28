@@ -60,7 +60,7 @@ export const getPublicEntries = createServerFn({ method: "GET" })
     const [{ data: entries, error }, { data: holes }] = await Promise.all([
       supabaseAdmin
         .from("entries")
-        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes")
+        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes,photo_url")
         .eq("course_id", course.id)
         .eq("status", "published")
         .order(sortCol, { ascending: course.display_sort === "hole" }),
