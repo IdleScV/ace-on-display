@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCourseCtx } from "@/lib/course-context";
 import { useAuth } from "@/lib/auth-context";
 import { getCourseHealth } from "@/lib/health.functions";
-import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil } from "lucide-react";
+import { CourseHeader, HoleSection } from "@/components/hole-section";
+import type { PublicEntry, PublicHole } from "@/lib/public.functions";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
