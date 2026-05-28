@@ -3,8 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listCourseHoles, updateHoleMedia } from "@/lib/holes.functions";
-import { Image as ImageIcon, Video, Trash2, Loader2, Upload } from "lucide-react";
+import { Image as ImageIcon, Video, Trash2, Loader2, Upload, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
