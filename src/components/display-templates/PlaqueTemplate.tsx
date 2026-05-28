@@ -68,7 +68,7 @@ export function PlaqueTemplate({
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-black">
-      <PlaqueHeader course={course} hole={current.hole} count={current.aces.length} skin={skin} />
+      <PlaqueHeader course={course} hole={current.hole} skin={skin} />
       <div
         key={current.hole.hole_number}
         className="plaque-fade flex flex-1 flex-col overflow-hidden"
@@ -146,8 +146,8 @@ export function PlaqueTemplate({
 }
 
 export function PlaqueHeader({
-  course, hole, count, skin,
-}: { course: DisplayCourse; hole: DisplayHole; count: number; skin: BoardSkin }) {
+  course, hole, skin,
+}: { course: DisplayCourse; hole: DisplayHole; skin: BoardSkin }) {
   return (
     <div
       className="px-6 py-4"
@@ -177,9 +177,6 @@ export function PlaqueHeader({
           <div className="mt-1 flex items-center justify-center gap-2">
             <span className="text-[11px] uppercase tracking-[0.28em]" style={{ color: skin.bodyText }}>
               Hole #{hole.hole_number} · Par {hole.par}{hole.yardage ? ` · ${hole.yardage} yd` : ""}
-            </span>
-            <span className="rounded bg-black/40 px-1.5 py-0.5 text-[11px] font-bold" style={{ color: skin.accent }}>
-              {count} ace{count !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
