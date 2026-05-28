@@ -14,6 +14,7 @@ import { z } from "zod";
 const searchSchema = z.object({
   template: z.enum(["spotlight", "plaque", "ultrawide"]).optional(),
   style: z.enum(["walnut", "mahogany", "slate", "modern"]).optional(),
+  sound: z.coerce.number().optional(),
 });
 
 export const Route = createFileRoute("/$slug/display")({
@@ -42,6 +43,7 @@ function DisplayPage() {
   const search = useSearch({ from: "/$slug/display" });
   const template: DisplayTemplate = search.template ?? "spotlight";
   const style = search.style ?? "walnut";
+  const muted = !search.sound;
   const fetchFn = useServerFn(getDisplayData);
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +104,7 @@ function DisplayPage() {
 
   const { course, entries, holes } = data;
 
-  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
-  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} />;
+  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
+  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
   return <SpotlightTemplate course={course} entries={entries} />;
 }

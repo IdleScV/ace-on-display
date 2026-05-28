@@ -1,108 +1,54 @@
 ## Goal
 
-Replace the single-entry DemoKiosk with a realistic clubhouse-board simulation: **one screen per par-3 hole**, three regions matching your sketch, auto-rotating between holes. Visuals are hardcoded for the demo but built so per-course theming + logos drop in cleanly later.
+The hole-level top-down image and flyover video already get uploaded via the admin **Hole media** editor and appear on the public `/$slug/hole/$holeNumber` page — but the kiosk **Display templates** (Plaque + Ultrawide) ignore them. This task wires that media into the on-wall displays so each hole rotation shows its own top-down map and an embedded flyover slot, plus a round of polish to make the displays look more bespoke.
 
-## Layout (matches your sketch · 33/66 vertical · 66/33 horizontal on top)
+## What changes
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ HEADER · course logo + name · "Par 3 Hole-in-One Club"   │
-│         · hole tabs:  #3 · #7 · #12 · #16                │
-├────────────────────────────────────────┬─────────────────┤
-│                                        │                 │
-│  A · FLYOVER PANEL                     │  B · TOP-DOWN   │  ← top third
-│     Ken Burns on stylized hole art     │     hole map    │     A:B = 66:33
-│     Overlay chip:                      │     tee → green │
-│     HOLE 7 · PAR 3 · 168 YD · SI 11    │     bunkers,    │
-│     ▶ FLYOVER badge                    │     pin, water  │
-│                                        │                 │
-├────────────────────────────────────────┴─────────────────┤
-│                                                          │
-│  C · WOOD PLAQUE — "HOLE-IN-ONE CLUB"                    │  ← bottom two-thirds
-│     Brass header banner                                  │
-│     Grid of brass-on-black name plates                   │
-│     (NAME · #hole · year), screw dots in corners,        │
-│     currently-spotlighted plate has a subtle gold glow   │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
-```
+### 1. Surface hole media on the kiosk displays
 
-## Hole cycling
+**Data flow**
+- `DisplayHole` type → add `topdown_url: string | null` and `video_url: string | null`.
+- `getDisplayData` (in `src/lib/public.functions.ts`) → already reads `course_holes`; extend the select to include the two new columns and pass them through.
+- No DB migration needed (columns already exist).
 
-- **Auto-rotate** holes every ~9s.
-- **Manual tabs** in the header (`#3 · #7 · #12 · #16`) — click pauses auto-rotate for ~20s then resumes.
-- Inside a hole, C's "spotlight plate" cycles every ~2.5s so the board reads as live.
+**PlaqueTemplate** (`src/components/display-templates/PlaqueTemplate.tsx`)
+- Restructure the body so each hole rotation renders a **two-column layout**:
+  - Left ~38%: a stacked **"hole panel"** with the top-down image on top and the flyover video below (autoplay, muted, loop, playsInline). When either is missing, fall back to an inline SVG hole illustration / "Flyover coming soon" placeholder skinned to match the board.
+  - Right ~62%: the existing plaque grid (`PlaqueBoard`) for that hole's aces.
+- Plaque grid stays the spotlight focus; media panel adds context without stealing attention.
+- Restart the video element on hole change (`key={hole.hole_number}`) so it always plays from the top.
 
-## Sample data (hardcoded, inline `HOLES` constant)
+**UltrawideTemplate** (`src/components/display-templates/UltrawideTemplate.tsx`)
+- Column 1 (featured ace) gets a smaller **hole media strip** docked at the bottom: top-down thumb + autoplaying muted flyover, captioned `HOLE #X · FLYOVER`. Falls back to the existing gradient when no media exists.
+- Column 2's plaque-wall header gets the top-down as a faint background watermark behind the "Hole #X" title plate for extra richness (only when `topdown_url` exists).
 
-Course: **Cedar Ridge GC**, four par-3 boards:
+**SpotlightTemplate** — unchanged for now (it's a per-ace rotation, not per-hole).
 
-| Hole | Par | Yards | SI | Aces shown |
-|------|-----|-------|----|-----------|
-| #3   | 3   | 142   | 15 | 6  |
-| #7   | 3   | 168   | 11 | 9  |
-| #12  | 3   | 124   | 17 | 4  |
-| #16  | 3   | 195   | 7  | 11 |
+### 2. Display polish (small, visual-only)
 
-Each hole has its own plausible name list spanning ~1991-2026, echoing the real plaque you uploaded (mixed case names, hole #, year).
+- **Hole transitions**: add a 600ms cross-fade between hole rotations in Plaque + Ultrawide so the media panel doesn't pop.
+- **Empty-media placeholders**: a small reusable `<HoleMediaSlot>` component that renders a tasteful "Top-down coming soon" / "Flyover coming soon" tile in the board's skin colors instead of a blank box, so half-configured courses still look intentional.
+- **Hole tabs** in Plaque footer: show a tiny camera icon next to hole numbers that have a flyover available, so the room can tell at a glance which holes have richer media.
+- **Mute toggle** (display-only): a discreet bottom-right button (`?sound=1` URL flag) to let the clubhouse opt audio on; default stays muted so kiosks don't blast sound.
 
-## Panel A — Flyover simulation
+### 3. Out of scope
 
-- Inline SVG "hole" illustration per hole (fairway/rough shapes, bunkers, green, pin) — no external image needed for the demo.
-- **Ken Burns**: CSS `@keyframes` scale 1.00 → 1.08 + slow translate, ~12s loop; restarts on hole change.
-- Overlay chip top-left: `HOLE 7 · PAR 3 · 168 YD · SI 11`.
-- Bottom-right `▶ FLYOVER` badge so it reads as "this is video in production".
+- No DB / RLS changes (columns and bucket already exist).
+- No changes to `HoleMediaEditor`, `/$slug/hole/$holeNumber` public page, or the admin dashboard layout — those already expose the media.
+- SpotlightTemplate stays per-ace; it doesn't have a per-hole concept.
 
-## Panel B — Top-down hole diagram
+## Technical details
 
-- Inline SVG: tee box at bottom, fairway corridor scaled to yardage, sand bunkers (tan ellipses), green (lighter circle), pin/flag marker.
-- Per-hole variation: bunker count + placement, one hole has water.
-- Compass rose + yardage label.
+**Files changed**
+- `src/components/display-templates/types.ts` — extend `DisplayHole` with `topdown_url`, `video_url`.
+- `src/lib/public.functions.ts` — include new columns in the `getDisplayData` hole select and map them through.
+- `src/components/display-templates/PlaqueTemplate.tsx` — new two-column body, `<HoleMediaSlot>` usage, transition + camera-icon tab marker.
+- `src/components/display-templates/UltrawideTemplate.tsx` — featured-column media strip + watermark behind the header plate.
+- `src/components/display-templates/HoleMediaSlot.tsx` (new) — small shared component for top-down/video tiles with skin-aware fallbacks.
+- `src/routes/$slug.display.tsx` — read `?sound=1` from search params (extend `searchSchema`) and pass `muted` down to templates.
 
-## Panel C — Wood plaque (skeuomorphic)
+**Video element rules**
+- Always `muted` unless `?sound=1` is passed; `autoPlay`, `loop`, `playsInline`, `preload="metadata"`. Re-keyed on hole change to restart cleanly.
 
-- **Background**: layered CSS gradients (multiple `repeating-linear-gradient` for grain + radial highlights) — looks like walnut without an image.
-- **Brass header banner**: dark plate, gold gradient text — `CEDAR RIDGE GC · HOLE #7 · HOLE-IN-ONE CLUB`.
-- **Plate grid**: 4 cols desktop, 2 cols mobile.
-- Each plate: dark green/black gradient, gold inset border, four screw dots, gold serif text:
-  ```
-  ELEANOR WHITCOMBE
-        #7
-       2024
-  ```
-- Currently-spotlighted plate: subtle gold glow + slight scale-up.
-
-## Theming hook (future-ready, no UI added now)
-
-All visual decisions read from a single `THEME` object at the top of the file:
-
-```ts
-const THEME = {
-  courseName: "Cedar Ridge GC",
-  logoUrl: null,            // future: course-uploaded logo
-  primary: "#0b4d2c",       // header/flyover wash
-  accent:  "#d4af37",       // brass/gold
-  plaqueStyle: "walnut",    // future: "mahogany" | "slate" | "modern-dark"
-  flyoverStyle: "kenburns", // future: "video" | "static"
-};
-```
-
-Plus a small `PLAQUE_STYLES` map (walnut today; mahogany/slate/modern-dark stubbed as TODO comments) so swapping skins later is a one-line change. Logo: header renders `<img src={THEME.logoUrl}>` when present, else falls back to the current trophy mark. **No new UI / picker is built in this task** — this is just the seam.
-
-## Responsive
-
-- Desktop (≥sm): full 33/66 vertical split as above.
-- Mobile (<sm): stack vertically — tabs → A → B → C; C becomes 2-col grid showing first 8 plates + "+N more aces" link-style label; keep bezel + "live kiosk preview · cedar-ridge.aceboard.app/display" chrome (hide URL on xs).
-
-## Files
-
-- **Rewrite** `src/components/DemoKiosk.tsx` — all sub-components in one file: `HoleTabs`, `FlyoverPanel`, `TopDownPanel`, `PlaqueBoard`, `NamePlate`; `HOLES` and `THEME` constants inline.
-- **No changes** to `src/routes/index.tsx` (already renders `<DemoKiosk />`).
-- **No new deps · no backend · no DB · no real video.**
-
-## Out of scope (separate future tasks)
-
-- Real per-course theming UI in the CMS (color/plaque-style/logo per course-hole).
-- Per-hole board data model in Supabase (today `entries.hole_number` is just an int; future board grouping = group by `hole_number` per course).
-- Real flyover video uploads + storage.
-- Editing the live `/$slug/display` kiosk route — this task is demo-page-only.
+**Performance**
+- Per hole, at most one `<video>` is mounted at a time (only the active hole's media panel renders). Other holes' media is not in the DOM, so memory stays flat even for courses with many flyovers.

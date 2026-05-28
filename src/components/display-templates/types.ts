@@ -29,6 +29,8 @@ export interface DisplayHole {
   hole_number: number;
   par: number;
   yardage: number | null;
+  topdown_url?: string | null;
+  video_url?: string | null;
 }
 
 export type DisplayTemplate = "spotlight" | "plaque" | "ultrawide";
