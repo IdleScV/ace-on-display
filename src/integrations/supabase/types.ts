@@ -65,7 +65,9 @@ export type Database = {
           hole_number: number
           id: string
           par: number
+          topdown_url: string | null
           updated_at: string
+          video_url: string | null
           yardage: number | null
         }
         Insert: {
@@ -74,7 +76,9 @@ export type Database = {
           hole_number: number
           id?: string
           par?: number
+          topdown_url?: string | null
           updated_at?: string
+          video_url?: string | null
           yardage?: number | null
         }
         Update: {
@@ -83,7 +87,9 @@ export type Database = {
           hole_number?: number
           id?: string
           par?: number
+          topdown_url?: string | null
           updated_at?: string
+          video_url?: string | null
           yardage?: number | null
         }
         Relationships: [
