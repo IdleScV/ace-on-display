@@ -46,6 +46,7 @@ function AdminLayout() {
             {isCourseManager && !isSuperadmin && <span className="rounded-md bg-secondary px-2 py-0.5 text-xs">Course Manager</span>}
           </div>
           <div className="flex items-center gap-3">
+            <RoleSimulator />
             {courses.length > 0 && (
               <select
                 value={activeCourse?.id ?? ""}
