@@ -42,7 +42,7 @@ interface DisplayPayload {
 function DisplayPage() {
   const { slug } = Route.useParams();
   const search = useSearch({ from: "/$slug/display" });
-  const template: DisplayTemplate = search.template ?? "spotlight";
+  const template: DisplayTemplate = search.template ?? "plaque";
   const style = search.style ?? "walnut";
   const muted = !search.sound;
   const photos = search.photos ?? "slideshow";
