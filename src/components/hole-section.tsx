@@ -82,6 +82,20 @@ function NamePlate({
       <Screw className="bottom-1 left-1" />
       <Screw className="bottom-1 right-1" />
 
+      {ace.photo_url && (
+        <div
+          className="mx-auto mb-2 overflow-hidden rounded-sm"
+          style={{ boxShadow: `inset 0 0 0 1px ${ACCENT}66, 0 2px 6px rgba(0,0,0,0.6)` }}
+        >
+          <img
+            src={ace.photo_url}
+            alt={`${ace.golfer_name} hole-in-one`}
+            loading="lazy"
+            className="aspect-[4/3] w-full max-w-[180px] object-cover"
+          />
+        </div>
+      )}
+
       <div
         className="font-serif text-[11px] font-bold uppercase leading-tight tracking-wider sm:text-[13px]"
         style={{
