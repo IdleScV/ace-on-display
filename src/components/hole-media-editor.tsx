@@ -118,14 +118,26 @@ function HoleCard({
           accept="image/*"
           url={hole.topdown_url}
           busy={busy === "image"}
+          previewTitle={`Hole ${hole.hole_number} — Top-down`}
           onUpload={(f) => upload("image", f)}
           onClear={() => clear("image")}
-          preview={
+          renderPreview={(onOpen) =>
+            hole.topdown_url ? (
+              <PreviewButton onClick={onOpen}>
+                <img
+                  src={hole.topdown_url}
+                  alt={`Hole ${hole.hole_number} top-down`}
+                  className="aspect-video w-full rounded object-cover"
+                />
+              </PreviewButton>
+            ) : null
+          }
+          renderFullView={() =>
             hole.topdown_url ? (
               <img
                 src={hole.topdown_url}
                 alt={`Hole ${hole.hole_number} top-down`}
-                className="aspect-video w-full rounded object-cover"
+                className="max-h-[80vh] w-full rounded object-contain"
               />
             ) : null
           }
@@ -136,20 +148,42 @@ function HoleCard({
           accept="video/*"
           url={hole.video_url}
           busy={busy === "video"}
+          previewTitle={`Hole ${hole.hole_number} — Video`}
           onUpload={(f) => upload("video", f)}
           onClear={() => clear("video")}
-          preview={
+          renderPreview={(onOpen) =>
+            hole.video_url ? (
+              <div className="relative">
+                <video
+                  src={hole.video_url}
+                  controls
+                  preload="metadata"
+                  className="aspect-video w-full rounded bg-black object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  className="absolute right-1 top-1 rounded-md bg-black/60 p-1 text-white opacity-80 hover:opacity-100"
+                  title="Preview"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : null
+          }
+          renderFullView={() =>
             hole.video_url ? (
               <video
                 src={hole.video_url}
                 controls
-                preload="metadata"
-                className="aspect-video w-full rounded bg-black object-cover"
+                autoPlay
+                className="max-h-[80vh] w-full rounded bg-black object-contain"
               />
             ) : null
           }
         />
       </div>
+
     </div>
   );
 }
