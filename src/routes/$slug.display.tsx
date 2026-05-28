@@ -43,6 +43,7 @@ function DisplayPage() {
   const search = useSearch({ from: "/$slug/display" });
   const template: DisplayTemplate = search.template ?? "spotlight";
   const style = search.style ?? "walnut";
+  const muted = !search.sound;
   const fetchFn = useServerFn(getDisplayData);
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
