@@ -13,6 +13,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
 import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
@@ -45,6 +46,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTutorRoute = ApiTutorRouteImport.update({
+  id: '/api/tutor',
+  path: '/api/tutor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
+  '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/admin'
+    | '/api/tutor'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
     | '/admin/courses'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/$slug/display'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
+    | '/api/tutor'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
     | '/admin/courses'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/_authenticated/admin'
+    | '/api/tutor'
     | '/$slug/hole/$holeNumber'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/courses'
@@ -250,6 +262,7 @@ export interface RootRouteChildren {
   SlugDisplayRoute: typeof SlugDisplayRoute
   SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
   SlugRotateRoute: typeof SlugRotateRoute
+  ApiTutorRoute: typeof ApiTutorRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
 }
@@ -282,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tutor': {
+      id: '/api/tutor'
+      path: '/api/tutor'
+      fullPath: '/api/tutor'
+      preLoaderRoute: typeof ApiTutorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -430,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugDisplayRoute: SlugDisplayRoute,
   SlugHoleInOnesRoute: SlugHoleInOnesRoute,
   SlugRotateRoute: SlugRotateRoute,
+  ApiTutorRoute: ApiTutorRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
 }
