@@ -73,16 +73,27 @@ export function PlaqueTemplate({
         key={current.hole.hole_number}
         className="plaque-fade flex flex-1 flex-col overflow-hidden"
       >
-        {/* Top third — Flyover (2fr) | Top-down (1fr) */}
+        {/* Top third — Flyover/Slideshow (2fr) | Top-down (1fr) */}
         <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr]">
-          <HoleMediaSlot
-            kind="video"
-            url={current.hole.video_url}
-            skin={skin}
-            muted={muted}
-            reloadKey={current.hole.hole_number}
-            className="h-full w-full"
-          />
+          {photos === "slideshow" ? (
+            <PhotoSlideshow
+              aces={current.aces}
+              skin={skin}
+              fallbackVideoUrl={current.hole.video_url}
+              muted={muted}
+              reloadKey={current.hole.hole_number}
+              className="h-full w-full"
+            />
+          ) : (
+            <HoleMediaSlot
+              kind="video"
+              url={current.hole.video_url}
+              skin={skin}
+              muted={muted}
+              reloadKey={current.hole.hole_number}
+              className="h-full w-full"
+            />
+          )}
           <HoleMediaSlot
             kind="image"
             url={current.hole.topdown_url}
@@ -100,7 +111,7 @@ export function PlaqueTemplate({
             boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
           }}
         >
-          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} />
+          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} />
         </div>
       </div>
       <div className="flex justify-center gap-2 bg-black px-4 py-2">
