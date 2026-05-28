@@ -280,7 +280,7 @@ function Screw({ className = "" }: { className?: string }) {
 }
 
 function PhotoSlideshow({
-  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "",
+  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "", onCycleComplete,
 }: {
   aces: DisplayEntry[];
   skin: BoardSkin;
@@ -288,6 +288,7 @@ function PhotoSlideshow({
   muted?: boolean;
   reloadKey?: string | number;
   className?: string;
+  onCycleComplete?: () => void;
 }) {
   const photos = useMemo(() => aces.filter((a) => !!a.photo_url), [aces]);
   const hasVideo = !!fallbackVideoUrl;
@@ -300,14 +301,46 @@ function PhotoSlideshow({
   }, [reloadKey, photos.length, hasVideo]);
 
   // Advance through photos on a timer. The video slot advances via onEnded.
+  // When we reach the end of the photo run and there is NO video, fire
+  // onCycleComplete so the parent can advance to the next hole.
   useEffect(() => {
-    if (totalSlots <= 1) return;
+    if (totalSlots === 0) return;
     if (hasVideo && idx === photos.length) return; // video controls its own advance
-    const t = setTimeout(() => setIdx((i) => (i + 1) % totalSlots), PHOTO_MS);
+    const t = setTimeout(() => {
+      if (!hasVideo && idx === photos.length - 1) {
+        onCycleComplete?.();
+      } else {
+        setIdx((i) => (i + 1) % totalSlots);
+      }
+    }, PHOTO_MS);
     return () => clearTimeout(t);
-  }, [idx, totalSlots, hasVideo, photos.length]);
+  }, [idx, totalSlots, hasVideo, photos.length, onCycleComplete]);
 
-  // No ace photos for this hole — gracefully fall back to flyover or placeholder.
+  // No ace photos for this hole but we DO have a flyover — play it and advance
+  // the hole when it ends.
+  if (photos.length === 0 && hasVideo) {
+    return (
+      <figure
+        className={`relative overflow-hidden rounded-md ${className}`}
+        style={{
+          background: "#000",
+          boxShadow: `inset 0 0 0 1.5px ${skin.accent}aa, 0 4px 14px rgba(0,0,0,0.45)`,
+        }}
+      >
+        <video
+          key={`${reloadKey}-solo-video`}
+          src={fallbackVideoUrl ?? undefined}
+          className="absolute inset-0 h-full w-full object-cover"
+          muted={muted}
+          playsInline
+          autoPlay
+          onEnded={() => onCycleComplete?.()}
+        />
+      </figure>
+    );
+  }
+
+  // No ace photos and no video — placeholder.
   if (photos.length === 0) {
     return (
       <HoleMediaSlot
@@ -349,9 +382,10 @@ function PhotoSlideshow({
           muted={muted}
           playsInline
           autoPlay={showingVideo}
-          onEnded={() => setIdx(0)}
+          onEnded={() => onCycleComplete?.()}
         />
       )}
     </figure>
   );
 }
+
