@@ -292,7 +292,7 @@ function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void })
   const upload = async (file: File) => {
     setBusy(true);
     try {
-      const path = `${course.slug}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const path = `${course.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error } = await supabase.storage.from("course-logos").upload(path, file, { upsert: true, contentType: file.type });
       if (error) throw error;
       const { data } = supabase.storage.from("course-logos").getPublicUrl(path);
