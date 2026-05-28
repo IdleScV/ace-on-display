@@ -1,21 +1,23 @@
-import { Trophy } from "lucide-react";
+import { Trophy, Camera } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   formatLongDate, resolveSkin, shade,
   type BoardSkin, type BoardStyle,
   type DisplayCourse, type DisplayEntry, type DisplayHole,
 } from "./types";
+import { HoleMediaSlot } from "./HoleMediaSlot";
 
 const HOLE_MS = 12_000;
 const SPOT_MS = 2_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut",
+  course, entries, holes, style = "walnut", muted = true,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
+  muted?: boolean;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
 
@@ -65,24 +67,61 @@ export function PlaqueTemplate({
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-black">
       <PlaqueHeader course={course} hole={current.hole} count={current.aces.length} skin={skin} />
-      <div className="flex-1 overflow-hidden">
-        <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} />
+      <div
+        key={current.hole.hole_number}
+        className="plaque-fade flex flex-1 flex-col gap-3 overflow-hidden px-6 py-4 md:flex-row"
+        style={{
+          background: skin.background,
+          boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
+        }}
+      >
+        {/* Hole media panel */}
+        <aside className="flex w-full shrink-0 flex-col gap-3 md:w-[38%] md:max-w-[560px]">
+          <HoleMediaSlot
+            kind="image"
+            url={current.hole.topdown_url}
+            skin={skin}
+            reloadKey={current.hole.hole_number}
+            className="aspect-video w-full"
+          />
+          <HoleMediaSlot
+            kind="video"
+            url={current.hole.video_url}
+            skin={skin}
+            muted={muted}
+            reloadKey={current.hole.hole_number}
+            className="aspect-video w-full"
+          />
+        </aside>
+
+        {/* Plaque grid */}
+        <div className="min-w-0 flex-1">
+          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} />
+        </div>
       </div>
       <div className="flex justify-center gap-2 bg-black px-4 py-2">
-        {grouped.map((g, i) => (
-          <span
-            key={g.hole.hole_number}
-            className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest transition"
-            style={{
-              background: i === holeIdx ? skin.accent : "transparent",
-              color: i === holeIdx ? "#0a0a0a" : "#aaa",
-              border: `1px solid ${i === holeIdx ? skin.accent : "#333"}`,
-            }}
-          >
-            #{g.hole.hole_number}
-          </span>
-        ))}
+        {grouped.map((g, i) => {
+          const hasVideo = !!g.hole.video_url;
+          return (
+            <span
+              key={g.hole.hole_number}
+              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest transition"
+              style={{
+                background: i === holeIdx ? skin.accent : "transparent",
+                color: i === holeIdx ? "#0a0a0a" : "#aaa",
+                border: `1px solid ${i === holeIdx ? skin.accent : "#333"}`,
+              }}
+            >
+              #{g.hole.hole_number}
+              {hasVideo && <Camera className="h-2.5 w-2.5 opacity-80" />}
+            </span>
+          );
+        })}
       </div>
+      <style>{`
+        @keyframes plaqueFade { from { opacity: 0 } to { opacity: 1 } }
+        .plaque-fade { animation: plaqueFade .6s ease-out }
+      `}</style>
     </div>
   );
 }
@@ -132,11 +171,8 @@ export function PlaqueHeader({
 
 export function PlaqueBoard({ aces, spotIdx, skin }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin }) {
   return (
-    <div
-      className="h-full px-6 py-6"
-      style={{ background: skin.background, boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)` }}
-    >
-      <div className="mx-auto grid h-full max-w-6xl auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-4">
+    <div className="h-full">
+      <div className="grid h-full auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {aces.map((ace, i) => (
           <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} />
         ))}
