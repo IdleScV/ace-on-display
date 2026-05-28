@@ -9,15 +9,17 @@ import { HoleMediaSlot } from "./HoleMediaSlot";
 
 const HOLE_MS = 12_000;
 const SPOT_MS = 2_500;
+const PHOTO_MS = 3_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut", muted = true,
+  course, entries, holes, style = "walnut", muted = true, photos = "cards",
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
   muted?: boolean;
+  photos?: "cards" | "slideshow";
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
 
@@ -71,16 +73,27 @@ export function PlaqueTemplate({
         key={current.hole.hole_number}
         className="plaque-fade flex flex-1 flex-col overflow-hidden"
       >
-        {/* Top third — Flyover (2fr) | Top-down (1fr) */}
+        {/* Top third — Flyover/Slideshow (2fr) | Top-down (1fr) */}
         <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr]">
-          <HoleMediaSlot
-            kind="video"
-            url={current.hole.video_url}
-            skin={skin}
-            muted={muted}
-            reloadKey={current.hole.hole_number}
-            className="h-full w-full"
-          />
+          {photos === "slideshow" ? (
+            <PhotoSlideshow
+              aces={current.aces}
+              skin={skin}
+              fallbackVideoUrl={current.hole.video_url}
+              muted={muted}
+              reloadKey={current.hole.hole_number}
+              className="h-full w-full"
+            />
+          ) : (
+            <HoleMediaSlot
+              kind="video"
+              url={current.hole.video_url}
+              skin={skin}
+              muted={muted}
+              reloadKey={current.hole.hole_number}
+              className="h-full w-full"
+            />
+          )}
           <HoleMediaSlot
             kind="image"
             url={current.hole.topdown_url}
@@ -98,7 +111,7 @@ export function PlaqueTemplate({
             boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
           }}
         >
-          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} />
+          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} />
         </div>
       </div>
       <div className="flex justify-center gap-2 bg-black px-4 py-2">
@@ -171,19 +184,19 @@ export function PlaqueHeader({
   );
 }
 
-export function PlaqueBoard({ aces, spotIdx, skin }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin }) {
+export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean }) {
   return (
     <div className="h-full">
       <div className="grid h-full auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {aces.map((ace, i) => (
-          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} />
+          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} />
         ))}
       </div>
     </div>
   );
 }
 
-function NamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
+function NamePlate({ ace, spotlight, skin, hidePhoto = false }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; hidePhoto?: boolean }) {
   const cp = ace.custom_plate ?? {};
   const accent = cp.accent_color || skin.accent;
   const useCustomAccent = !!cp.accent_color;
@@ -212,7 +225,7 @@ function NamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boo
           {cp.badge}
         </div>
       )}
-      {ace.photo_url && (
+      {!hidePhoto && ace.photo_url && (
         <div className="mx-auto mb-2 overflow-hidden rounded-sm" style={{ boxShadow: `inset 0 0 0 1px ${accent}66` }}>
           <img src={ace.photo_url} alt="" className="aspect-[4/3] w-full max-w-[160px] object-cover" loading="lazy" />
         </div>
@@ -248,5 +261,69 @@ function Screw({ className = "" }: { className?: string }) {
         boxShadow: "0 0 1px rgba(0,0,0,0.6)",
       }}
     />
+  );
+}
+
+function PhotoSlideshow({
+  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "",
+}: {
+  aces: DisplayEntry[];
+  skin: BoardSkin;
+  fallbackVideoUrl?: string | null;
+  muted?: boolean;
+  reloadKey?: string | number;
+  className?: string;
+}) {
+  const photos = useMemo(() => aces.filter((a) => !!a.photo_url), [aces]);
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    setIdx(0);
+    if (photos.length <= 1) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % photos.length), PHOTO_MS);
+    return () => clearInterval(t);
+  }, [photos, reloadKey]);
+
+  // No ace photos for this hole — gracefully fall back to flyover or placeholder.
+  if (photos.length === 0) {
+    return (
+      <HoleMediaSlot
+        kind="video"
+        url={fallbackVideoUrl}
+        skin={skin}
+        muted={muted}
+        reloadKey={reloadKey}
+        className={className}
+      />
+    );
+  }
+
+  const current = photos[idx];
+
+  return (
+    <figure
+      className={`relative overflow-hidden rounded-md ${className}`}
+      style={{
+        background: "#000",
+        boxShadow: `inset 0 0 0 1.5px ${skin.accent}aa, 0 4px 14px rgba(0,0,0,0.45)`,
+      }}
+    >
+      {photos.map((p, i) => (
+        <img
+          key={p.id}
+          src={p.photo_url!}
+          alt={p.golfer_name}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+          style={{ opacity: i === idx ? 1 : 0 }}
+        />
+      ))}
+      <figcaption
+        className="absolute bottom-1 left-1 right-1 flex items-center justify-between rounded px-2 py-1 text-[10px] font-bold uppercase tracking-widest"
+        style={{ background: "rgba(0,0,0,0.6)", color: skin.accent }}
+      >
+        <span className="truncate" style={{ color: "#fff" }}>{current.golfer_name}</span>
+        <span>{idx + 1}/{photos.length}</span>
+      </figcaption>
+    </figure>
   );
 }

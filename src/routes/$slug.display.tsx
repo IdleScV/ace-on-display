@@ -15,6 +15,7 @@ const searchSchema = z.object({
   template: z.enum(["spotlight", "plaque", "ultrawide"]).optional(),
   style: z.enum(["walnut", "mahogany", "slate", "modern"]).optional(),
   sound: z.coerce.number().optional(),
+  photos: z.enum(["cards", "slideshow"]).optional(),
 });
 
 export const Route = createFileRoute("/$slug/display")({
@@ -44,6 +45,7 @@ function DisplayPage() {
   const template: DisplayTemplate = search.template ?? "spotlight";
   const style = search.style ?? "walnut";
   const muted = !search.sound;
+  const photos = search.photos ?? "cards";
   const fetchFn = useServerFn(getDisplayData);
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +106,7 @@ function DisplayPage() {
 
   const { course, entries, holes } = data;
 
-  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
+  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} photos={photos} />;
   if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
   return <SpotlightTemplate course={course} entries={entries} />;
 }
