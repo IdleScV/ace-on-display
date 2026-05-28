@@ -188,6 +188,22 @@ function HoleCard({
   );
 }
 
+function PreviewButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative block w-full overflow-hidden rounded"
+      title="Preview"
+    >
+      {children}
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100">
+        <Maximize2 className="h-5 w-5 text-white" />
+      </span>
+    </button>
+  );
+}
+
 function MediaSlot({
   icon,
   label,
@@ -196,7 +212,9 @@ function MediaSlot({
   busy,
   onUpload,
   onClear,
-  preview,
+  previewTitle,
+  renderPreview,
+  renderFullView,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -205,8 +223,12 @@ function MediaSlot({
   busy: boolean;
   onUpload: (file: File) => void;
   onClear: () => void;
-  preview: React.ReactNode;
+  previewTitle: string;
+  renderPreview: (onOpen: () => void) => React.ReactNode;
+  renderFullView: () => React.ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const preview = renderPreview(() => setOpen(true));
   return (
     <div className="rounded-md border bg-card p-2">
       <div className="mb-1 flex items-center justify-between text-xs font-medium">
@@ -243,6 +265,13 @@ function MediaSlot({
           }}
         />
       </label>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-5xl">
+          <DialogTitle className="text-sm">{previewTitle}</DialogTitle>
+          {renderFullView()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
