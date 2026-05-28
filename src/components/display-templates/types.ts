@@ -1,3 +1,10 @@
+export interface CustomPlate {
+  tagline?: string | null;
+  badge?: string | null;
+  accent_color?: string | null;
+  highlight?: boolean | null;
+}
+
 export interface DisplayEntry {
   id: string;
   golfer_name: string;
@@ -6,6 +13,7 @@ export interface DisplayEntry {
   yardage: number | null;
   club: string | null;
   photo_url: string | null;
+  custom_plate?: CustomPlate | null;
 }
 
 export interface DisplayCourse {

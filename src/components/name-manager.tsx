@@ -18,6 +18,7 @@ type EntryRow = {
   witness: string | null;
   notes: string | null;
   photo_url: string | null;
+  custom_plate: any | null;
 };
 
 type PreviewSort = "newest" | "oldest" | "az" | "za";
@@ -58,7 +59,7 @@ export function NameManager({ course }: { course: CourseLite }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("entries")
-        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes,photo_url,status")
+        .select("id,golfer_name,date_achieved,hole_number,yardage,club,witness,notes,photo_url,custom_plate,status")
         .eq("course_id", course.id)
         .eq("status", "published")
         .order("hole_number")
@@ -135,6 +136,7 @@ export function NameManager({ course }: { course: CourseLite }) {
         witness: e.witness,
         notes: e.notes,
         photo_url: e.photo_url,
+        custom_plate: e.custom_plate,
       }))
     : [];
 

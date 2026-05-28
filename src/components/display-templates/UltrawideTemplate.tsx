@@ -196,27 +196,47 @@ export function UltrawideTemplate({
 }
 
 function UltraNamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
+  const cp = ace.custom_plate ?? {};
+  const accent = cp.accent_color || skin.accent;
+  const useCustomAccent = !!cp.accent_color;
+  const accentHi = useCustomAccent ? shade(accent, 40) : skin.accentHi;
+  const accentLo = useCustomAccent ? shade(accent, -30) : skin.accentLo;
+  const highlight = !!cp.highlight;
   return (
     <div
       className="relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500"
       style={{
         background: skin.plateBg,
-        boxShadow: spotlight
-          ? `inset 0 0 0 1.5px ${skin.accent}, 0 0 24px ${skin.accent}66`
-          : `inset 0 0 0 1.5px ${skin.accent}aa`,
+        boxShadow:
+          spotlight || highlight
+            ? `inset 0 0 0 2px ${accent}, 0 0 24px ${accent}88`
+            : `inset 0 0 0 1.5px ${accent}aa`,
         transform: spotlight ? "scale(1.04)" : "scale(1)",
       }}
     >
+      {cp.badge && (
+        <div
+          className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[clamp(8px,0.55vw,11px)] font-bold uppercase tracking-widest"
+          style={{ background: accent, color: "#0a0a0a", boxShadow: "0 2px 6px rgba(0,0,0,0.6)" }}
+        >
+          {cp.badge}
+        </div>
+      )}
       <div
         className="font-serif text-[clamp(11px,0.9vw,16px)] font-bold uppercase leading-tight tracking-wider"
         style={{
-          background: `linear-gradient(180deg, ${skin.accentHi} 0%, ${skin.accent} 60%, ${skin.accentLo} 100%)`,
+          background: `linear-gradient(180deg, ${accentHi} 0%, ${accent} 60%, ${accentLo} 100%)`,
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
         }}
       >
         {ace.golfer_name}
       </div>
-      <div className="mt-1 font-serif text-[clamp(9px,0.7vw,12px)] font-semibold tracking-wide" style={{ color: skin.accent, opacity: 0.9 }}>
+      {cp.tagline && (
+        <div className="mt-0.5 font-serif text-[clamp(8px,0.6vw,11px)] italic text-white/70 leading-tight">
+          {cp.tagline}
+        </div>
+      )}
+      <div className="mt-1 font-serif text-[clamp(9px,0.7vw,12px)] font-semibold tracking-wide" style={{ color: accent, opacity: 0.9 }}>
         {ace.yardage ? `${ace.yardage} yd · ` : ""}{formatLongDate(ace.date_achieved)}
       </div>
     </div>

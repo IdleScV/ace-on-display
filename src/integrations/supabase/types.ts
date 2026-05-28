@@ -240,6 +240,7 @@ export type Database = {
           course_id: string
           created_at: string
           created_by: string | null
+          custom_plate: Json | null
           date_achieved: string
           golfer_name: string
           hole_number: number
@@ -257,6 +258,7 @@ export type Database = {
           course_id: string
           created_at?: string
           created_by?: string | null
+          custom_plate?: Json | null
           date_achieved: string
           golfer_name: string
           hole_number: number
@@ -274,6 +276,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           created_by?: string | null
+          custom_plate?: Json | null
           date_achieved?: string
           golfer_name?: string
           hole_number?: number

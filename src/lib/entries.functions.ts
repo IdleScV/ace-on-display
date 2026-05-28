@@ -12,6 +12,20 @@ async function assertCourseAccess(userId: string, courseId: string) {
   if (!cm) throw new Error("Forbidden");
 }
 
+const customPlateSchema = z
+  .object({
+    tagline: z.string().max(80).nullable().optional(),
+    badge: z.string().max(8).nullable().optional(),
+    accent_color: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .nullable()
+      .optional(),
+    highlight: z.boolean().nullable().optional(),
+  })
+  .nullable()
+  .optional();
+
 const entryInput = z.object({
   course_id: z.string().uuid(),
   golfer_name: z.string().min(1).max(200),
@@ -23,6 +37,7 @@ const entryInput = z.object({
   photo_url: z.string().url().nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
+  custom_plate: customPlateSchema,
 });
 
 export const listEntries = createServerFn({ method: "GET" })
