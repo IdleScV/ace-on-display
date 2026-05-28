@@ -7,9 +7,10 @@ import { useAuth } from "@/lib/auth-context";
 import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
-import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay } from "lucide-react";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay, Users } from "lucide-react";
 import { TEMPLATES, STYLES, SKINS, resolveSkin, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
 import { useState } from "react";
+import { NameManager } from "@/components/name-manager";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
@@ -145,6 +146,21 @@ function CourseDashboard() {
       >
         <TemplatesAndStyles course={course} />
       </Section>
+
+      {/* Names on the board */}
+      <Section
+        title="Names on the board"
+        desc="Edit golfer names inline and preview how they will appear, in any sort order."
+        action={
+          <span className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground">
+            <Users className="h-3.5 w-3.5" /> Published entries
+          </span>
+        }
+      >
+        <NameManager course={course} />
+      </Section>
+
+
 
 
       {/* Aces per hole */}
