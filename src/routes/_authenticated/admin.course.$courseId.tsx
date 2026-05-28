@@ -184,6 +184,19 @@ function CourseDashboard() {
         )}
       </Section>
 
+      {/* Component style preview */}
+      <Section
+        title="Component style preview"
+        desc="Live preview of how this course's branding renders on each public board component."
+        action={
+          <Link to="/admin/settings" className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent">
+            <Palette className="h-3.5 w-3.5" /> Edit styles
+          </Link>
+        }
+      >
+        <StylePreview course={course} sampleEntry={published[0]} sampleHole={aceableHoles[0]} />
+      </Section>
+
       {/* Setup summary */}
       <Section title="Setup" desc="Branding and display configuration." action={
         <Link to="/admin/settings" className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent">
