@@ -84,6 +84,7 @@ function AdminLayout() {
       <main className="container mx-auto px-6 py-8">
         <Outlet />
       </main>
+      <TutorChat />
     </div>
   );
 }
