@@ -7,7 +7,8 @@ import { useAuth } from "@/lib/auth-context";
 import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
-import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette } from "lucide-react";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay } from "lucide-react";
+import { TEMPLATES, type DisplayTemplate } from "@/components/display-templates/types";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
