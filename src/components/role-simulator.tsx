@@ -1,5 +1,5 @@
 import { UserCog, RotateCcw } from "lucide-react";
-import { useContext } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoleOverride } from "@/lib/role-override";
