@@ -36,7 +36,7 @@ function SettingsPage() {
   if (!activeCourse) return <p className="text-sm text-muted-foreground">Select a course first.</p>;
 
   const handleLogo = async (file: File) => {
-    const path = `${activeCourse.slug}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+    const path = `${activeCourse.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
     const { error } = await supabase.storage.from("course-logos").upload(path, file, { upsert: true, contentType: file.type });
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("course-logos").getPublicUrl(path);
