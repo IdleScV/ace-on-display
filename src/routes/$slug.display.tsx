@@ -15,6 +15,7 @@ const searchSchema = z.object({
   template: z.enum(["spotlight", "plaque", "ultrawide"]).optional(),
   style: z.enum(["walnut", "mahogany", "slate", "modern"]).optional(),
   sound: z.coerce.number().optional(),
+  photos: z.enum(["cards", "slideshow"]).optional(),
 });
 
 export const Route = createFileRoute("/$slug/display")({
