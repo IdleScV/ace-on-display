@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { useRoleOverride } from "./role-override";
 import { useQueryClient } from "@tanstack/react-query";
 
 export type AppRole = "superadmin" | "course_manager";
@@ -84,5 +85,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-  return ctx;
+  const { overrideRole, overrideCourseId } = useRoleOverride();
+
+  // Only superadmins can simulate; ignore overrides otherwise
+  const canSimulate = ctx.roles.includes("superadmin");
+  if (!canSimulate || !overrideRole || overrideRole === "superadmin") return ctx;
+
+  const simulatedManaged = overrideRole === "course_manager"
+    ? (overrideCourseId ? [overrideCourseId] : ctx.managedCourseIds)
+    : ctx.managedCourseIds;
+
+  return {
+    ...ctx,
+    roles: [overrideRole],
+    isSuperadmin: false,
+    isCourseManager: overrideRole === "course_manager",
+    managedCourseIds: simulatedManaged,
+  };
 }

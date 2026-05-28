@@ -19,6 +19,7 @@ import "@fontsource/karla/700.css";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
+import { RoleOverrideProvider } from "@/lib/role-override";
 
 function NotFoundComponent() {
   return (
@@ -108,10 +109,12 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-        <Toaster richColors position="top-right" />
-      </AuthProvider>
+      <RoleOverrideProvider>
+        <AuthProvider>
+          <Outlet />
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
+      </RoleOverrideProvider>
     </QueryClientProvider>
   );
 }
