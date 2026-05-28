@@ -73,7 +73,7 @@ export const updateHoleMedia = createServerFn({ method: "POST" })
       .from("course_holes").select("course_id").eq("id", data.id).maybeSingle();
     if (!row) throw new Error("Not found");
     if (!(await canManage(context.userId, row.course_id))) throw new Error("Forbidden");
-    const patch: Record<string, unknown> = {};
+    const patch: { topdown_url?: string | null; video_url?: string | null } = {};
     if (data.topdown_url !== undefined) patch.topdown_url = data.topdown_url;
     if (data.video_url !== undefined) patch.video_url = data.video_url;
     const { data: updated, error } = await supabaseAdmin
