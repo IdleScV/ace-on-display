@@ -75,35 +75,36 @@ export function PlaqueTemplate({
       >
         {/* Top third — Flyover/Slideshow (2fr) | Top-down (1fr) */}
         <div className="grid h-[34%] min-h-[180px] shrink-0 grid-cols-[2fr_1fr] gap-1 p-1">
-          {photos === "slideshow" ? (
-            <PhotoSlideshow
-              aces={current.aces}
-              skin={skin}
-              fallbackVideoUrl={current.hole.video_url}
-              muted={muted}
-              reloadKey={current.hole.hole_number}
-              className="h-full w-full rounded-md border-2"
-              style={{ borderColor: skin.accent }}
-            />
-          ) : (
+          <div className="h-full w-full overflow-hidden rounded-md border-2" style={{ borderColor: skin.accent }}>
+            {photos === "slideshow" ? (
+              <PhotoSlideshow
+                aces={current.aces}
+                skin={skin}
+                fallbackVideoUrl={current.hole.video_url}
+                muted={muted}
+                reloadKey={current.hole.hole_number}
+                className="h-full w-full"
+              />
+            ) : (
+              <HoleMediaSlot
+                kind="video"
+                url={current.hole.video_url}
+                skin={skin}
+                muted={muted}
+                reloadKey={current.hole.hole_number}
+                className="h-full w-full"
+              />
+            )}
+          </div>
+          <div className="h-full w-full overflow-hidden rounded-md border-2" style={{ borderColor: skin.accent }}>
             <HoleMediaSlot
-              kind="video"
-              url={current.hole.video_url}
+              kind="image"
+              url={current.hole.topdown_url}
               skin={skin}
-              muted={muted}
               reloadKey={current.hole.hole_number}
-              className="h-full w-full rounded-md border-2"
-              style={{ borderColor: skin.accent }}
+              className="h-full w-full"
             />
-          )}
-          <HoleMediaSlot
-            kind="image"
-            url={current.hole.topdown_url}
-            skin={skin}
-            reloadKey={current.hole.hole_number}
-            className="h-full w-full rounded-md border-2"
-            style={{ borderColor: skin.accent }}
-          />
+          </div>
         </div>
 
         {/* Bottom two-thirds — Plaque board */}
