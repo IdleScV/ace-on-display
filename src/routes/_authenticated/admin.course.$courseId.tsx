@@ -7,9 +7,10 @@ import { useAuth } from "@/lib/auth-context";
 import { getCourseHealth } from "@/lib/health.functions";
 import { CourseHeader, HoleSection } from "@/components/hole-section";
 import type { PublicEntry, PublicHole } from "@/lib/public.functions";
-import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay } from "lucide-react";
+import { ArrowLeft, ExternalLink, Monitor, Repeat, ListOrdered, Settings, ShieldAlert, Pencil, Trophy, Palette, MonitorPlay, Users } from "lucide-react";
 import { TEMPLATES, STYLES, SKINS, resolveSkin, type DisplayTemplate, type BoardStyle } from "@/components/display-templates/types";
 import { useState } from "react";
+import { NameManager } from "@/components/name-manager";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
