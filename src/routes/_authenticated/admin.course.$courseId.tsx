@@ -458,16 +458,61 @@ function shadeHex(hex: string, percent: number) {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
+function TemplatesAndStyles({
+  course,
+}: {
+  course: { slug: string; name: string; logo_url: string | null; primary_color: string; secondary_color: string };
+}) {
+  const [style, setStyle] = useState<BoardStyle>("walnut");
+  return (
+    <div className="space-y-5">
+      <div>
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Board style</div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {STYLES.map((s) => {
+            const active = s.id === style;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setStyle(s.id)}
+                className="flex items-start gap-3 rounded-lg border p-3 text-left transition hover:bg-accent"
+                style={{ borderColor: active ? s.accent : undefined, boxShadow: active ? `0 0 0 1px ${s.accent}` : undefined }}
+              >
+                <div
+                  className="h-10 w-10 shrink-0 rounded-md"
+                  style={{ background: s.background, boxShadow: `inset 0 0 0 2px ${s.rim}, inset 0 0 0 3px ${s.accent}` }}
+                />
+                <div className="min-w-0">
+                  <div className="text-sm font-medium">{s.label}</div>
+                  <div className="text-[11px] leading-snug text-muted-foreground">{s.desc}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        {TEMPLATES.map((t) => (
+          <TemplateCard key={t.id} courseSlug={course.slug} tpl={t} course={course} style={style} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TemplateCard({
   courseSlug,
   tpl,
   course,
+  style,
 }: {
   courseSlug: string;
   tpl: { id: DisplayTemplate; label: string; desc: string; longMonitor?: boolean };
   course: { name: string; logo_url: string | null; primary_color: string; secondary_color: string };
+  style: BoardStyle;
 }) {
-  const href = `/${courseSlug}/display?template=${tpl.id}`;
+  const href = `/${courseSlug}/display?template=${tpl.id}&style=${style}`;
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border bg-background">
       <div className="relative aspect-[16/9] overflow-hidden border-b bg-neutral-950">
