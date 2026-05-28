@@ -56,7 +56,7 @@ export function PlateCustomizer({ courseId }: { courseId: string }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("course_holes")
-        .select("hole_number,par,yardage")
+        .select("hole_number,par,yardage,topdown_url,video_url")
         .eq("course_id", courseId)
         .order("hole_number");
       if (error) throw error;
