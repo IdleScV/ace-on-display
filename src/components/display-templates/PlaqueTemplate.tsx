@@ -39,11 +39,24 @@ export function PlaqueTemplate({
   const [holeIdx, setHoleIdx] = useState(0);
   const [spotIdx, setSpotIdx] = useState(0);
 
+  const currentPreview = grouped[holeIdx % grouped.length];
+  // In slideshow mode, the PhotoSlideshow drives hole advance via
+  // onCycleComplete so the flyover video always gets a chance to play.
+  // Fall back to a timer when there are no photos AND no video, or in cards mode.
+  const slideshowDrivesAdvance =
+    photos === "slideshow" &&
+    !!currentPreview &&
+    (currentPreview.aces.some((a) => !!a.photo_url) || !!currentPreview.hole.video_url);
+
   useEffect(() => {
     if (grouped.length <= 1) return;
-    const t = setInterval(() => setHoleIdx((i) => (i + 1) % grouped.length), HOLE_MS);
+    if (slideshowDrivesAdvance) return;
+    const t = setInterval(
+      () => setHoleIdx((i) => (i + 1) % grouped.length),
+      HOLE_MS,
+    );
     return () => clearInterval(t);
-  }, [grouped.length]);
+  }, [grouped.length, slideshowDrivesAdvance, holeIdx]);
 
   useEffect(() => {
     setSpotIdx(0);
@@ -84,6 +97,7 @@ export function PlaqueTemplate({
                 muted={muted}
                 reloadKey={current.hole.hole_number}
                 className="h-full w-full"
+                onCycleComplete={() => setHoleIdx((i) => (i + 1) % grouped.length)}
               />
             ) : (
               <HoleMediaSlot
@@ -266,7 +280,7 @@ function Screw({ className = "" }: { className?: string }) {
 }
 
 function PhotoSlideshow({
-  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "",
+  aces, skin, fallbackVideoUrl, muted, reloadKey, className = "", onCycleComplete,
 }: {
   aces: DisplayEntry[];
   skin: BoardSkin;
@@ -274,6 +288,7 @@ function PhotoSlideshow({
   muted?: boolean;
   reloadKey?: string | number;
   className?: string;
+  onCycleComplete?: () => void;
 }) {
   const photos = useMemo(() => aces.filter((a) => !!a.photo_url), [aces]);
   const hasVideo = !!fallbackVideoUrl;
@@ -286,14 +301,46 @@ function PhotoSlideshow({
   }, [reloadKey, photos.length, hasVideo]);
 
   // Advance through photos on a timer. The video slot advances via onEnded.
+  // When we reach the end of the photo run and there is NO video, fire
+  // onCycleComplete so the parent can advance to the next hole.
   useEffect(() => {
-    if (totalSlots <= 1) return;
+    if (totalSlots === 0) return;
     if (hasVideo && idx === photos.length) return; // video controls its own advance
-    const t = setTimeout(() => setIdx((i) => (i + 1) % totalSlots), PHOTO_MS);
+    const t = setTimeout(() => {
+      if (!hasVideo && idx === photos.length - 1) {
+        onCycleComplete?.();
+      } else {
+        setIdx((i) => (i + 1) % totalSlots);
+      }
+    }, PHOTO_MS);
     return () => clearTimeout(t);
-  }, [idx, totalSlots, hasVideo, photos.length]);
+  }, [idx, totalSlots, hasVideo, photos.length, onCycleComplete]);
 
-  // No ace photos for this hole — gracefully fall back to flyover or placeholder.
+  // No ace photos for this hole but we DO have a flyover — play it and advance
+  // the hole when it ends.
+  if (photos.length === 0 && hasVideo) {
+    return (
+      <figure
+        className={`relative overflow-hidden rounded-md ${className}`}
+        style={{
+          background: "#000",
+          boxShadow: `inset 0 0 0 1.5px ${skin.accent}aa, 0 4px 14px rgba(0,0,0,0.45)`,
+        }}
+      >
+        <video
+          key={`${reloadKey}-solo-video`}
+          src={fallbackVideoUrl ?? undefined}
+          className="absolute inset-0 h-full w-full object-cover"
+          muted={muted}
+          playsInline
+          autoPlay
+          onEnded={() => onCycleComplete?.()}
+        />
+      </figure>
+    );
+  }
+
+  // No ace photos and no video — placeholder.
   if (photos.length === 0) {
     return (
       <HoleMediaSlot
@@ -335,9 +382,10 @@ function PhotoSlideshow({
           muted={muted}
           playsInline
           autoPlay={showingVideo}
-          onEnded={() => setIdx(0)}
+          onEnded={() => onCycleComplete?.()}
         />
       )}
     </figure>
   );
 }
+
