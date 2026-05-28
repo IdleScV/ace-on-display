@@ -69,12 +69,19 @@ function NamePlate({
 }) {
   const yards = ace.yardage ?? fallbackYards;
   const dateLabel = formatLongDate(ace.date_achieved);
+  const cp = ace.custom_plate ?? {};
+  const accent = cp.accent_color || ACCENT;
+  const accentHi = cp.accent_color ? shadeHex(cp.accent_color, 40) : ACCENT_HI;
+  const accentLo = cp.accent_color ? shadeHex(cp.accent_color, -30) : ACCENT_LO;
+  const highlight = !!cp.highlight;
   return (
     <div
       className="relative flex flex-col justify-center rounded-sm px-4 py-3 text-center"
       style={{
         background: "linear-gradient(180deg, #1a1a1a 0%, #050505 100%)",
-        boxShadow: `inset 0 0 0 1.5px ${ACCENT}aa`,
+        boxShadow: highlight
+          ? `inset 0 0 0 2px ${accent}, 0 0 22px ${accent}88`
+          : `inset 0 0 0 1.5px ${accent}aa`,
       }}
     >
       <Screw className="left-1 top-1" />
@@ -82,10 +89,23 @@ function NamePlate({
       <Screw className="bottom-1 left-1" />
       <Screw className="bottom-1 right-1" />
 
+      {cp.badge && (
+        <div
+          className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+          style={{
+            background: accent,
+            color: "#0a0a0a",
+            boxShadow: `0 2px 6px rgba(0,0,0,0.6)`,
+          }}
+        >
+          {cp.badge}
+        </div>
+      )}
+
       {ace.photo_url && (
         <div
           className="mx-auto mb-2 overflow-hidden rounded-sm"
-          style={{ boxShadow: `inset 0 0 0 1px ${ACCENT}66, 0 2px 6px rgba(0,0,0,0.6)` }}
+          style={{ boxShadow: `inset 0 0 0 1px ${accent}66, 0 2px 6px rgba(0,0,0,0.6)` }}
         >
           <img
             src={ace.photo_url}
@@ -99,7 +119,7 @@ function NamePlate({
       <div
         className="font-serif text-[11px] font-bold uppercase leading-tight tracking-wider sm:text-[13px]"
         style={{
-          background: `linear-gradient(180deg, ${ACCENT_HI} 0%, ${ACCENT} 60%, ${ACCENT_LO} 100%)`,
+          background: `linear-gradient(180deg, ${accentHi} 0%, ${accent} 60%, ${accentLo} 100%)`,
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
@@ -107,9 +127,14 @@ function NamePlate({
       >
         {ace.golfer_name}
       </div>
+      {cp.tagline && (
+        <div className="mt-0.5 font-serif text-[9px] italic leading-tight text-white/70 sm:text-[10px]">
+          {cp.tagline}
+        </div>
+      )}
       <div
         className="mt-1 font-serif text-[8.5px] font-semibold leading-tight tracking-wide sm:text-[10px]"
-        style={{ color: ACCENT, opacity: 0.9 }}
+        style={{ color: accent, opacity: 0.9 }}
       >
         {yards ? `${yards} yd · ` : ""}
         {dateLabel}
@@ -122,6 +147,16 @@ function NamePlate({
       )}
     </div>
   );
+}
+
+function shadeHex(hex: string, percent: number) {
+  const c = hex.replace("#", "");
+  const n = parseInt(c, 16);
+  const adj = (v: number) => Math.max(0, Math.min(255, v + Math.round((255 * percent) / 100)));
+  const r = adj(n >> 16);
+  const g = adj((n >> 8) & 0xff);
+  const b = adj(n & 0xff);
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
 }
 
 function Screw({ className = "" }: { className?: string }) {
