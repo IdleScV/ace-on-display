@@ -117,6 +117,7 @@ export function PlaqueTemplate({
               skin={skin}
               reloadKey={current.hole.hole_number}
               className="h-full w-full"
+              hideCaption
             />
           </div>
         </div>
