@@ -230,12 +230,7 @@ function NamePlate({ ace, spotlight, skin, hidePhoto = false }: { ace: DisplayEn
             : `inset 0 0 0 1.5px ${accent}aa`,
       }}
     >
-      <div style={{ display: "none" }} />
-      {/* spotlight conveyed via glow only to avoid clipping in overflow-hidden parent */}
-      {(() => null)()}
-      <div style={{
-      }}
-    >
+
       <Screw className="left-1 top-1" /><Screw className="right-1 top-1" />
       <Screw className="bottom-1 left-1" /><Screw className="bottom-1 right-1" />
       {cp.badge && (
