@@ -228,9 +228,9 @@ function NamePlate({ ace, spotlight, skin, hidePhoto = false }: { ace: DisplayEn
           spotlight || highlight
             ? `inset 0 0 0 2px ${accent}, 0 0 24px ${accent}88`
             : `inset 0 0 0 1.5px ${accent}aa`,
-        transform: spotlight ? "scale(1.03)" : "scale(1)",
       }}
     >
+
       <Screw className="left-1 top-1" /><Screw className="right-1 top-1" />
       <Screw className="bottom-1 left-1" /><Screw className="bottom-1 right-1" />
       {cp.badge && (
