@@ -14,6 +14,7 @@ export function HoleMediaSlot({
   reloadKey,
   className = "",
   label,
+  hideCaption = false,
 }: {
   kind: "image" | "video";
   url: string | null | undefined;
