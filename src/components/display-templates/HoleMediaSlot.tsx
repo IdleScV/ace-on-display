@@ -23,6 +23,7 @@ export function HoleMediaSlot({
   reloadKey?: string | number;
   className?: string;
   label?: string;
+  hideCaption?: boolean;
 }) {
   const captionDefault = kind === "image" ? "Top-down" : "Flyover";
   const caption = label ?? captionDefault;
