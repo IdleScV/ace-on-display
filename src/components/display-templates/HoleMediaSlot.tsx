@@ -57,12 +57,14 @@ export function HoleMediaSlot({
             className="h-full w-full object-cover"
           />
         )}
-        <figcaption
-          className="absolute bottom-1 left-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest"
-          style={{ background: "rgba(0,0,0,0.55)", color: skin.accent }}
-        >
-          {caption}
-        </figcaption>
+        {!hideCaption && (
+          <figcaption
+            className="absolute bottom-1 left-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest"
+            style={{ background: "rgba(0,0,0,0.55)", color: skin.accent }}
+          >
+            {caption}
+          </figcaption>
+        )}
       </figure>
     );
   }
