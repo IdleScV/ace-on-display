@@ -16,6 +16,10 @@ import "@fontsource/karla/400.css";
 import "@fontsource/karla/500.css";
 import "@fontsource/karla/600.css";
 import "@fontsource/karla/700.css";
+import "@fontsource/cinzel/400.css";
+import "@fontsource/cinzel/600.css";
+import "@fontsource/cinzel/700.css";
+
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
