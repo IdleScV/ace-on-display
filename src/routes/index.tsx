@@ -25,32 +25,51 @@ function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       {/* ─── NAV ─────────────────────────────────────────────────────── */}
       <nav className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-          <Link to="/" className="flex items-center gap-2.5 text-background">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--gradient-brass)] text-primary-deep shadow-md">
-              <Flag className="h-4 w-4" strokeWidth={2.5} />
-            </span>
-            <span className="font-display text-2xl font-semibold tracking-tight">
-              Enshrined
-            </span>
-            <span className="ml-2 hidden font-sans text-xs uppercase tracking-[0.25em] text-background/70 sm:inline">
-              · Ace Board
-            </span>
-          </Link>
-          <div className="hidden items-center gap-8 text-sm text-background/85 md:flex">
-            <a href="#display" className="hover:text-background">The Display</a>
-            <a href="#record" className="hover:text-background">The Record</a>
-            <Link to="/pricing" className="hover:text-background">Pricing</Link>
-            <a href="#demo" className="hover:text-background">Live Demo</a>
+        <div className="mx-auto max-w-7xl px-6 pt-6">
+          <div className="relative flex items-center justify-between gap-6 overflow-hidden border border-accent/30 bg-primary-deep/85 px-6 py-3.5 shadow-2xl backdrop-blur-md">
+            {/* Brass corner brackets */}
+            <span className="pointer-events-none absolute left-0 top-0 h-2 w-2 border-l border-t border-accent/50" />
+            <span className="pointer-events-none absolute right-0 top-0 h-2 w-2 border-r border-t border-accent/50" />
+            <span className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b border-l border-accent/50" />
+            <span className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b border-r border-accent/50" />
+
+            {/* Left: brand lockup */}
+            <Link to="/" className="relative z-10 flex items-baseline gap-3 text-background">
+              <span className="font-display text-2xl font-medium italic leading-none tracking-tight text-background">
+                Enshrined
+              </span>
+              <span
+                className="hidden border-l border-accent/40 pl-3 text-[10px] font-bold uppercase leading-none tracking-[0.3em] text-accent sm:inline"
+                style={{ fontFamily: '"Cinzel", serif' }}
+              >
+                Ace Board
+              </span>
+            </Link>
+
+            {/* Center: nav */}
+            <div
+              className="relative z-10 hidden items-center gap-10 md:flex"
+              style={{ fontFamily: '"Cinzel", serif' }}
+            >
+              <a href="#display" className="text-xs uppercase tracking-[0.18em] text-background/70 transition-colors hover:text-accent">The Display</a>
+              <a href="#record" className="text-xs uppercase tracking-[0.18em] text-background/70 transition-colors hover:text-accent">The Record</a>
+              <Link to="/pricing" className="text-xs uppercase tracking-[0.18em] text-background/70 transition-colors hover:text-accent">Pricing</Link>
+              <a href="#demo" className="text-xs uppercase tracking-[0.18em] text-background/70 transition-colors hover:text-accent">Live Demo</a>
+            </div>
+
+            {/* Right: sign-in */}
+            <Link
+              to="/login"
+              className="group relative z-10 overflow-hidden border border-accent/50 bg-gradient-to-b from-background/5 to-transparent px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-accent shadow-inner transition-all duration-300 hover:from-accent hover:to-accent-deep hover:text-primary-deep"
+              style={{ fontFamily: '"Cinzel", serif' }}
+            >
+              <span className="relative z-10">Member sign in</span>
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-background/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            </Link>
           </div>
-          <Link
-            to="/login"
-            className="rounded-full border border-background/30 px-5 py-2 text-sm font-medium text-background backdrop-blur-sm transition hover:bg-background/10"
-          >
-            Member sign in
-          </Link>
         </div>
       </nav>
+
 
       {/* ─── HERO ────────────────────────────────────────────────────── */}
       <section className="relative isolate min-h-[92vh] overflow-hidden">
