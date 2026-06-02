@@ -301,11 +301,14 @@ function Landing() {
               <Flag className="h-3.5 w-3.5" strokeWidth={2.5} />
             </span>
             <span className="font-display text-lg font-semibold text-primary-deep">
-              Ace Board
+              Enshrined
+            </span>
+            <span className="font-sans text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              · Ace Board
             </span>
           </div>
           <p className="font-sans text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            © {new Date().getFullYear()} · Made for the clubhouse
+            © {new Date().getFullYear()} Enshrined · Made for the clubhouse
           </p>
         </div>
       </footer>
