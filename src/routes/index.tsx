@@ -4,6 +4,7 @@ import { DemoKiosk } from "@/components/DemoKiosk";
 import heroImg from "@/assets/landing-hero.jpg";
 import plaqueImg from "@/assets/landing-plaque.jpg";
 import clubhouseImg from "@/assets/landing-clubhouse.jpg";
+import clubhouseWall from "@/assets/clubhouse-wall.jpg";
 
 export const Route = createFileRoute("/")({
   component: Landing,
