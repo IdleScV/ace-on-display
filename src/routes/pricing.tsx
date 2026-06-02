@@ -254,15 +254,12 @@ function TierCard({ tier, dark = false }: { tier: Tier; dark?: boolean }) {
         </span>
       </div>
       <div className="mt-6 flex items-baseline gap-1">
-        <span className={`font-display text-5xl font-medium ${dark ? "text-background" : "text-primary-deep"}`}>
-          {tier.price}
-        </span>
-        <span className={`font-sans text-sm ${dark ? "text-background/60" : "text-muted-foreground"}`}>
-          {tier.cadence}
+        <span className={`font-sans text-sm font-medium uppercase tracking-wider ${dark ? "text-background/70" : "text-muted-foreground"}`}>
+          {tier.setup}
         </span>
       </div>
-      <p className={`mt-1 font-sans text-xs ${dark ? "text-background/60" : "text-muted-foreground"}`}>
-        {tier.setup}
+      <p className={`mt-2 font-display text-4xl font-medium ${dark ? "text-background" : "text-primary-deep"}`}>
+        + {tier.perBoard}
       </p>
       <ul className="mt-8 space-y-3 font-sans text-sm">
         {tier.features.map((f) => (
