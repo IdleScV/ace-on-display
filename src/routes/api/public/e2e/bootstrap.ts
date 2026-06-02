@@ -41,13 +41,9 @@ export const Route = createFileRoute("/api/public/e2e/bootstrap")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env.E2E_BOOTSTRAP_SECRET;
-        if (!expected) {
-          return new Response("E2E bootstrap disabled", { status: 404 });
-        }
-        const provided = request.headers.get("x-e2e-secret");
-        if (!provided || provided !== expected) {
-          return new Response("Unauthorized", { status: 401 });
+        const host = request.headers.get("host");
+        if (!isSandboxHost(host)) {
+          return new Response("Not found", { status: 404 });
         }
 
         const password = randomPassword();
