@@ -24,9 +24,8 @@ export const Route = createFileRoute("/pricing")({
 type Tier = {
   name: string;
   tagline: string;
-  price: string;
-  cadence: string;
   setup: string;
+  perBoard: string;
   highlight?: boolean;
   features: string[];
 };
@@ -35,9 +34,8 @@ const singleBoardTiers: Tier[] = [
   {
     name: "Classic",
     tagline: "Non-touch display",
-    price: "$149",
-    cadence: "/month",
-    setup: "$499 one-time setup",
+    setup: "$1,999 one-time setup",
+    perBoard: "$299 per board",
     features: [
       "One clubhouse display",
       "Walnut, mahogany, slate, or modern-dark plaque skins",
@@ -50,9 +48,8 @@ const singleBoardTiers: Tier[] = [
   {
     name: "Interactive",
     tagline: "Touch screen display",
-    price: "$229",
-    cadence: "/month",
-    setup: "$899 one-time setup",
+    setup: "$2,999 one-time setup",
+    perBoard: "$449 per board",
     highlight: true,
     features: [
       "Everything in Classic",
@@ -68,9 +65,8 @@ const multiBoardTiers: Tier[] = [
   {
     name: "Estate",
     tagline: "Multi-board, non-touch",
-    price: "$399",
-    cadence: "/month",
     setup: "Custom install quote",
+    perBoard: "$249 per board",
     features: [
       "Up to 5 displays across one or more properties",
       "Centralized CMS for all courses",
@@ -82,9 +78,8 @@ const multiBoardTiers: Tier[] = [
   {
     name: "Estate Interactive",
     tagline: "Multi-board, touch screen",
-    price: "$599",
-    cadence: "/month",
     setup: "Custom install quote",
+    perBoard: "$349 per board",
     highlight: true,
     features: [
       "Everything in Estate",
