@@ -17,6 +17,11 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<"signin" | "magic" | "forgot">("signin");
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("aceboard-remember-me");
+    return stored === null ? true : stored === "true";
+  });
 
   if (session) {
     setTimeout(() => navigate({ to: "/admin" }), 0);
@@ -29,6 +34,8 @@ function LoginPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        localStorage.setItem("aceboard-remember-me", rememberMe ? "true" : "false");
+        sessionStorage.setItem("aceboard-session-active", "true");
         toast.success("Welcome back");
         navigate({ to: "/admin" });
       } else if (mode === "magic") {
@@ -92,6 +99,17 @@ function LoginPage() {
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
+          )}
+          {mode === "signin" && (
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-input accent-primary"
+              />
+              <span className="text-sm text-muted-foreground">Remember me</span>
+            </label>
           )}
           <button
             type="submit"
