@@ -4,6 +4,7 @@ import { DemoKiosk } from "@/components/DemoKiosk";
 import heroImg from "@/assets/landing-hero.jpg";
 import plaqueImg from "@/assets/landing-plaque.jpg";
 import clubhouseImg from "@/assets/landing-clubhouse.jpg";
+import clubhouseWall from "@/assets/clubhouse-wall.jpg";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -209,8 +210,14 @@ function Landing() {
       </section>
 
       {/* ─── DEMO ────────────────────────────────────────────────────── */}
-      <section id="demo" className="relative bg-card">
-        <div className="mx-auto max-w-7xl px-6 py-28">
+      <section
+        id="demo"
+        className="relative bg-card bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${clubhouseWall})` }}
+      >
+        {/* warm overlay so foreground text stays legible over the wall */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/85" />
+        <div className="relative mx-auto max-w-7xl px-6 py-28">
           <div className="mx-auto max-w-2xl text-center">
             <span className="font-sans text-xs uppercase tracking-[0.4em] text-accent-deep">
               Live preview
@@ -228,6 +235,7 @@ function Landing() {
           </div>
         </div>
       </section>
+
 
       {/* ─── FEATURES TRIO ───────────────────────────────────────────── */}
       <section className="bg-background">
