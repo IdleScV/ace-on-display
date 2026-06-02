@@ -25,6 +25,12 @@ const AuthContext = createContext<AuthState | null>(null);
 function readCachedSession(): Session | null {
   if (typeof window === "undefined") return null;
   try {
+    const rememberMe = window.localStorage.getItem("aceboard-remember-me");
+    const sessionActive = window.sessionStorage.getItem("aceboard-session-active");
+    // When the user chose not to be remembered and this is a fresh browser
+    // session / tab, skip rehydration so they aren't briefly shown as logged in.
+    if (rememberMe === "false" && !sessionActive) return null;
+
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
     if (!projectId) return null;
     const raw = window.localStorage.getItem(`sb-${projectId}-auth-token`);
