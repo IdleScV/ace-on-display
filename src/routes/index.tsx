@@ -30,12 +30,16 @@ function Landing() {
               <Flag className="h-4 w-4" strokeWidth={2.5} />
             </span>
             <span className="font-display text-2xl font-semibold tracking-tight">
-              Ace Board
+              Enshrined
+            </span>
+            <span className="ml-2 hidden font-sans text-xs uppercase tracking-[0.25em] text-background/70 sm:inline">
+              · Ace Board
             </span>
           </Link>
           <div className="hidden items-center gap-8 text-sm text-background/85 md:flex">
             <a href="#display" className="hover:text-background">The Display</a>
             <a href="#record" className="hover:text-background">The Record</a>
+            <Link to="/pricing" className="hover:text-background">Pricing</Link>
             <a href="#demo" className="hover:text-background">Live Demo</a>
           </div>
           <Link
