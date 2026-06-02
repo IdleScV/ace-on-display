@@ -194,9 +194,28 @@ function CourseDialog({ initial, onClose, onSaved }: { initial: any; onClose: ()
         </div>
         <Field label="Logo">
           <div className="flex items-center gap-3">
-            {logo && <img src={logo} alt="logo" className="h-12 w-12 rounded object-contain border" />}
-            <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
-            {logo && <button type="button" onClick={() => setLogo(null)} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>}
+            <label className="group relative flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-md border bg-white hover:border-primary">
+              {logo ? (
+                <img src={logo} alt="logo" className="h-full w-full object-contain" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className="absolute inset-0 hidden items-center justify-center bg-black/40 text-white group-hover:flex">
+                <Upload className="h-4 w-4" />
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])}
+              />
+            </label>
+            <div className="text-xs text-muted-foreground">
+              {logo ? "Click to replace" : "PNG, JPG or SVG. Click the tile to upload."}
+            </div>
+            {logo && (
+              <button type="button" onClick={() => setLogo(null)} className="ml-auto text-xs text-muted-foreground hover:text-destructive">Remove</button>
+            )}
           </div>
         </Field>
         <div className="grid grid-cols-2 gap-3">
