@@ -9,11 +9,11 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Ace Board — A clubhouse honor for every hole-in-one" },
+      { title: "Enshrined — Ace Board, a clubhouse honor for every hole-in-one" },
       {
         name: "description",
         content:
-          "The clubhouse display, public record, and CMS that gives every ace at your course the celebration it deserves.",
+          "Enshrined makes Ace Board — the clubhouse display, public record, and CMS that gives every ace at your course the celebration it deserves.",
       },
     ],
   }),
