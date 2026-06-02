@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminEntriesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as SlugHoleHoleNumberRouteImport } from './routes/$slug.hole.$holeNumber'
+import { Route as ApiPublicE2eBootstrapRouteImport } from './routes/api/public/e2e/bootstrap'
 import { Route as AuthenticatedAdminCourseCourseIdRouteImport } from './routes/_authenticated/admin.course.$courseId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -129,6 +130,11 @@ const SlugHoleHoleNumberRoute = SlugHoleHoleNumberRouteImport.update({
   path: '/$slug/hole/$holeNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicE2eBootstrapRoute = ApiPublicE2eBootstrapRouteImport.update({
+  id: '/api/public/e2e/bootstrap',
+  path: '/api/public/e2e/bootstrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminCourseCourseIdRoute =
   AuthenticatedAdminCourseCourseIdRouteImport.update({
     id: '/course/$courseId',
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
+  '/api/public/e2e/bootstrap': typeof ApiPublicE2eBootstrapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
+  '/api/public/e2e/bootstrap': typeof ApiPublicE2eBootstrapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
+  '/api/public/e2e/bootstrap': typeof ApiPublicE2eBootstrapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/api/public/heartbeat'
     | '/admin/'
     | '/admin/course/$courseId'
+    | '/api/public/e2e/bootstrap'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/api/public/heartbeat'
     | '/admin'
     | '/admin/course/$courseId'
+    | '/api/public/e2e/bootstrap'
   id:
     | '__root__'
     | '/'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/api/public/heartbeat'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/course/$courseId'
+    | '/api/public/e2e/bootstrap'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   ApiTutorRoute: typeof ApiTutorRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
+  ApiPublicE2eBootstrapRoute: typeof ApiPublicE2eBootstrapRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugHoleHoleNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/e2e/bootstrap': {
+      id: '/api/public/e2e/bootstrap'
+      path: '/api/public/e2e/bootstrap'
+      fullPath: '/api/public/e2e/bootstrap'
+      preLoaderRoute: typeof ApiPublicE2eBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/course/$courseId': {
       id: '/_authenticated/admin/course/$courseId'
       path: '/course/$courseId'
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTutorRoute: ApiTutorRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
+  ApiPublicE2eBootstrapRoute: ApiPublicE2eBootstrapRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
