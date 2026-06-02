@@ -20,11 +20,35 @@ export interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+// Synchronously hydrate from localStorage so a returning, signed-in user
+// never sees a "Loading…" flash on first paint of a protected route.
+function readCachedSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
+    if (!projectId) return null;
+    const raw = window.localStorage.getItem(`sb-${projectId}-auth-token`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Supabase stores the Session object directly (or wrapped in {currentSession}).
+    const s: Session | null = parsed?.access_token ? parsed : parsed?.currentSession ?? null;
+    if (!s?.access_token) return null;
+    // Skip obviously expired tokens; auth listener will pick up refresh.
+    if (s.expires_at && s.expires_at * 1000 < Date.now()) return null;
+    return s;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const cached = typeof window !== "undefined" ? readCachedSession() : null;
+  const [session, setSession] = useState<Session | null>(cached);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [managedCourseIds, setManagedCourseIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  // If we already have a cached session, we can render immediately; roles
+  // will hydrate in the background.
+  const [loading, setLoading] = useState(!cached);
   const queryClient = useQueryClient();
 
   const loadRoles = async (userId: string | undefined) => {
