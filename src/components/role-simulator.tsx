@@ -47,8 +47,8 @@ export function RoleSimulator() {
   const isOverriding = !!overrideRole && overrideRole !== "superadmin";
 
   return (
-    <div className="flex items-center gap-2 rounded-md border border-amber-300/60 bg-amber-50 px-2 py-1 text-xs dark:border-amber-700/40 dark:bg-amber-950/30">
-      <UserCog className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+    <div className="flex items-center gap-2 whitespace-nowrap rounded-md border border-amber-300/60 bg-amber-50 px-2 py-1 text-xs dark:border-amber-700/40 dark:bg-amber-950/30">
+      <UserCog className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
       <span className="font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
         View as
       </span>
