@@ -9,11 +9,11 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Ace Board — A clubhouse honor for every hole-in-one" },
+      { title: "Enshrined — Ace Board, a clubhouse honor for every hole-in-one" },
       {
         name: "description",
         content:
-          "The clubhouse display, public record, and CMS that gives every ace at your course the celebration it deserves.",
+          "Enshrined makes Ace Board — the clubhouse display, public record, and CMS that gives every ace at your course the celebration it deserves.",
       },
     ],
   }),
@@ -30,12 +30,16 @@ function Landing() {
               <Flag className="h-4 w-4" strokeWidth={2.5} />
             </span>
             <span className="font-display text-2xl font-semibold tracking-tight">
-              Ace Board
+              Enshrined
+            </span>
+            <span className="ml-2 hidden font-sans text-xs uppercase tracking-[0.25em] text-background/70 sm:inline">
+              · Ace Board
             </span>
           </Link>
           <div className="hidden items-center gap-8 text-sm text-background/85 md:flex">
             <a href="#display" className="hover:text-background">The Display</a>
             <a href="#record" className="hover:text-background">The Record</a>
+            <Link to="/pricing" className="hover:text-background">Pricing</Link>
             <a href="#demo" className="hover:text-background">Live Demo</a>
           </div>
           <Link
@@ -297,11 +301,14 @@ function Landing() {
               <Flag className="h-3.5 w-3.5" strokeWidth={2.5} />
             </span>
             <span className="font-display text-lg font-semibold text-primary-deep">
-              Ace Board
+              Enshrined
+            </span>
+            <span className="font-sans text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              · Ace Board
             </span>
           </div>
           <p className="font-sans text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            © {new Date().getFullYear()} · Made for the clubhouse
+            © {new Date().getFullYear()} Enshrined · Made for the clubhouse
           </p>
         </div>
       </footer>
