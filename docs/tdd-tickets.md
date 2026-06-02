@@ -6,6 +6,7 @@ Conventions:
 
 - Framework: Playwright (`bun run test:e2e`).
 - Required env: `E2E_EMAIL`, `E2E_PASSWORD` (specs auto-skip when missing).
+  - **Alternative** (preferred for CI / local sandbox runs): set `E2E_BOOTSTRAP_SECRET` to the same value as the server-side `E2E_BOOTSTRAP_SECRET` secret. `e2e/global-setup.ts` will POST to `/api/public/e2e/bootstrap` and inject a throwaway superadmin's credentials into `process.env` before the workers spawn. Endpoint returns 404 when the secret is unset on the server, so it cannot be triggered in production.
 - Optional env per ticket noted inline (e.g. `E2E_RESET_EMAIL`).
 - "Browser restart" = close the `BrowserContext` and reopen with the same `storageState` (drops `sessionStorage`, keeps `localStorage` + cookies). Already implemented as `restartBrowser()` in `e2e/remember-me.spec.ts` — extract to `e2e/_helpers.ts` in ticket A1.
 
