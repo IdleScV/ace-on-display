@@ -17,6 +17,7 @@
     "@ai-sdk/openai-compatible": "^2.0.48",
     "@ai-sdk/react": "^3.0.193",
     "@cloudflare/vite-plugin": "^1.25.5",
+    "@fontsource/cinzel": "^5.2.8",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/karla": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
