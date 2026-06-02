@@ -17,6 +17,11 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<"signin" | "magic" | "forgot">("signin");
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("aceboard-remember-me");
+    return stored === null ? true : stored === "true";
+  });
 
   if (session) {
     setTimeout(() => navigate({ to: "/admin" }), 0);
