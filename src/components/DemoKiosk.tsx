@@ -164,55 +164,19 @@ export function DemoKiosk() {
 
   return (
     <div className="relative mx-auto w-full max-w-6xl">
-      {/* Picture frame: outer ebony moulding with bevel + inner gold liner +
-          cream mat board. Reads as a framed photograph hung on the wall. */}
-      <div
-        className="rounded-[10px] p-3 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55),0_12px_24px_-12px_rgba(0,0,0,0.45)] ring-1 ring-black/40 sm:rounded-[14px] sm:p-5"
-        style={{
-          backgroundImage:
-            "linear-gradient(135deg, #2a1d12 0%, #150d07 35%, #3a281a 70%, #110a05 100%)",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,220,170,0.18), inset 0 -1px 0 rgba(0,0,0,0.6), 0 30px 60px -20px rgba(0,0,0,0.55), 0 12px 24px -12px rgba(0,0,0,0.45)",
-        }}
-      >
-        {/* Gold inner liner */}
-        <div
-          className="rounded-[4px] p-[2px] sm:rounded-[6px]"
-          style={{
-            backgroundImage:
-              "linear-gradient(135deg, #c9a24b 0%, #8a6a2a 50%, #c9a24b 100%)",
-          }}
-        >
-          {/* Cream mat board */}
-          <div className="rounded-[3px] bg-[#f4ede0] p-2 sm:rounded-[5px] sm:p-3">
-            <div className="flex items-center justify-between px-2 pb-1.5 sm:px-3 sm:pb-2">
-              <div className="flex gap-1 sm:gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-red-500/80 sm:h-2.5 sm:w-2.5" />
-                <span className="h-2 w-2 rounded-full bg-yellow-500/80 sm:h-2.5 sm:w-2.5" />
-                <span className="h-2 w-2 rounded-full bg-green-500/80 sm:h-2.5 sm:w-2.5" />
-              </div>
-              <span className="hidden text-[10px] uppercase tracking-widest text-neutral-500 sm:inline">
-                Live kiosk preview · cedar-ridge.aceboard.app/display/hole-{hole.num}
-              </span>
-              <span className="text-[9px] text-neutral-500 sm:text-[10px]">1920 × 1080</span>
-            </div>
+      {/* Kiosk screen — full-bleed, no mat board border */}
+      <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-lg shadow-2xl ring-1 ring-black/20">
+        <div className="flex flex-col sm:block">
+          <Header hole={hole} />
 
-            {/* Screen */}
-            <div className="relative overflow-hidden rounded-md shadow-inner ring-1 ring-black/10 sm:rounded-lg">
-              <div className="flex flex-col sm:block">
-                <Header hole={hole} />
-
-                {/* Top third — A | B (side by side on all viewports) */}
-                <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
-                  <FlyoverPanel hole={hole} />
-                  <TopDownPanel hole={hole} />
-                </div>
-
-                {/* Bottom two-thirds — C */}
-                <PlaqueBoard hole={hole} spotIdx={spotIdx} />
-              </div>
-            </div>
+          {/* Top third — A | B (side by side on all viewports) */}
+          <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
+            <FlyoverPanel hole={hole} />
+            <TopDownPanel hole={hole} />
           </div>
+
+          {/* Bottom two-thirds — C */}
+          <PlaqueBoard hole={hole} spotIdx={spotIdx} />
         </div>
       </div>
 
