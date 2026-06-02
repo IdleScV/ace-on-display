@@ -274,7 +274,7 @@ function ManagersDialog({ course, onClose }: { course: any; onClose: () => void 
           {isLoading && <div className="p-3 text-sm text-muted-foreground">Loading…</div>}
           {!isLoading && data.length === 0 && <div className="p-3 text-sm text-muted-foreground">No managers yet.</div>}
           {data.map((m: any) => (
-            <div key={m.user_id} className="flex items-center justify-between border-t px-3 py-2 first:border-t-0">
+            <div key={m.user_id} className="group/manager relative flex items-center justify-between border-t px-3 py-2 first:border-t-0">
               <span className="text-sm">{m.email}</span>
               <button
                 onClick={async () => {
@@ -284,8 +284,11 @@ function ManagersDialog({ course, onClose }: { course: any; onClose: () => void 
                     refetch();
                   } catch (e: any) { toast.error(e.message); }
                 }}
-                className="text-xs text-destructive hover:underline"
-              >Remove</button>
+                title="Remove access"
+                className="absolute right-2 hidden h-5 w-5 items-center justify-center rounded-full border bg-background text-muted-foreground shadow-sm hover:text-destructive group-hover/manager:flex"
+              >
+                <X className="h-3 w-3" />
+              </button>
             </div>
           ))}
         </div>
