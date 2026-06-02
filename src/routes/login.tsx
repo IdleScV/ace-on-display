@@ -34,6 +34,8 @@ function LoginPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        localStorage.setItem("aceboard-remember-me", rememberMe ? "true" : "false");
+        sessionStorage.setItem("aceboard-session-active", "true");
         toast.success("Welcome back");
         navigate({ to: "/admin" });
       } else if (mode === "magic") {
