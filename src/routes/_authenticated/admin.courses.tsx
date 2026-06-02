@@ -333,7 +333,7 @@ function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void })
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="group/logo relative inline-flex">
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
@@ -358,8 +358,14 @@ function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void })
         onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
       />
       {course.logo_url && (
-        <button type="button" onClick={remove} disabled={busy} className="text-xs text-muted-foreground hover:text-destructive">
-          Remove
+        <button
+          type="button"
+          onClick={remove}
+          disabled={busy}
+          title="Remove logo"
+          className="absolute -right-1.5 -top-1.5 hidden h-5 w-5 items-center justify-center rounded-full border bg-background text-muted-foreground shadow-sm hover:text-destructive group-hover/logo:flex"
+        >
+          <X className="h-3 w-3" />
         </button>
       )}
     </div>
