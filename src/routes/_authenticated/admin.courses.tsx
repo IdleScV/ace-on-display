@@ -7,7 +7,7 @@ import {
 } from "@/lib/courses.functions";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Users, Plus, Pencil, Upload, ImageIcon, LayoutDashboard } from "lucide-react";
+import { Trash2, Users, Plus, Pencil, Upload, ImageIcon, LayoutDashboard, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
@@ -194,9 +194,28 @@ function CourseDialog({ initial, onClose, onSaved }: { initial: any; onClose: ()
         </div>
         <Field label="Logo">
           <div className="flex items-center gap-3">
-            {logo && <img src={logo} alt="logo" className="h-12 w-12 rounded object-contain border" />}
-            <input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
-            {logo && <button type="button" onClick={() => setLogo(null)} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>}
+            <label className="group relative flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-md border bg-white hover:border-primary">
+              {logo ? (
+                <img src={logo} alt="logo" className="h-full w-full object-contain" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className="absolute inset-0 hidden items-center justify-center bg-black/40 text-white group-hover:flex">
+                <Upload className="h-4 w-4" />
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])}
+              />
+            </label>
+            <div className="text-xs text-muted-foreground">
+              {logo ? "Click to replace" : "PNG, JPG or SVG. Click the tile to upload."}
+            </div>
+            {logo && (
+              <button type="button" onClick={() => setLogo(null)} className="ml-auto text-xs text-muted-foreground hover:text-destructive">Remove</button>
+            )}
           </div>
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -314,7 +333,7 @@ function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void })
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="group/logo relative inline-flex">
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
@@ -339,8 +358,14 @@ function LogoCell({ course, onUpdated }: { course: any; onUpdated: () => void })
         onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
       />
       {course.logo_url && (
-        <button type="button" onClick={remove} disabled={busy} className="text-xs text-muted-foreground hover:text-destructive">
-          Remove
+        <button
+          type="button"
+          onClick={remove}
+          disabled={busy}
+          title="Remove logo"
+          className="absolute -right-1.5 -top-1.5 hidden h-5 w-5 items-center justify-center rounded-full border bg-background text-muted-foreground shadow-sm hover:text-destructive group-hover/logo:flex"
+        >
+          <X className="h-3 w-3" />
         </button>
       )}
     </div>

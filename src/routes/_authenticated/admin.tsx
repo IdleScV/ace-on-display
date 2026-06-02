@@ -36,32 +36,33 @@ function AdminLayout() {
   return (
     <div className="min-h-screen bg-muted/20">
       <header className="border-b bg-card">
-        <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-3">
-            <Link to="/admin" className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-3">
+          <div className="flex items-center gap-3 whitespace-nowrap">
+            <Link to="/admin" className="flex items-baseline gap-2">
+              <Trophy className="h-5 w-5 translate-y-0.5 text-primary" />
               <span className="font-semibold">Ace Board</span>
+              <span className="text-xs text-muted-foreground">by Enshrined</span>
             </Link>
             {isSuperadmin && <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary">SuperAdmin</span>}
             {isCourseManager && !isSuperadmin && <span className="rounded-md bg-secondary px-2 py-0.5 text-xs">Course Manager</span>}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <RoleSimulator />
             {courses.length > 0 && (
               <select
                 value={activeCourse?.id ?? ""}
                 onChange={(e) => setActiveCourseId(e.target.value)}
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+                className="max-w-[200px] truncate rounded-md border border-input bg-background px-3 py-1.5 text-sm"
               >
                 {courses.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             )}
-            <span className="hidden text-sm text-muted-foreground md:inline">{user?.email}</span>
+            <span className="hidden max-w-[200px] truncate text-sm text-muted-foreground md:inline">{user?.email}</span>
             <button
               onClick={async () => { await signOut(); navigate({ to: "/login" }); }}
-              className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
             >
               <LogOut className="h-4 w-4" /> Sign out
             </button>
