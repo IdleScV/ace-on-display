@@ -164,21 +164,33 @@ export function DemoKiosk() {
 
   return (
     <div className="relative mx-auto w-full max-w-6xl">
-      {/* Kiosk screen — full-bleed, no mat board border */}
-      <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-lg shadow-2xl ring-1 ring-black/20">
-        <div className="flex flex-col sm:block">
-          <Header hole={hole} />
+      {/* Ebony frame moulding around the kiosk */}
+      <div
+        className="relative rounded-xl p-3 sm:p-4 shadow-2xl ring-1 ring-black/40"
+        style={{
+          background:
+            "linear-gradient(145deg, #2a1d12 0%, #1a1108 55%, #110a05 100%)",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(0,0,0,0.6), 0 25px 50px -12px rgba(0,0,0,0.6)",
+        }}
+      >
+        {/* Kiosk screen */}
+        <div className="relative overflow-hidden rounded-md ring-1 ring-black/60">
+          <div className="flex flex-col sm:block">
+            <Header hole={hole} />
 
-          {/* Top third — A | B (side by side on all viewports) */}
-          <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
-            <FlyoverPanel hole={hole} />
-            <TopDownPanel hole={hole} />
+            {/* Top third — A | B (side by side on all viewports) */}
+            <div className="grid h-[28vh] max-h-[280px] min-h-[160px] grid-cols-[2fr_1fr]">
+              <FlyoverPanel hole={hole} />
+              <TopDownPanel hole={hole} />
+            </div>
+
+            {/* Bottom two-thirds — C */}
+            <PlaqueBoard hole={hole} spotIdx={spotIdx} />
           </div>
-
-          {/* Bottom two-thirds — C */}
-          <PlaqueBoard hole={hole} spotIdx={spotIdx} />
         </div>
       </div>
+
 
 
       {/* Hole selector — outside the kiosk bezel since it's a demo control,
