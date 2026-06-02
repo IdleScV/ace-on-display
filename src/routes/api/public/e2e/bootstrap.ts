@@ -3,9 +3,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
  * Sandbox / test-only endpoint that provisions a throwaway superadmin user
- * for the Playwright E2E suite. Gated by the `E2E_BOOTSTRAP_SECRET` runtime
- * secret — callers must pass it as the `x-e2e-secret` header. Disabled
- * entirely if the secret is unset on the server.
+ * for the Playwright E2E suite.
+ *
+ * Gated by **hostname**: only Lovable preview/dev hosts may call it
+ * (`*-dev.lovable.app`, `id-preview--*.lovable.app`, or `localhost`).
+ * Any other host — including the production custom domain — returns 404.
  *
  * Each call:
  *   - ensures a user with email `e2e+sandbox@aceboard.test` exists
@@ -19,6 +21,15 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const FIXED_EMAIL = "e2e+sandbox@aceboard.test";
 
+function isSandboxHost(host: string | null): boolean {
+  if (!host) return false;
+  const h = host.toLowerCase().split(":")[0];
+  if (h === "localhost" || h === "127.0.0.1") return true;
+  if (h.endsWith("-dev.lovable.app")) return true;
+  if (h.startsWith("id-preview--") && h.endsWith(".lovable.app")) return true;
+  return false;
+}
+
 function randomPassword() {
   // 32 hex chars = 128 bits of entropy; satisfies any reasonable policy.
   const bytes = new Uint8Array(16);
@@ -30,13 +41,9 @@ export const Route = createFileRoute("/api/public/e2e/bootstrap")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env.E2E_BOOTSTRAP_SECRET;
-        if (!expected) {
-          return new Response("E2E bootstrap disabled", { status: 404 });
-        }
-        const provided = request.headers.get("x-e2e-secret");
-        if (!provided || provided !== expected) {
-          return new Response("Unauthorized", { status: 401 });
+        const host = request.headers.get("host");
+        if (!isSandboxHost(host)) {
+          return new Response("Not found", { status: 404 });
         }
 
         const password = randomPassword();
