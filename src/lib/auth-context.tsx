@@ -82,7 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, 0);
     });
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      const rememberMe = localStorage.getItem("aceboard-remember-me");
+      const sessionActive = sessionStorage.getItem("aceboard-session-active");
+      if (rememberMe === "false" && !sessionActive && data.session) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
       setSession(data.session);
       loadRoles(data.session?.user?.id).finally(() => setLoading(false));
     });
