@@ -24,9 +24,8 @@ export const Route = createFileRoute("/pricing")({
 type Tier = {
   name: string;
   tagline: string;
-  price: string;
-  cadence: string;
   setup: string;
+  perBoard: string;
   highlight?: boolean;
   features: string[];
 };
@@ -35,9 +34,8 @@ const singleBoardTiers: Tier[] = [
   {
     name: "Classic",
     tagline: "Non-touch display",
-    price: "$149",
-    cadence: "/month",
-    setup: "$499 one-time setup",
+    setup: "$1,999 one-time setup",
+    perBoard: "$299 per board",
     features: [
       "One clubhouse display",
       "Walnut, mahogany, slate, or modern-dark plaque skins",
@@ -50,9 +48,8 @@ const singleBoardTiers: Tier[] = [
   {
     name: "Interactive",
     tagline: "Touch screen display",
-    price: "$229",
-    cadence: "/month",
-    setup: "$899 one-time setup",
+    setup: "$2,999 one-time setup",
+    perBoard: "$449 per board",
     highlight: true,
     features: [
       "Everything in Classic",
@@ -68,9 +65,8 @@ const multiBoardTiers: Tier[] = [
   {
     name: "Estate",
     tagline: "Multi-board, non-touch",
-    price: "$399",
-    cadence: "/month",
     setup: "Custom install quote",
+    perBoard: "$249 per board",
     features: [
       "Up to 5 displays across one or more properties",
       "Centralized CMS for all courses",
@@ -82,9 +78,8 @@ const multiBoardTiers: Tier[] = [
   {
     name: "Estate Interactive",
     tagline: "Multi-board, touch screen",
-    price: "$599",
-    cadence: "/month",
     setup: "Custom install quote",
+    perBoard: "$349 per board",
     highlight: true,
     features: [
       "Everything in Estate",
@@ -259,15 +254,12 @@ function TierCard({ tier, dark = false }: { tier: Tier; dark?: boolean }) {
         </span>
       </div>
       <div className="mt-6 flex items-baseline gap-1">
-        <span className={`font-display text-5xl font-medium ${dark ? "text-background" : "text-primary-deep"}`}>
-          {tier.price}
-        </span>
-        <span className={`font-sans text-sm ${dark ? "text-background/60" : "text-muted-foreground"}`}>
-          {tier.cadence}
+        <span className={`font-sans text-sm font-medium uppercase tracking-wider ${dark ? "text-background/70" : "text-muted-foreground"}`}>
+          {tier.setup}
         </span>
       </div>
-      <p className={`mt-1 font-sans text-xs ${dark ? "text-background/60" : "text-muted-foreground"}`}>
-        {tier.setup}
+      <p className={`mt-2 font-display text-4xl font-medium ${dark ? "text-background" : "text-primary-deep"}`}>
+        + {tier.perBoard}
       </p>
       <ul className="mt-8 space-y-3 font-sans text-sm">
         {tier.features.map((f) => (
