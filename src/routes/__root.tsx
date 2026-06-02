@@ -80,8 +80,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ace Board — Hole-in-One Display" },
-      { name: "description", content: "Hole-in-one display and CMS for golf courses." },
+      { title: "Ace Board by Enshrined — Hole-in-One Display" },
+      { name: "description", content: "Ace Board by Enshrined — the clubhouse hole-in-one display and CMS for golf courses." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

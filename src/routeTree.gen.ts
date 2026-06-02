@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,6 +33,11 @@ import { Route as AuthenticatedAdminCourseCourseIdRouteImport } from './routes/_
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -133,6 +139,7 @@ const AuthenticatedAdminCourseCourseIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/pricing'
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/pricing'
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/pricing'
     | '/reset-password'
     | '/$slug/display'
     | '/$slug/hole-in-ones'
@@ -258,6 +270,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SlugDisplayRoute: typeof SlugDisplayRoute
   SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -446,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SlugDisplayRoute: SlugDisplayRoute,
   SlugHoleInOnesRoute: SlugHoleInOnesRoute,
@@ -457,13 +478,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
