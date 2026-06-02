@@ -7,7 +7,7 @@ import {
 } from "@/lib/courses.functions";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Users, Plus, Pencil, Upload, ImageIcon, LayoutDashboard } from "lucide-react";
+import { Trash2, Users, Plus, Pencil, Upload, ImageIcon, LayoutDashboard, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 
