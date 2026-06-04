@@ -150,6 +150,15 @@ function CourseDashboard() {
         <PlanEditor course={course} />
       </Section>
 
+      {/* Public intake form */}
+      <Section
+        title="Intake form"
+        desc="Share this link or QR code with golfers so they can submit their own holes-in-one."
+      >
+        <IntakeShare slug={course.slug} courseName={course.name} />
+      </Section>
+
+
 
       {/* Display templates + styles */}
       <Section
