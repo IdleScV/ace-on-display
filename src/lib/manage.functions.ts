@@ -349,3 +349,231 @@ export const listInvitationsForEmail = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false });
     return rows ?? [];
   });
+
+// ---------------------------------------------------------------------------
+// Invitations management (full list, detail, lifecycle)
+// ---------------------------------------------------------------------------
+
+async function expirePendingInvitations() {
+  await supabaseAdmin
+    .from("invitations")
+    .update({ status: "expired" })
+    .eq("status", "pending")
+    .lt("expires_at", new Date().toISOString());
+}
+
+export const listInvitations = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        search: z.string().max(200).optional().default(""),
+        status: z
+          .enum(["all", "pending", "accepted", "expired", "revoked"])
+          .optional()
+          .default("all"),
+        role: z.enum(["all", "course_manager", "superadmin"]).optional().default("all"),
+        sort: z.enum(["created_at", "expires_at"]).optional().default("created_at"),
+        sortDir: z.enum(["asc", "desc"]).optional().default("desc"),
+        page: z.number().int().min(1).optional().default(1),
+        pageSize: z.number().int().min(1).max(200).optional().default(50),
+      })
+      .parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    await expirePendingInvitations();
+
+    let q = supabaseAdmin.from("invitations").select("*", { count: "exact" });
+    if (data.status !== "all") q = q.eq("status", data.status);
+    if (data.role !== "all") q = q.eq("role", data.role);
+    if (data.search.trim()) q = q.ilike("email", `%${data.search.trim()}%`);
+
+    const from = (data.page - 1) * data.pageSize;
+    const to = from + data.pageSize - 1;
+    q = q
+      .order(data.sort, { ascending: data.sortDir === "asc", nullsFirst: false })
+      .range(from, to);
+
+    const { data: rows, error, count } = await q;
+    if (error) throw new Error(error.message);
+
+    const courseIds = Array.from(
+      new Set((rows ?? []).map((r) => r.course_id).filter(Boolean)),
+    ) as string[];
+    const userIds = Array.from(
+      new Set(
+        (rows ?? []).flatMap((r) => [r.created_by_user_id, r.accepted_by_user_id, r.revoked_by_user_id]).filter(Boolean),
+      ),
+    ) as string[];
+
+    const [{ data: courses }, { data: profiles }] = await Promise.all([
+      courseIds.length
+        ? supabaseAdmin.from("courses").select("id,name").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+      userIds.length
+        ? supabaseAdmin.from("profiles").select("id,email,display_name").in("id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c]));
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+
+    return {
+      rows: (rows ?? []).map((r: any) => ({
+        ...r,
+        course: r.course_id ? courseMap.get(r.course_id) ?? null : null,
+        created_by: profileMap.get(r.created_by_user_id) ?? null,
+        accepted_by: r.accepted_by_user_id ? profileMap.get(r.accepted_by_user_id) ?? null : null,
+        revoked_by: r.revoked_by_user_id ? profileMap.get(r.revoked_by_user_id) ?? null : null,
+      })),
+      total: count ?? 0,
+    };
+  });
+
+export const getInvitationDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: inv, error } = await supabaseAdmin
+      .from("invitations")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!inv) throw new Error("Invitation not found");
+
+    const userIds = [inv.created_by_user_id, inv.accepted_by_user_id, inv.revoked_by_user_id].filter(
+      Boolean,
+    ) as string[];
+    const [{ data: course }, { data: profiles }] = await Promise.all([
+      inv.course_id
+        ? supabaseAdmin.from("courses").select("id,name").eq("id", inv.course_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      userIds.length
+        ? supabaseAdmin.from("profiles").select("id,email,display_name").in("id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+    return {
+      invitation: inv,
+      course,
+      created_by: profileMap.get(inv.created_by_user_id) ?? null,
+      accepted_by: inv.accepted_by_user_id ? profileMap.get(inv.accepted_by_user_id) ?? null : null,
+      revoked_by: inv.revoked_by_user_id ? profileMap.get(inv.revoked_by_user_id) ?? null : null,
+    };
+  });
+
+export const resendInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: inv } = await supabaseAdmin
+      .from("invitations")
+      .select("status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!inv) throw new Error("Invitation not found");
+    if (inv.status === "accepted") throw new Error("Invitation has already been accepted.");
+
+    // Regenerate token via bytes
+    const bytes = new Uint8Array(24);
+    crypto.getRandomValues(bytes);
+    const newToken = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    const newExpiry = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: row, error } = await supabaseAdmin
+      .from("invitations")
+      .update({
+        token: newToken,
+        expires_at: newExpiry,
+        status: "pending",
+        revoked_at: null,
+        revoked_by_user_id: null,
+      })
+      .eq("id", data.id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return { invitation: row };
+  });
+
+export const revokeInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: inv } = await supabaseAdmin
+      .from("invitations")
+      .select("status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!inv) throw new Error("Invitation not found");
+    if (inv.status === "accepted") throw new Error("Cannot revoke an accepted invitation.");
+    const { error } = await supabaseAdmin
+      .from("invitations")
+      .update({
+        status: "revoked",
+        revoked_at: new Date().toISOString(),
+        revoked_by_user_id: context.userId,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const extendInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ id: z.string().uuid(), expires_at: z.string().datetime() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("invitations")
+      .update({
+        expires_at: data.expires_at,
+        // If currently expired, move back to pending since we extended it
+        status: "pending",
+      })
+      .eq("id", data.id)
+      .in("status", ["pending", "expired"]);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const sendInvitationEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ id: z.string().uuid(), invite_url: z.string().url() }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: inv } = await supabaseAdmin
+      .from("invitations")
+      .select("email,role")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!inv) throw new Error("Invitation not found");
+
+    // Call the stubbed edge function
+    const url = `${process.env.SUPABASE_URL}/functions/v1/send-invitation-email`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        email: inv.email,
+        role: inv.role,
+        invite_url: data.invite_url,
+      }),
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Email service error: ${txt || res.status}`);
+    }
+    return { ok: true };
+  });
