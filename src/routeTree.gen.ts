@@ -14,6 +14,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UnsubscribeTokenRouteImport } from './routes/unsubscribe.$token'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
@@ -56,6 +57,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeTokenRoute = UnsubscribeTokenRouteImport.update({
+  id: '/unsubscribe/$token',
+  path: '/unsubscribe/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTutorRoute = ApiTutorRouteImport.update({
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/$slug/submit': typeof SlugSubmitRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/$slug/submit': typeof SlugSubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/admin'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/$slug/rotate'
     | '/$slug/submit'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/_authenticated/admin'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/_authenticated/admin/audit'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   SlugRotateRoute: typeof SlugRotateRoute
   SlugSubmitRoute: typeof SlugSubmitRoute
   ApiTutorRoute: typeof ApiTutorRoute
+  UnsubscribeTokenRoute: typeof UnsubscribeTokenRoute
   SlugEntryEntryIdRoute: typeof SlugEntryEntryIdRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
@@ -367,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe/$token': {
+      id: '/unsubscribe/$token'
+      path: '/unsubscribe/$token'
+      fullPath: '/unsubscribe/$token'
+      preLoaderRoute: typeof UnsubscribeTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tutor': {
@@ -554,6 +574,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRotateRoute: SlugRotateRoute,
   SlugSubmitRoute: SlugSubmitRoute,
   ApiTutorRoute: ApiTutorRoute,
+  UnsubscribeTokenRoute: UnsubscribeTokenRoute,
   SlugEntryEntryIdRoute: SlugEntryEntryIdRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
@@ -562,3 +583,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
