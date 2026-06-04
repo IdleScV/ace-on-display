@@ -44,7 +44,7 @@ export const listEntries = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
     course_id: z.string().uuid(),
-    status: z.enum(["draft", "published", "archived", "all"]).optional(),
+    status: z.enum(["draft", "published", "archived", "all", "pending_intake"]).optional(),
     search: z.string().max(200).optional(),
   }).parse(i))
   .handler(async ({ data, context }) => {
@@ -54,11 +54,30 @@ export const listEntries = createServerFn({ method: "GET" })
       .select("*")
       .eq("course_id", data.course_id)
       .order("date_achieved", { ascending: false });
-    if (data.status && data.status !== "all") q = q.eq("status", data.status);
+    if (data.status === "pending_intake") {
+      q = q.eq("status", "draft").eq("submitted_via_intake", true);
+    } else if (data.status && data.status !== "all") {
+      q = q.eq("status", data.status);
+    }
     if (data.search) q = q.ilike("golfer_name", `%${data.search}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return rows ?? [];
+  });
+
+export const countPendingIntake = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ course_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertCourseAccess(context.userId, data.course_id);
+    const { count, error } = await supabaseAdmin
+      .from("entries")
+      .select("id", { count: "exact", head: true })
+      .eq("course_id", data.course_id)
+      .eq("status", "draft")
+      .eq("submitted_via_intake", true);
+    if (error) throw new Error(error.message);
+    return { count: count ?? 0 };
   });
 
 export const getEntry = createServerFn({ method: "GET" })
