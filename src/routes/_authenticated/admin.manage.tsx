@@ -29,6 +29,7 @@ import {
   createInvitation,
   listInvitationsForEmail,
 } from "@/lib/manage.functions";
+import { SubscriptionsTab } from "@/components/manage/subscriptions-tab";
 import { listAllCourses } from "@/lib/courses.functions";
 import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
