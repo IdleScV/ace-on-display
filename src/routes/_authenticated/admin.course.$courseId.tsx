@@ -690,10 +690,12 @@ function PlanEditor({ course }: { course: any }) {
   const [isMulti, setIsMulti] = useState<boolean>(!!course.is_multi_board);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const override = !!course.plan_override;
 
   const plan = derivePlanLabel({ has_touch: hasTouch, is_multi_board: isMulti });
 
   async function update(next: { has_touch: boolean; is_multi_board: boolean }) {
+    if (!override) return;
     setSaving(true);
     setErr(null);
     const planLabel = derivePlanLabel(next);
@@ -707,16 +709,25 @@ function PlanEditor({ course }: { course: any }) {
       return;
     }
     qc.invalidateQueries({ queryKey: ["my-courses"] });
+    qc.invalidateQueries({ queryKey: ["course-mgmt-summary", course.id] });
   }
 
   return (
     <div className="space-y-4">
+      {!override && (
+        <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
+          <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <span>
+            Plan flags are managed by the active subscription. Toggle <strong>Manual plan override</strong> above to set them manually.
+          </span>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Toggle
           label="Touch screen"
           desc="Interactive kiosk: tap holes, browse stories, view media."
           checked={hasTouch}
-          disabled={saving}
+          disabled={saving || !override}
           onChange={(v) => {
             setHasTouch(v);
             update({ has_touch: v, is_multi_board: isMulti });
@@ -726,7 +737,7 @@ function PlanEditor({ course }: { course: any }) {
           label="Multi-board"
           desc="Multiple synced displays across the clubhouse / estate."
           checked={isMulti}
-          disabled={saving}
+          disabled={saving || !override}
           onChange={(v) => {
             setIsMulti(v);
             update({ has_touch: hasTouch, is_multi_board: v });
