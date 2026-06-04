@@ -12,7 +12,7 @@ const SPOT_MS = 2_500;
 const PHOTO_MS = 3_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut", muted = true, photos = "slideshow",
+  course, entries, holes, style = "walnut", muted = true, photos = "slideshow", onSelectEntry,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
@@ -20,6 +20,7 @@ export function PlaqueTemplate({
   style?: BoardStyle;
   muted?: boolean;
   photos?: "cards" | "slideshow";
+  onSelectEntry?: (id: string) => void;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
 
