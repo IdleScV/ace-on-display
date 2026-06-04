@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install chromium"
+    "test:e2e:install": "playwright install chromium",
+    "test:smoke": "playwright test e2e/smoke.spec.ts --reporter=list"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
