@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UnsubscribeTokenRouteImport } from './routes/unsubscribe.$token'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
+import { Route as AuthenticatedHowToRouteImport } from './routes/_authenticated/how-to'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
 import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
@@ -69,6 +70,11 @@ const ApiTutorRoute = ApiTutorRouteImport.update({
   id: '/api/tutor',
   path: '/api/tutor',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedHowToRoute = AuthenticatedHowToRouteImport.update({
+  id: '/how-to',
+  path: '/how-to',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
+  '/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/$slug/rotate'
     | '/$slug/submit'
     | '/admin'
+    | '/how-to'
     | '/api/tutor'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/$slug/submit'
+    | '/how-to'
     | '/api/tutor'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/$slug/rotate'
     | '/$slug/submit'
     | '/_authenticated/admin'
+    | '/_authenticated/how-to'
     | '/api/tutor'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
@@ -408,6 +420,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/tutor'
       preLoaderRoute: typeof ApiTutorRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/how-to': {
+      id: '/_authenticated/how-to'
+      path: '/how-to'
+      fullPath: '/how-to'
+      preLoaderRoute: typeof AuthenticatedHowToRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -574,10 +593,12 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedHowToRoute: typeof AuthenticatedHowToRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedHowToRoute: AuthenticatedHowToRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
