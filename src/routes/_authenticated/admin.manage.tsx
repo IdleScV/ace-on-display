@@ -60,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/admin/manage")({
 function ManagePage() {
   const { isSuperadmin } = useAuth();
   const navigate = useNavigate();
-  const { tab, user, sub } = Route.useSearch();
+  const { tab, user, sub, invite } = Route.useSearch();
 
   useEffect(() => {
     if (!isSuperadmin) navigate({ to: "/admin", replace: true });
