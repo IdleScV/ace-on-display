@@ -214,7 +214,21 @@ function UsersTab({ focusUserId }: { focusUserId: string | null }) {
           <option value="all">All statuses</option>
           <option value="active">Active</option>
           <option value="suspended">Suspended</option>
+          <option value="deleted">Deleted</option>
         </select>
+        <button
+          onClick={async () => {
+            try {
+              const res = (await exportFn()) as any;
+              downloadCsv(res.filename, res.csv);
+            } catch (e: any) {
+              toast.error(e.message);
+            }
+          }}
+          className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm hover:bg-accent"
+        >
+          <Download className="h-4 w-4" /> Export CSV
+        </button>
         <button
           onClick={() => setInviteOpen(true)}
           className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
