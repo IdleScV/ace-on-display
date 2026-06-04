@@ -24,6 +24,7 @@ import { Route as SlugEmbedRouteImport } from './routes/$slug.embed'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicHeartbeatRouteImport } from './routes/api/public/heartbeat'
+import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin.import'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
@@ -109,6 +110,12 @@ const ApiPublicHeartbeatRoute = ApiPublicHeartbeatRouteImport.update({
   path: '/api/public/heartbeat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSubscribersRoute =
+  AuthenticatedAdminSubscribersRouteImport.update({
+    id: '/subscribers',
+    path: '/subscribers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -187,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -212,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -240,6 +249,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
   '/_authenticated/admin/import': typeof AuthenticatedAdminImportRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/import'
     | '/admin/settings'
+    | '/admin/subscribers'
     | '/api/public/heartbeat'
     | '/admin/'
     | '/admin/course/$courseId'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/import'
     | '/admin/settings'
+    | '/admin/subscribers'
     | '/api/public/heartbeat'
     | '/admin'
     | '/admin/course/$courseId'
@@ -320,6 +332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/import'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/subscribers'
     | '/api/public/heartbeat'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/course/$courseId'
@@ -452,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHeartbeatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/subscribers': {
+      id: '/_authenticated/admin/subscribers'
+      path: '/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AuthenticatedAdminSubscribersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/settings'
@@ -532,6 +552,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
   AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCourseCourseIdRoute: typeof AuthenticatedAdminCourseCourseIdRoute
 }
@@ -543,6 +564,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
   AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminCourseCourseIdRoute: AuthenticatedAdminCourseCourseIdRoute,
 }
