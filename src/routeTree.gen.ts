@@ -78,11 +78,6 @@ const SlugRotateRoute = SlugRotateRouteImport.update({
   path: '/$slug/rotate',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlugEmbedRoute = SlugEmbedRouteImport.update({
-  id: '/$slug/embed',
-  path: '/$slug/embed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SlugHoleInOnesRoute = SlugHoleInOnesRouteImport.update({
   id: '/$slug/hole-in-ones',
   path: '/$slug/hole-in-ones',
