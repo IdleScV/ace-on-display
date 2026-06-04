@@ -19,13 +19,14 @@ const SPOT_MS = 2_800;
  * Designed for 21:9 or 32:9 displays above the bar.
  */
 export function UltrawideTemplate({
-  course, entries, holes, style = "walnut", muted = true,
+  course, entries, holes, style = "walnut", muted = true, onSelectEntry,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
   muted?: boolean;
+  onSelectEntry?: (id: string) => void;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   const grouped = useMemo(() => {
