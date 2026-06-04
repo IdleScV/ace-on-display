@@ -251,7 +251,7 @@ export const updateSubscription = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertSuperadmin(context.userId);
-    const patch: Record<string, any> = {};
+    const patch: { starts_at?: string; ends_at?: string | null; notes?: string | null } = {};
     if (data.starts_at !== undefined) patch.starts_at = data.starts_at;
     if (data.ends_at !== undefined) patch.ends_at = data.ends_at;
     if (data.notes !== undefined) patch.notes = data.notes || null;
