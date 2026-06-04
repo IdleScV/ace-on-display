@@ -53,6 +53,7 @@ function DisplayPage() {
   const [data, setData] = useState<DisplayPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const lastRefresh = useRef<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const cached = typeof window !== "undefined" ? localStorage.getItem(CACHE_KEY_PREFIX + slug) : null;
