@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/admin/entries")({
   component: EntriesPage,
 });
 
-type StatusFilter = "all" | "draft" | "published" | "archived";
+type StatusFilter = "all" | "draft" | "published" | "archived" | "pending_intake";
 
 function EntriesPage() {
   const { activeCourse } = useCourseCtx();
