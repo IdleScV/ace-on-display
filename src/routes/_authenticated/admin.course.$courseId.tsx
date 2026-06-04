@@ -14,6 +14,7 @@ import { useState } from "react";
 import { NameManager } from "@/components/name-manager";
 import { PlateCustomizer } from "@/components/plate-customizer";
 import { HoleMediaEditor } from "@/components/hole-media-editor";
+import { IntakeShare } from "@/components/intake-share";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
@@ -148,6 +149,15 @@ function CourseDashboard() {
       >
         <PlanEditor course={course} />
       </Section>
+
+      {/* Public intake form */}
+      <Section
+        title="Intake form"
+        desc="Share this link or QR code with golfers so they can submit their own holes-in-one."
+      >
+        <IntakeShare slug={course.slug} courseName={course.name} />
+      </Section>
+
 
 
       {/* Display templates + styles */}

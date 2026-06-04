@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
 import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
 import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
@@ -64,6 +65,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const SlugSubmitRoute = SlugSubmitRouteImport.update({
+  id: '/$slug/submit',
+  path: '/$slug/submit',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SlugRotateRoute = SlugRotateRouteImport.update({
   id: '/$slug/rotate',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
+  '/$slug/submit': typeof SlugSubmitRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
+  '/$slug/submit': typeof SlugSubmitRoute
   '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/$slug/display': typeof SlugDisplayRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
+  '/$slug/submit': typeof SlugSubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/$slug/display'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
+    | '/$slug/submit'
     | '/admin'
     | '/api/tutor'
     | '/$slug/hole/$holeNumber'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/$slug/display'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
+    | '/$slug/submit'
     | '/api/tutor'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/$slug/display'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
+    | '/$slug/submit'
     | '/_authenticated/admin'
     | '/api/tutor'
     | '/$slug/hole/$holeNumber'
@@ -287,6 +299,7 @@ export interface RootRouteChildren {
   SlugDisplayRoute: typeof SlugDisplayRoute
   SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
   SlugRotateRoute: typeof SlugRotateRoute
+  SlugSubmitRoute: typeof SlugSubmitRoute
   ApiTutorRoute: typeof ApiTutorRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/$slug/submit': {
+      id: '/$slug/submit'
+      path: '/$slug/submit'
+      fullPath: '/$slug/submit'
+      preLoaderRoute: typeof SlugSubmitRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$slug/rotate': {
       id: '/$slug/rotate'
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugDisplayRoute: SlugDisplayRoute,
   SlugHoleInOnesRoute: SlugHoleInOnesRoute,
   SlugRotateRoute: SlugRotateRoute,
+  SlugSubmitRoute: SlugSubmitRoute,
   ApiTutorRoute: ApiTutorRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
