@@ -159,6 +159,14 @@ function CourseDashboard() {
         <IntakeShare slug={course.slug} courseName={course.name} />
       </Section>
 
+      {/* Embed on your website */}
+      <Section
+        title="Embed on your website"
+        desc="Drop the board into any HTML page on your course's site."
+      >
+        <EmbedShare slug={course.slug} course={course} />
+      </Section>
+
 
 
       {/* Display templates + styles */}
