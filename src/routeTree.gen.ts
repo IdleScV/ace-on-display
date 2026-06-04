@@ -14,6 +14,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UnsubscribeTokenRouteImport } from './routes/unsubscribe.$token'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
@@ -23,6 +24,7 @@ import { Route as SlugEmbedRouteImport } from './routes/$slug.embed'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicHeartbeatRouteImport } from './routes/api/public/heartbeat'
+import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin.import'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
@@ -56,6 +58,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeTokenRoute = UnsubscribeTokenRouteImport.update({
+  id: '/unsubscribe/$token',
+  path: '/unsubscribe/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTutorRoute = ApiTutorRouteImport.update({
@@ -103,6 +110,12 @@ const ApiPublicHeartbeatRoute = ApiPublicHeartbeatRouteImport.update({
   path: '/api/public/heartbeat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSubscribersRoute =
+  AuthenticatedAdminSubscribersRouteImport.update({
+    id: '/subscribers',
+    path: '/subscribers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -172,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/$slug/submit': typeof SlugSubmitRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -180,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -196,6 +211,7 @@ export interface FileRoutesByTo {
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -204,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -223,6 +240,7 @@ export interface FileRoutesById {
   '/$slug/submit': typeof SlugSubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
@@ -231,6 +249,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
   '/_authenticated/admin/import': typeof AuthenticatedAdminImportRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/course/$courseId': typeof AuthenticatedAdminCourseCourseIdRoute
@@ -250,6 +269,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/admin'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -258,6 +278,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/import'
     | '/admin/settings'
+    | '/admin/subscribers'
     | '/api/public/heartbeat'
     | '/admin/'
     | '/admin/course/$courseId'
@@ -274,6 +295,7 @@ export interface FileRouteTypes {
     | '/$slug/rotate'
     | '/$slug/submit'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
@@ -282,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin/health'
     | '/admin/import'
     | '/admin/settings'
+    | '/admin/subscribers'
     | '/api/public/heartbeat'
     | '/admin'
     | '/admin/course/$courseId'
@@ -300,6 +323,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/_authenticated/admin'
     | '/api/tutor'
+    | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/_authenticated/admin/audit'
@@ -308,6 +332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/import'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/subscribers'
     | '/api/public/heartbeat'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/course/$courseId'
@@ -326,6 +351,7 @@ export interface RootRouteChildren {
   SlugRotateRoute: typeof SlugRotateRoute
   SlugSubmitRoute: typeof SlugSubmitRoute
   ApiTutorRoute: typeof ApiTutorRoute
+  UnsubscribeTokenRoute: typeof UnsubscribeTokenRoute
   SlugEntryEntryIdRoute: typeof SlugEntryEntryIdRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
@@ -367,6 +393,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe/$token': {
+      id: '/unsubscribe/$token'
+      path: '/unsubscribe/$token'
+      fullPath: '/unsubscribe/$token'
+      preLoaderRoute: typeof UnsubscribeTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tutor': {
@@ -431,6 +464,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/heartbeat'
       preLoaderRoute: typeof ApiPublicHeartbeatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/subscribers': {
+      id: '/_authenticated/admin/subscribers'
+      path: '/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AuthenticatedAdminSubscribersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
@@ -512,6 +552,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
   AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCourseCourseIdRoute: typeof AuthenticatedAdminCourseCourseIdRoute
 }
@@ -523,6 +564,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
   AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminCourseCourseIdRoute: AuthenticatedAdminCourseCourseIdRoute,
 }
@@ -554,6 +596,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRotateRoute: SlugRotateRoute,
   SlugSubmitRoute: SlugSubmitRoute,
   ApiTutorRoute: ApiTutorRoute,
+  UnsubscribeTokenRoute: UnsubscribeTokenRoute,
   SlugEntryEntryIdRoute: SlugEntryEntryIdRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,

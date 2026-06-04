@@ -505,6 +505,13 @@ export type Database = {
         }
         Returns: string
       }
+      unsubscribe_by_token: {
+        Args: { _token: string }
+        Returns: {
+          already_unsubscribed: boolean
+          course_name: string
+        }[]
+      }
     }
     Enums: {
       app_role: "superadmin" | "course_manager"
