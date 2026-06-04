@@ -175,7 +175,7 @@ export function UltrawideTemplate({
 
         <div className="grid flex-1 auto-rows-min grid-cols-3 gap-3 overflow-hidden p-6 xl:grid-cols-4">
           {current.aces.map((ace, i) => (
-            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} skin={skin} />
+            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} skin={skin} onSelectEntry={onSelectEntry} />
           ))}
         </div>
       </div>
