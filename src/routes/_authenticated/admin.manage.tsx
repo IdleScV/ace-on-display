@@ -46,6 +46,7 @@ type Tab = (typeof TABS)[number];
 const searchSchema = z.object({
   tab: z.enum(TABS).catch("users").default("users"),
   user: z.string().uuid().optional(),
+  sub: z.string().uuid().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/admin/manage")({
