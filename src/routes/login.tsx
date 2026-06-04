@@ -23,9 +23,9 @@ function LoginPage() {
     return stored === null ? true : stored === "true";
   });
 
-  if (session) {
-    setTimeout(() => navigate({ to: "/admin" }), 0);
-  }
+  useEffect(() => {
+    if (session) navigate({ to: "/admin" });
+  }, [session, navigate]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
