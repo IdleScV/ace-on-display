@@ -28,6 +28,7 @@ function Shell({ children }: { children: ReactNode }) {
   const navItems: { to: string; label: string; exact?: boolean; icon?: typeof BookOpen }[] = [
     { to: "/admin", label: "Dashboard", exact: true },
     ...(isSuperadmin ? [{ to: "/admin/courses", label: "Courses" }] : []),
+    ...(isSuperadmin ? [{ to: "/admin/manage", label: "Manage" }] : []),
     { to: "/admin/entries", label: "Entries" },
     { to: "/admin/import", label: "Import CSV" },
     { to: "/admin/settings", label: "Settings" },
