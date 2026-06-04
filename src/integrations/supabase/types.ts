@@ -451,6 +451,30 @@ export type Database = {
           },
         ]
       }
+      invitation_accept_attempts: {
+        Row: {
+          attempted_at: string
+          id: string
+          ip_address: string
+          success: boolean
+          token_hash: string | null
+        }
+        Insert: {
+          attempted_at?: string
+          id?: string
+          ip_address: string
+          success?: boolean
+          token_hash?: string | null
+        }
+        Update: {
+          attempted_at?: string
+          id?: string
+          ip_address?: string
+          success?: boolean
+          token_hash?: string | null
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -757,6 +781,11 @@ export type Database = {
         Args: { _path: string; _user_id: string }
         Returns: boolean
       }
+      check_invitation_rate_limit: { Args: { _ip: string }; Returns: boolean }
+      finalize_invitation_acceptance: {
+        Args: { _token: string; _user_id: string }
+        Returns: Json
+      }
       get_active_subscription: {
         Args: { _course_id: string }
         Returns: {
@@ -784,6 +813,24 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_invitation_by_token: {
+        Args: { _token: string }
+        Returns: {
+          accepted_at: string
+          course_id: string
+          course_name: string
+          email: string
+          expires_at: string
+          grant_subscription_board_count: number
+          grant_subscription_ends_at: string
+          grant_subscription_tier: string
+          id: string
+          inviter_display_name: string
+          inviter_email: string
+          role: string
+          status: string
+        }[]
       }
       get_user_active_subscriptions: {
         Args: { _user_id: string }
@@ -825,6 +872,10 @@ export type Database = {
         Returns: boolean
       }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      record_invitation_attempt: {
+        Args: { _ip: string; _success: boolean; _token: string }
+        Returns: undefined
+      }
       resolve_course_id_from_slug: { Args: { _slug: string }; Returns: string }
       submit_public_entry: {
         Args: {

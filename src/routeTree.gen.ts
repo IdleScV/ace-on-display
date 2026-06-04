@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UnsubscribeTokenRouteImport } from './routes/unsubscribe.$token'
+import { Route as InvitationTokenRouteImport } from './routes/invitation.$token'
 import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedHowToRouteImport } from './routes/_authenticated/how-to'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -65,6 +66,11 @@ const IndexRoute = IndexRouteImport.update({
 const UnsubscribeTokenRoute = UnsubscribeTokenRouteImport.update({
   id: '/unsubscribe/$token',
   path: '/unsubscribe/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationTokenRoute = InvitationTokenRouteImport.update({
+  id: '/invitation/$token',
+  path: '/invitation/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTutorRoute = ApiTutorRouteImport.update({
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/invitation/$token': typeof InvitationTokenRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
@@ -227,6 +234,7 @@ export interface FileRoutesByTo {
   '/$slug/submit': typeof SlugSubmitRoute
   '/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/invitation/$token': typeof InvitationTokenRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/how-to': typeof AuthenticatedHowToRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/invitation/$token': typeof InvitationTokenRoute
   '/unsubscribe/$token': typeof UnsubscribeTokenRoute
   '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/how-to'
     | '/api/tutor'
+    | '/invitation/$token'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/how-to'
     | '/api/tutor'
+    | '/invitation/$token'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/how-to'
     | '/api/tutor'
+    | '/invitation/$token'
     | '/unsubscribe/$token'
     | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
@@ -376,6 +388,7 @@ export interface RootRouteChildren {
   SlugRotateRoute: typeof SlugRotateRoute
   SlugSubmitRoute: typeof SlugSubmitRoute
   ApiTutorRoute: typeof ApiTutorRoute
+  InvitationTokenRoute: typeof InvitationTokenRoute
   UnsubscribeTokenRoute: typeof UnsubscribeTokenRoute
   SlugEntryEntryIdRoute: typeof SlugEntryEntryIdRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
@@ -425,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/unsubscribe/$token'
       fullPath: '/unsubscribe/$token'
       preLoaderRoute: typeof UnsubscribeTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitation/$token': {
+      id: '/invitation/$token'
+      path: '/invitation/$token'
+      fullPath: '/invitation/$token'
+      preLoaderRoute: typeof InvitationTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tutor': {
@@ -639,6 +659,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRotateRoute: SlugRotateRoute,
   SlugSubmitRoute: SlugSubmitRoute,
   ApiTutorRoute: ApiTutorRoute,
+  InvitationTokenRoute: InvitationTokenRoute,
   UnsubscribeTokenRoute: UnsubscribeTokenRoute,
   SlugEntryEntryIdRoute: SlugEntryEntryIdRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
