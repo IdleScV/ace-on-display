@@ -4,7 +4,7 @@ import { shade, type DisplayCourse, type DisplayEntry } from "./types";
 
 const PER_ENTRY_MS = 8000;
 
-export function SpotlightTemplate({ course, entries }: { course: DisplayCourse; entries: DisplayEntry[] }) {
+export function SpotlightTemplate({ course, entries, onSelectEntry }: { course: DisplayCourse; entries: DisplayEntry[]; onSelectEntry?: (id: string) => void }) {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
     const len = Math.max(entries.length, 1);
