@@ -401,6 +401,7 @@ function UserDetailDrawer({
   const unassignCourse = useServerFn(unassignUserCourse);
   const suspend = useServerFn(suspendUser);
   const reactivate = useServerFn(reactivateUser);
+  const restoreFn = useServerFn(restoreUser);
   const delFn = useServerFn(deleteUser);
   const resetFn = useServerFn(sendPasswordResetForUser);
   const listCoursesFn = useServerFn(listAllCourses);
