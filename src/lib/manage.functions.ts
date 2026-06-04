@@ -26,7 +26,7 @@ export const listUsers = createServerFn({ method: "POST" })
       .object({
         search: z.string().max(200).optional().default(""),
         role: z.enum(["all", "superadmin", "course_manager"]).optional().default("all"),
-        status: z.enum(["all", "active", "suspended"]).optional().default("all"),
+        status: z.enum(["all", "active", "suspended", "deleted"]).optional().default("all"),
         page: z.number().int().min(1).optional().default(1),
         pageSize: z.number().int().min(1).max(200).optional().default(25),
         sort: z.enum(["display_name", "email", "last_login_at"]).optional().default("email"),
