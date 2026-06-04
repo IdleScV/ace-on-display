@@ -6,9 +6,7 @@ import { toast } from "sonner";
 import {
   CreditCard,
   Gift,
-  Mail,
   History,
-  ShieldAlert,
   Users,
   Plus,
   Copy,
@@ -17,7 +15,6 @@ import {
   Trash2,
   Loader2,
   Clock,
-  CheckCircle2,
 } from "lucide-react";
 import {
   getCourseManagementSummary,
