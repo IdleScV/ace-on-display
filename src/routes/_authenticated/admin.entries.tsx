@@ -99,7 +99,16 @@ function EntriesPage() {
             {!isLoading && data.length === 0 && <tr><td colSpan={7} className="px-4 py-6 text-center text-muted-foreground">No entries.</td></tr>}
             {data.map((e: any) => (
               <tr key={e.id} className="border-t">
-                <td className="px-4 py-2 font-medium">{e.golfer_name}</td>
+                <td className="px-4 py-2 font-medium">
+                  <div className="flex items-center gap-2">
+                    {e.golfer_name}
+                    {e.submitted_via_intake && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400" title="Submitted via public intake form">
+                        <Inbox className="h-3 w-3" /> Intake
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-2">{e.date_achieved}</td>
                 <td className="px-4 py-2">#{e.hole_number}</td>
                 <td className="px-4 py-2">{e.yardage ? `${e.yardage} yd` : "—"}</td>
