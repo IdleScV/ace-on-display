@@ -27,6 +27,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as ApiPublicHeartbeatRouteImport } from './routes/api/public/heartbeat'
 import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminManageRouteImport } from './routes/_authenticated/admin.manage'
 import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin.import'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
 import { Route as AuthenticatedAdminEntriesRouteImport } from './routes/_authenticated/admin.entries'
@@ -128,6 +129,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminManageRoute =
+  AuthenticatedAdminManageRouteImport.update({
+    id: '/manage',
+    path: '/manage',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminImportRoute =
   AuthenticatedAdminImportRouteImport.update({
     id: '/import',
@@ -200,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/admin/entries': typeof AuthenticatedAdminEntriesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/manage': typeof AuthenticatedAdminManageRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
@@ -227,6 +235,7 @@ export interface FileRoutesByTo {
   '/admin/entries': typeof AuthenticatedAdminEntriesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/manage': typeof AuthenticatedAdminManageRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
@@ -257,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/entries': typeof AuthenticatedAdminEntriesRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
   '/_authenticated/admin/import': typeof AuthenticatedAdminImportRoute
+  '/_authenticated/admin/manage': typeof AuthenticatedAdminManageRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/heartbeat': typeof ApiPublicHeartbeatRoute
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/admin/entries'
     | '/admin/health'
     | '/admin/import'
+    | '/admin/manage'
     | '/admin/settings'
     | '/admin/subscribers'
     | '/api/public/heartbeat'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/admin/entries'
     | '/admin/health'
     | '/admin/import'
+    | '/admin/manage'
     | '/admin/settings'
     | '/admin/subscribers'
     | '/api/public/heartbeat'
@@ -343,6 +355,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/entries'
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/import'
+    | '/_authenticated/admin/manage'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscribers'
     | '/api/public/heartbeat'
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/manage': {
+      id: '/_authenticated/admin/manage'
+      path: '/manage'
+      fullPath: '/admin/manage'
+      preLoaderRoute: typeof AuthenticatedAdminManageRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/import': {
       id: '/_authenticated/admin/import'
       path: '/import'
@@ -570,6 +590,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminEntriesRoute: typeof AuthenticatedAdminEntriesRoute
   AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
   AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
+  AuthenticatedAdminManageRoute: typeof AuthenticatedAdminManageRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -582,6 +603,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEntriesRoute: AuthenticatedAdminEntriesRoute,
   AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
   AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
+  AuthenticatedAdminManageRoute: AuthenticatedAdminManageRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,

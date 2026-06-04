@@ -63,10 +63,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setManagedCourseIds([]);
       return;
     }
-    const [{ data: r }, { data: cm }] = await Promise.all([
+    const [{ data: r }, { data: cm }, { data: prof }] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", userId),
       supabase.from("course_managers").select("course_id").eq("user_id", userId),
+      supabase.from("profiles").select("suspended").eq("id", userId).maybeSingle(),
     ]);
+    if (prof?.suspended) {
+      await supabase.auth.signOut();
+      if (typeof window !== "undefined") {
+        const { toast } = await import("sonner");
+        toast.error("Your account has been suspended. Contact support.");
+      }
+      setRoles([]);
+      setManagedCourseIds([]);
+      return;
+    }
     setRoles((r ?? []).map((x) => x.role as AppRole));
     setManagedCourseIds((cm ?? []).map((x) => x.course_id as string));
   };
