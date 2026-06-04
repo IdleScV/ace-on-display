@@ -35,7 +35,7 @@ export function CourseProvider({ children }: { children: ReactNode }) {
     queryKey: ["my-courses", user?.id, isSuperadmin, managedCourseIds.join(",")],
     enabled: !!user,
     queryFn: async (): Promise<CourseSummary[]> => {
-      let q = supabase.from("courses").select("id,name,slug,logo_url,primary_color,secondary_color,public_enabled,display_sort,has_touch,is_multi_board,plan_label").order("name");
+      let q = supabase.from("courses").select("id,name,slug,logo_url,primary_color,secondary_color,public_enabled,display_sort,has_touch,is_multi_board,plan_label,plan_override").order("name");
       if (!isSuperadmin) {
         if (managedCourseIds.length === 0) return [];
         q = q.in("id", managedCourseIds);
