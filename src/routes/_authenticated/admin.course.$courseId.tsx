@@ -109,6 +109,10 @@ function CourseDashboard() {
         />
       </div>
 
+      {/* SuperAdmin-only: subscription, plan override, users, invitations */}
+      {isSuperadmin && <CourseManagementPanels courseId={course.id} />}
+
+
       {/* Board links */}
       <Section title="Boards" desc="Open public-facing views in a new tab.">
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
