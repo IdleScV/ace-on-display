@@ -131,7 +131,7 @@ export function PlaqueTemplate({
             boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
           }}
         >
-          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} />
+          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} onSelectEntry={onSelectEntry} />
         </div>
       </div>
       <div className="flex justify-center gap-2 bg-black px-4 py-2">
