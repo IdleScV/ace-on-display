@@ -164,6 +164,7 @@ export type Database = {
           logo_url: string | null
           name: string
           plan_label: string | null
+          plan_override: boolean
           primary_color: string
           public_enabled: boolean
           secondary_color: string
@@ -181,6 +182,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           plan_label?: string | null
+          plan_override?: boolean
           primary_color?: string
           public_enabled?: boolean
           secondary_color?: string
@@ -198,6 +200,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           plan_label?: string | null
+          plan_override?: boolean
           primary_color?: string
           public_enabled?: boolean
           secondary_color?: string
@@ -448,29 +451,281 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_user_id: string | null
+          course_id: string | null
+          created_at: string
+          created_by_user_id: string
+          email: string
+          expires_at: string
+          grant_subscription_board_count: number | null
+          grant_subscription_ends_at: string | null
+          grant_subscription_tier: string | null
+          id: string
+          revoked_at: string | null
+          revoked_by_user_id: string | null
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          created_by_user_id: string
+          email: string
+          expires_at?: string
+          grant_subscription_board_count?: number | null
+          grant_subscription_ends_at?: string | null
+          grant_subscription_tier?: string | null
+          id?: string
+          revoked_at?: string | null
+          revoked_by_user_id?: string | null
+          role?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          created_by_user_id?: string
+          email?: string
+          expires_at?: string
+          grant_subscription_board_count?: number | null
+          grant_subscription_ends_at?: string | null
+          grant_subscription_tier?: string | null
+          id?: string
+          revoked_at?: string | null
+          revoked_by_user_id?: string | null
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_revoked_by_user_id_fkey"
+            columns: ["revoked_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
+          display_name: string | null
           email: string
           id: string
           is_e2e: boolean
           last_login_at: string | null
+          suspended: boolean
+          suspended_at: string | null
+          suspended_by_user_id: string | null
+          suspension_reason: string | null
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
           email: string
           id: string
           is_e2e?: boolean
           last_login_at?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_by_user_id?: string | null
+          suspension_reason?: string | null
         }
         Update: {
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: string
           is_e2e?: boolean
           last_login_at?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_by_user_id?: string | null
+          suspension_reason?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_suspended_by_user_id_fkey"
+            columns: ["suspended_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          from_board_count: number | null
+          from_tier: string | null
+          id: string
+          notes: string | null
+          subscription_id: string
+          to_board_count: number | null
+          to_tier: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          from_board_count?: number | null
+          from_tier?: string | null
+          id?: string
+          notes?: string | null
+          subscription_id: string
+          to_board_count?: number | null
+          to_tier?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          from_board_count?: number | null
+          from_tier?: string | null
+          id?: string
+          notes?: string | null
+          subscription_id?: string
+          to_board_count?: number | null
+          to_tier?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          billing_source: string
+          billing_user_id: string
+          board_count: number
+          course_id: string
+          created_at: string
+          created_by_user_id: string | null
+          ends_at: string | null
+          gift_reason: string | null
+          gifted_by_user_id: string | null
+          id: string
+          notes: string | null
+          plan_tier: string
+          starts_at: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_source: string
+          billing_user_id: string
+          board_count?: number
+          course_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          ends_at?: string | null
+          gift_reason?: string | null
+          gifted_by_user_id?: string | null
+          id?: string
+          notes?: string | null
+          plan_tier: string
+          starts_at?: string
+          status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_source?: string
+          billing_user_id?: string
+          board_count?: number
+          course_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          ends_at?: string | null
+          gift_reason?: string | null
+          gifted_by_user_id?: string | null
+          id?: string
+          notes?: string | null
+          plan_tier?: string
+          starts_at?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_billing_user_id_fkey"
+            columns: ["billing_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_gifted_by_user_id_fkey"
+            columns: ["gifted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -501,6 +756,62 @@ export type Database = {
       can_write_course_asset: {
         Args: { _path: string; _user_id: string }
         Returns: boolean
+      }
+      get_active_subscription: {
+        Args: { _course_id: string }
+        Returns: {
+          billing_source: string
+          billing_user_id: string
+          board_count: number
+          course_id: string
+          created_at: string
+          created_by_user_id: string | null
+          ends_at: string | null
+          gift_reason: string | null
+          gifted_by_user_id: string | null
+          id: string
+          notes: string | null
+          plan_tier: string
+          starts_at: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_user_active_subscriptions: {
+        Args: { _user_id: string }
+        Returns: {
+          billing_source: string
+          billing_user_id: string
+          board_count: number
+          course_id: string
+          created_at: string
+          created_by_user_id: string | null
+          ends_at: string | null
+          gift_reason: string | null
+          gifted_by_user_id: string | null
+          id: string
+          notes: string | null
+          plan_tier: string
+          starts_at: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       has_role: {
         Args: {
