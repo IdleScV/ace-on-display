@@ -96,14 +96,7 @@ export const Route = createFileRoute("/$slug/entry/$entryId")({
 function EntryPage() {
   const { slug, entryId } = Route.useParams();
   const search = Route.useSearch();
-  const fn = useServerFn(getPublicEntryDetail);
-  const { data } = useSuspenseQuery({
-    queryKey: ["public-entry-detail", slug, entryId],
-    queryFn: async () => {
-      const d = await fn({ data: { slug, entryId } } as any);
-      return { data: d, origin: "" };
-    },
-  });
+  const { data } = useSuspenseQuery(detailOptions(slug, entryId));
   if (!data.data) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">

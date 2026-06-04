@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminEntriesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as SlugHoleHoleNumberRouteImport } from './routes/$slug.hole.$holeNumber'
+import { Route as SlugEntryEntryIdRouteImport } from './routes/$slug.entry.$entryId'
 import { Route as ApiPublicE2eBootstrapRouteImport } from './routes/api/public/e2e/bootstrap'
 import { Route as AuthenticatedAdminCourseCourseIdRouteImport } from './routes/_authenticated/admin.course.$courseId'
 
@@ -136,6 +137,11 @@ const SlugHoleHoleNumberRoute = SlugHoleHoleNumberRouteImport.update({
   path: '/$slug/hole/$holeNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlugEntryEntryIdRoute = SlugEntryEntryIdRouteImport.update({
+  id: '/$slug/entry/$entryId',
+  path: '/$slug/entry/$entryId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicE2eBootstrapRoute = ApiPublicE2eBootstrapRouteImport.update({
   id: '/api/public/e2e/bootstrap',
   path: '/api/public/e2e/bootstrap',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/$slug/submit': typeof SlugSubmitRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
   '/api/tutor': typeof ApiTutorRoute
+  '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/$slug/submit': typeof SlugSubmitRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/tutor': typeof ApiTutorRoute
+  '/$slug/entry/$entryId': typeof SlugEntryEntryIdRoute
   '/$slug/hole/$holeNumber': typeof SlugHoleHoleNumberRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/admin'
     | '/api/tutor'
+    | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
     | '/admin/courses'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/$slug/rotate'
     | '/$slug/submit'
     | '/api/tutor'
+    | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/admin/audit'
     | '/admin/courses'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/$slug/submit'
     | '/_authenticated/admin'
     | '/api/tutor'
+    | '/$slug/entry/$entryId'
     | '/$slug/hole/$holeNumber'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/courses'
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   SlugRotateRoute: typeof SlugRotateRoute
   SlugSubmitRoute: typeof SlugSubmitRoute
   ApiTutorRoute: typeof ApiTutorRoute
+  SlugEntryEntryIdRoute: typeof SlugEntryEntryIdRoute
   SlugHoleHoleNumberRoute: typeof SlugHoleHoleNumberRoute
   ApiPublicHeartbeatRoute: typeof ApiPublicHeartbeatRoute
   ApiPublicE2eBootstrapRoute: typeof ApiPublicE2eBootstrapRoute
@@ -448,6 +461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugHoleHoleNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$slug/entry/$entryId': {
+      id: '/$slug/entry/$entryId'
+      path: '/$slug/entry/$entryId'
+      fullPath: '/$slug/entry/$entryId'
+      preLoaderRoute: typeof SlugEntryEntryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/e2e/bootstrap': {
       id: '/api/public/e2e/bootstrap'
       path: '/api/public/e2e/bootstrap'
@@ -513,6 +533,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRotateRoute: SlugRotateRoute,
   SlugSubmitRoute: SlugSubmitRoute,
   ApiTutorRoute: ApiTutorRoute,
+  SlugEntryEntryIdRoute: SlugEntryEntryIdRoute,
   SlugHoleHoleNumberRoute: SlugHoleHoleNumberRoute,
   ApiPublicHeartbeatRoute: ApiPublicHeartbeatRoute,
   ApiPublicE2eBootstrapRoute: ApiPublicE2eBootstrapRoute,
