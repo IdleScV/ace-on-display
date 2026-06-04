@@ -373,7 +373,26 @@ export const createInvitation = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      const m = error.message;
+      if (/pending invitation already exists/i.test(m)) {
+        // Find existing for client to resend
+        const { data: existing } = await supabaseAdmin
+          .from("invitations")
+          .select("id")
+          .eq("email", data.email.toLowerCase())
+          .eq("role", data.role)
+          .eq("status", "pending")
+          .maybeSingle();
+        throw new Error(
+          `INVITATION_DUPLICATE:${existing?.id ?? ""}:A pending invitation already exists for ${data.email}. Resend it instead.`,
+        );
+      }
+      if (/already a superadmin|already manages this course/i.test(m)) {
+        throw new Error(`USER_EXISTS:${m}`);
+      }
+      throw new Error(m);
+    }
     return { invitation: row };
   });
 
