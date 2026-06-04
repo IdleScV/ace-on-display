@@ -90,6 +90,7 @@ function AdminLayout() {
         <Outlet />
       </main>
       <TutorChat />
+      <AdminChat />
     </div>
   );
 }
