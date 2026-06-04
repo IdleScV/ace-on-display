@@ -19,13 +19,14 @@ const SPOT_MS = 2_800;
  * Designed for 21:9 or 32:9 displays above the bar.
  */
 export function UltrawideTemplate({
-  course, entries, holes, style = "walnut", muted = true,
+  course, entries, holes, style = "walnut", muted = true, onSelectEntry,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
   holes: DisplayHole[];
   style?: BoardStyle;
   muted?: boolean;
+  onSelectEntry?: (id: string) => void;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
   const grouped = useMemo(() => {
@@ -99,7 +100,11 @@ export function UltrawideTemplate({
               className="mb-[2vh] max-h-[40vh] w-auto rounded-2xl object-cover shadow-2xl ring-4 ring-white/30" />
           )}
           <p className="text-[clamp(12px,0.9vw,18px)] opacity-70 uppercase tracking-widest">Now featuring</p>
-          <h2 className="mt-[1vh] text-[clamp(32px,3.2vw,72px)] font-extrabold leading-[0.95] tracking-tight">
+          <h2
+            onClick={onSelectEntry ? () => onSelectEntry(spotAce.id) : undefined}
+            role={onSelectEntry ? "button" : undefined}
+            className={`mt-[1vh] text-[clamp(32px,3.2vw,72px)] font-extrabold leading-[0.95] tracking-tight ${onSelectEntry ? "cursor-pointer transition hover:opacity-90 active:scale-[0.99]" : ""}`}
+          >
             {spotAce.golfer_name}
           </h2>
           <p className="mt-[1.5vh] text-[clamp(14px,1.1vw,22px)] opacity-85">
@@ -170,7 +175,7 @@ export function UltrawideTemplate({
 
         <div className="grid flex-1 auto-rows-min grid-cols-3 gap-3 overflow-hidden p-6 xl:grid-cols-4">
           {current.aces.map((ace, i) => (
-            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} skin={skin} />
+            <UltraNamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % current.aces.length} skin={skin} onSelectEntry={onSelectEntry} />
           ))}
         </div>
       </div>
@@ -221,16 +226,19 @@ export function UltrawideTemplate({
   );
 }
 
-function UltraNamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
+function UltraNamePlate({ ace, spotlight, skin, onSelectEntry }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; onSelectEntry?: (id: string) => void }) {
   const cp = ace.custom_plate ?? {};
   const accent = cp.accent_color || skin.accent;
   const useCustomAccent = !!cp.accent_color;
   const accentHi = useCustomAccent ? shade(accent, 40) : skin.accentHi;
   const accentLo = useCustomAccent ? shade(accent, -30) : skin.accentLo;
   const highlight = !!cp.highlight;
+  const interactive = !!onSelectEntry;
   return (
     <div
-      className="relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500"
+      onClick={interactive ? () => onSelectEntry!(ace.id) : undefined}
+      role={interactive ? "button" : undefined}
+      className={`relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500 ${interactive ? "cursor-pointer hover:brightness-125 active:scale-[0.99]" : ""}`}
       style={{
         background: skin.plateBg,
         boxShadow:

@@ -95,7 +95,7 @@ export const getDisplayData = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: course } = await supabaseAdmin
       .from("courses")
-      .select("id,name,slug,logo_url,primary_color,secondary_color,display_sort,data_version")
+      .select("id,name,slug,logo_url,primary_color,secondary_color,display_sort,data_version,has_touch,is_multi_board")
       .eq("slug", data.slug)
       .maybeSingle();
     if (!course) return null;
@@ -114,4 +114,61 @@ export const getDisplayData = createServerFn({ method: "GET" })
         .order("hole_number"),
     ]);
     return { course, entries: entries ?? [], holes: holes ?? [] };
+  });
+
+export interface PublicEntryDetail {
+  id: string;
+  course_id: string;
+  golfer_name: string;
+  date_achieved: string;
+  hole_number: number;
+  yardage: number | null;
+  club: string | null;
+  witness: string | null;
+  story: string | null;
+  photo_url: string | null;
+  video_url: string | null;
+  handicap_at_time: number | null;
+  favorite_hole: number | null;
+  years_playing: number | null;
+  prior_holes_in_one: number | null;
+  custom_plate: CustomPlate | null;
+  photos: { url: string; sort_order: number }[];
+}
+
+export const getPublicEntryDetail = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string; entryId: string }) =>
+    z.object({
+      slug: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/),
+      entryId: z.string().uuid(),
+    }).parse(input),
+  )
+  .handler(async ({ data }): Promise<{ course: PublicCourse; entry: PublicEntryDetail } | null> => {
+    const { data: course } = await supabaseAdmin
+      .from("courses")
+      .select("id,name,slug,logo_url,primary_color,secondary_color,public_enabled,display_sort,data_version")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!course || !course.public_enabled) return null;
+
+    const { data: entry } = await supabaseAdmin
+      .from("entries")
+      .select("id,course_id,golfer_name,date_achieved,hole_number,yardage,club,witness,story,photo_url,video_url,handicap_at_time,favorite_hole,years_playing,prior_holes_in_one,custom_plate,status")
+      .eq("id", data.entryId)
+      .eq("course_id", course.id)
+      .eq("status", "published")
+      .maybeSingle();
+    if (!entry) return null;
+
+    const { data: photos } = await supabaseAdmin
+      .from("entry_photos")
+      .select("url,sort_order")
+      .eq("entry_id", entry.id)
+      .order("sort_order", { ascending: true });
+
+    const { status: _s, ...rest } = entry as any;
+    return {
+      course: course as PublicCourse,
+      entry: { ...(rest as PublicEntryDetail), photos: (photos ?? []) as any },
+    };
   });

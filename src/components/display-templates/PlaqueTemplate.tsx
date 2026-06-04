@@ -12,7 +12,7 @@ const SPOT_MS = 2_500;
 const PHOTO_MS = 3_500;
 
 export function PlaqueTemplate({
-  course, entries, holes, style = "walnut", muted = true, photos = "slideshow",
+  course, entries, holes, style = "walnut", muted = true, photos = "slideshow", onSelectEntry,
 }: {
   course: DisplayCourse;
   entries: DisplayEntry[];
@@ -20,6 +20,7 @@ export function PlaqueTemplate({
   style?: BoardStyle;
   muted?: boolean;
   photos?: "cards" | "slideshow";
+  onSelectEntry?: (id: string) => void;
 }) {
   const skin = resolveSkin(style, { coursePrimary: course.primary_color });
 
@@ -130,7 +131,7 @@ export function PlaqueTemplate({
             boxShadow: `inset 0 0 0 4px ${skin.rim}, inset 0 0 40px rgba(0,0,0,0.5)`,
           }}
         >
-          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} />
+          <PlaqueBoard aces={current.aces} spotIdx={spotIdx} skin={skin} hidePhotos={photos === "slideshow"} onSelectEntry={onSelectEntry} />
         </div>
       </div>
       <div className="flex justify-center gap-2 bg-black px-4 py-2">
@@ -200,28 +201,31 @@ export function PlaqueHeader({
   );
 }
 
-export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean }) {
+export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false, onSelectEntry }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean; onSelectEntry?: (id: string) => void }) {
   return (
     <div className="h-full">
       <div className="grid h-full auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {aces.map((ace, i) => (
-          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} />
+          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} onSelectEntry={onSelectEntry} />
         ))}
       </div>
     </div>
   );
 }
 
-function NamePlate({ ace, spotlight, skin, hidePhoto = false }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; hidePhoto?: boolean }) {
+function NamePlate({ ace, spotlight, skin, hidePhoto = false, onSelectEntry }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; hidePhoto?: boolean; onSelectEntry?: (id: string) => void }) {
   const cp = ace.custom_plate ?? {};
   const accent = cp.accent_color || skin.accent;
   const useCustomAccent = !!cp.accent_color;
   const accentHi = useCustomAccent ? shade(accent, 40) : skin.accentHi;
   const accentLo = useCustomAccent ? shade(accent, -30) : skin.accentLo;
   const highlight = !!cp.highlight;
+  const interactive = !!onSelectEntry;
   return (
     <div
-      className="relative flex flex-col justify-center rounded-sm px-4 py-3 text-center transition-all duration-500"
+      onClick={interactive ? () => onSelectEntry!(ace.id) : undefined}
+      role={interactive ? "button" : undefined}
+      className={`relative flex flex-col justify-center rounded-sm px-4 py-3 text-center transition-all duration-500 ${interactive ? "cursor-pointer hover:brightness-125 active:scale-[0.99]" : ""}`}
       style={{
         background: skin.plateBg,
         boxShadow:
