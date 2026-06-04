@@ -136,9 +136,12 @@ export type Database = {
           created_at: string
           data_version: number
           display_sort: Database["public"]["Enums"]["display_sort"]
+          has_touch: boolean
           id: string
+          is_multi_board: boolean
           logo_url: string | null
           name: string
+          plan_label: string | null
           primary_color: string
           public_enabled: boolean
           secondary_color: string
@@ -149,9 +152,12 @@ export type Database = {
           created_at?: string
           data_version?: number
           display_sort?: Database["public"]["Enums"]["display_sort"]
+          has_touch?: boolean
           id?: string
+          is_multi_board?: boolean
           logo_url?: string | null
           name: string
+          plan_label?: string | null
           primary_color?: string
           public_enabled?: boolean
           secondary_color?: string
@@ -162,9 +168,12 @@ export type Database = {
           created_at?: string
           data_version?: number
           display_sort?: Database["public"]["Enums"]["display_sort"]
+          has_touch?: boolean
           id?: string
+          is_multi_board?: boolean
           logo_url?: string | null
           name?: string
+          plan_label?: string | null
           primary_color?: string
           public_enabled?: boolean
           secondary_color?: string
@@ -240,6 +249,57 @@ export type Database = {
           },
         ]
       }
+      email_subscribers: {
+        Row: {
+          course_id: string
+          created_at: string
+          email: string
+          entry_id: string | null
+          golfer_name: string | null
+          id: string
+          source: string
+          unsubscribe_token: string
+          unsubscribed: boolean
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          email: string
+          entry_id?: string | null
+          golfer_name?: string | null
+          id?: string
+          source?: string
+          unsubscribe_token?: string
+          unsubscribed?: boolean
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          email?: string
+          entry_id?: string | null
+          golfer_name?: string | null
+          id?: string
+          source?: string
+          unsubscribe_token?: string
+          unsubscribed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_subscribers_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_subscribers_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entries: {
         Row: {
           club: string | null
@@ -248,16 +308,23 @@ export type Database = {
           created_by: string | null
           custom_plate: Json | null
           date_achieved: string
+          favorite_hole: number | null
+          golfer_email: string | null
           golfer_name: string
+          handicap_at_time: number | null
           hole_number: number
           id: string
           notes: string | null
           photo_url: string | null
+          prior_holes_in_one: number | null
           status: Database["public"]["Enums"]["entry_status"]
+          story: string | null
           updated_at: string
           updated_by: string | null
+          video_url: string | null
           witness: string | null
           yardage: number | null
+          years_playing: number | null
         }
         Insert: {
           club?: string | null
@@ -266,16 +333,23 @@ export type Database = {
           created_by?: string | null
           custom_plate?: Json | null
           date_achieved: string
+          favorite_hole?: number | null
+          golfer_email?: string | null
           golfer_name: string
+          handicap_at_time?: number | null
           hole_number: number
           id?: string
           notes?: string | null
           photo_url?: string | null
+          prior_holes_in_one?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
+          story?: string | null
           updated_at?: string
           updated_by?: string | null
+          video_url?: string | null
           witness?: string | null
           yardage?: number | null
+          years_playing?: number | null
         }
         Update: {
           club?: string | null
@@ -284,16 +358,23 @@ export type Database = {
           created_by?: string | null
           custom_plate?: Json | null
           date_achieved?: string
+          favorite_hole?: number | null
+          golfer_email?: string | null
           golfer_name?: string
+          handicap_at_time?: number | null
           hole_number?: number
           id?: string
           notes?: string | null
           photo_url?: string | null
+          prior_holes_in_one?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
+          story?: string | null
           updated_at?: string
           updated_by?: string | null
+          video_url?: string | null
           witness?: string | null
           yardage?: number | null
+          years_playing?: number | null
         }
         Relationships: [
           {
@@ -301,6 +382,38 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entry_photos: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entry_photos_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
             referencedColumns: ["id"]
           },
         ]
