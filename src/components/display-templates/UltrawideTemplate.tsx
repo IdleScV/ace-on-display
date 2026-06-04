@@ -226,16 +226,19 @@ export function UltrawideTemplate({
   );
 }
 
-function UltraNamePlate({ ace, spotlight, skin }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin }) {
+function UltraNamePlate({ ace, spotlight, skin, onSelectEntry }: { ace: DisplayEntry; spotlight: boolean; skin: BoardSkin; onSelectEntry?: (id: string) => void }) {
   const cp = ace.custom_plate ?? {};
   const accent = cp.accent_color || skin.accent;
   const useCustomAccent = !!cp.accent_color;
   const accentHi = useCustomAccent ? shade(accent, 40) : skin.accentHi;
   const accentLo = useCustomAccent ? shade(accent, -30) : skin.accentLo;
   const highlight = !!cp.highlight;
+  const interactive = !!onSelectEntry;
   return (
     <div
-      className="relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500"
+      onClick={interactive ? () => onSelectEntry!(ace.id) : undefined}
+      role={interactive ? "button" : undefined}
+      className={`relative flex flex-col justify-center rounded-sm px-3 py-2 text-center transition-all duration-500 ${interactive ? "cursor-pointer hover:brightness-125 active:scale-[0.99]" : ""}`}
       style={{
         background: skin.plateBg,
         boxShadow:
