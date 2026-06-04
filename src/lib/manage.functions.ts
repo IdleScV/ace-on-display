@@ -253,32 +253,64 @@ export const deleteUser = createServerFn({ method: "POST" })
     if (data.user_id === context.userId) throw new Error("You cannot delete yourself.");
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("email")
+      .select("email,deleted_at")
       .eq("id", data.user_id)
       .maybeSingle();
     if (!profile) throw new Error("User not found");
+    if (profile.deleted_at) throw new Error("User is already deleted.");
     if (profile.email.toLowerCase() !== data.confirm_email.toLowerCase())
       throw new Error("Email confirmation does not match.");
 
-    const [{ count: activeSubs }, { count: entries }] = await Promise.all([
-      supabaseAdmin
-        .from("subscriptions")
-        .select("*", { count: "exact", head: true })
-        .eq("billing_user_id", data.user_id)
-        .in("status", ["active", "trialing"]),
-      supabaseAdmin
-        .from("entries")
-        .select("*", { count: "exact", head: true })
-        .eq("created_by", data.user_id),
-    ]);
+    const { count: activeSubs } = await supabaseAdmin
+      .from("subscriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("billing_user_id", data.user_id)
+      .in("status", ["active", "trialing"]);
     if ((activeSubs ?? 0) > 0)
       throw new Error("Cannot delete: user has active subscriptions.");
-    if ((entries ?? 0) > 0) throw new Error("Cannot delete: user has authored entries.");
 
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    // Soft delete only — trigger enforces last-superadmin protection
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by_user_id: context.userId,
+        suspended: true,
+        suspended_at: new Date().toISOString(),
+        suspended_by_user_id: context.userId,
+        suspension_reason: "Soft deleted",
+      })
+      .eq("id", data.user_id);
+    if (error) throw new Error(friendlyError(error.message));
+    try { await supabaseAdmin.auth.admin.signOut(data.user_id); } catch { /* ignore */ }
+    return { ok: true };
+  });
+
+export const restoreUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ user_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        deleted_at: null,
+        deleted_by_user_id: null,
+        suspended: false,
+        suspended_at: null,
+        suspended_by_user_id: null,
+        suspension_reason: null,
+      })
+      .eq("id", data.user_id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+function friendlyError(msg: string): string {
+  if (/last active superadmin/i.test(msg))
+    return "You can't remove the last superadmin. Promote another user first.";
+  return msg;
+}
 
 export const sendPasswordResetForUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
