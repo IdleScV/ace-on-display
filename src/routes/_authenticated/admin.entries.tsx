@@ -18,6 +18,7 @@ function EntriesPage() {
   const { activeCourse } = useCourseCtx();
   const list = useServerFn(listEntries);
   const del = useServerFn(deleteEntry);
+  const pending = useServerFn(countPendingIntake);
   const qc = useQueryClient();
   const [status, setStatus] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
@@ -30,15 +31,40 @@ function EntriesPage() {
     queryFn: () => list({ data: { course_id: activeCourse!.id, status, search: search || undefined } } as any),
   });
 
+  const { data: pendingData } = useQuery({
+    queryKey: ["entries-pending-count", activeCourse?.id],
+    enabled: !!activeCourse,
+    queryFn: () => pending({ data: { course_id: activeCourse!.id } } as any),
+    refetchInterval: 60_000,
+  });
+  const pendingCount = pendingData?.count ?? 0;
+
   if (!activeCourse) return <p className="text-sm text-muted-foreground">Select a course first.</p>;
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Entries — {activeCourse.name}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">Entries — {activeCourse.name}</h1>
+          <button
+            type="button"
+            onClick={() => setStatus("pending_intake")}
+            className="relative inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
+            title={`${pendingCount} pending submission${pendingCount === 1 ? "" : "s"}`}
+          >
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Pending</span>
+            {pendingCount > 0 && (
+              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-semibold text-destructive-foreground">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="rounded-md border border-input bg-background px-3 py-2 text-sm">
             <option value="all">All</option>
+            <option value="pending_intake">Pending submissions</option>
             <option value="draft">Draft</option>
             <option value="published">Published</option>
             <option value="archived">Archived</option>
