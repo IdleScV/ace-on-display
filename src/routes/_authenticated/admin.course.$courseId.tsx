@@ -659,3 +659,94 @@ function TemplateThumb({
     </div>
   );
 }
+
+function PlanEditor({ course }: { course: any }) {
+  const qc = useQueryClient();
+  const [hasTouch, setHasTouch] = useState<boolean>(!!course.has_touch);
+  const [isMulti, setIsMulti] = useState<boolean>(!!course.is_multi_board);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const plan = derivePlanLabel({ has_touch: hasTouch, is_multi_board: isMulti });
+
+  async function update(next: { has_touch: boolean; is_multi_board: boolean }) {
+    setSaving(true);
+    setErr(null);
+    const planLabel = derivePlanLabel(next);
+    const { error } = await supabase
+      .from("courses")
+      .update({ ...next, plan_label: planLabel })
+      .eq("id", course.id);
+    setSaving(false);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["my-courses"] });
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Toggle
+          label="Touch screen"
+          desc="Interactive kiosk: tap holes, browse stories, view media."
+          checked={hasTouch}
+          disabled={saving}
+          onChange={(v) => {
+            setHasTouch(v);
+            update({ has_touch: v, is_multi_board: isMulti });
+          }}
+        />
+        <Toggle
+          label="Multi-board"
+          desc="Multiple synced displays across the clubhouse / estate."
+          checked={isMulti}
+          disabled={saving}
+          onChange={(v) => {
+            setIsMulti(v);
+            update({ has_touch: hasTouch, is_multi_board: v });
+          }}
+        />
+      </div>
+      <div className="flex items-center gap-3 rounded-md border bg-muted/30 px-4 py-3">
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">Current tier</span>
+        <span className="rounded-md bg-primary/10 px-2 py-1 text-sm font-semibold text-primary">
+          {PLAN_LABEL_TEXT[plan]}
+        </span>
+        {saving && <span className="text-xs text-muted-foreground">Saving…</span>}
+      </div>
+      {err && <p className="text-sm text-destructive">{err}</p>}
+    </div>
+  );
+}
+
+function Toggle({
+  label,
+  desc,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  desc: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className={`flex cursor-pointer items-start gap-3 rounded-md border bg-card p-3 ${disabled ? "opacity-60" : "hover:bg-accent/40"}`}>
+      <input
+        type="checkbox"
+        className="mt-1"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className="flex-1">
+        <span className="block text-sm font-medium">{label}</span>
+        <span className="block text-xs text-muted-foreground">{desc}</span>
+      </span>
+    </label>
+  );
+}
