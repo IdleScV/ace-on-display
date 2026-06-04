@@ -762,11 +762,7 @@ function UserDetailDrawer({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Invite user dialog
-// ---------------------------------------------------------------------------
-
-function InviteUserDialog({ onClose }: { onClose: () => void }) {
+// InviteUserDialog moved to @/components/manage/invite-user-dialog
   const inviteFn = useServerFn(createInvitation);
   const checkFn = useServerFn(listInvitationsForEmail);
   const listCoursesFn = useServerFn(listAllCourses);
