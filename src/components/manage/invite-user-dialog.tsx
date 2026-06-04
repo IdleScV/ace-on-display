@@ -23,9 +23,11 @@ type Tier = "classic" | "interactive" | "estate" | "estate_interactive";
 export function InviteUserDialog({
   onClose,
   showGoToInvitationsLink = false,
+  defaultCourseId = "",
 }: {
   onClose: () => void;
   showGoToInvitationsLink?: boolean;
+  defaultCourseId?: string;
 }) {
   const inviteFn = useServerFn(createInvitation);
   const checkFn = useServerFn(listInvitationsForEmail);
@@ -35,7 +37,7 @@ export function InviteUserDialog({
 
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"course_manager" | "superadmin">("course_manager");
-  const [courseId, setCourseId] = useState<string>("");
+  const [courseId, setCourseId] = useState<string>(defaultCourseId);
   const [grantSub, setGrantSub] = useState(false);
   const [tier, setTier] = useState<Tier>("interactive");
   const [boardCount, setBoardCount] = useState(1);
