@@ -111,7 +111,17 @@ function ManagePage() {
             }
           />
         )}
-        {tab === "invitations" && <Placeholder name="Invitations" />}
+        {tab === "invitations" && (
+          <InvitationsTab
+            focusInvitationId={invite ?? null}
+            onSelect={(id: string | null) =>
+              navigate({
+                to: "/admin/manage",
+                search: id ? { tab: "invitations", invite: id } : { tab: "invitations" },
+              })
+            }
+          />
+        )}
       </div>
     </div>
   );
