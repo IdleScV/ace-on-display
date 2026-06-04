@@ -155,9 +155,15 @@ export const changeUserRole = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: data.user_id, role: data.role });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(friendlyRoleError(error.message));
     return { ok: true };
   });
+
+function friendlyRoleError(msg: string): string {
+  if (/last active superadmin/i.test(msg))
+    return "You can't remove the last superadmin. Promote another user first.";
+  return msg;
+}
 
 export const assignUserCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
