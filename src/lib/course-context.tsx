@@ -12,6 +12,9 @@ export interface CourseSummary {
   secondary_color: string;
   public_enabled: boolean;
   display_sort: "newest" | "hole" | "year";
+  has_touch: boolean;
+  is_multi_board: boolean;
+  plan_label: string | null;
 }
 
 interface CourseCtx {
