@@ -1,11 +1,14 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { getDisplayData } from "@/lib/public.functions";
-import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getDisplayData, getPublicEntryDetail } from "@/lib/public.functions";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Trophy } from "lucide-react";
 import { SpotlightTemplate } from "@/components/display-templates/SpotlightTemplate";
 import { PlaqueTemplate } from "@/components/display-templates/PlaqueTemplate";
 import { UltrawideTemplate } from "@/components/display-templates/UltrawideTemplate";
+import { EntryDetailView } from "@/components/EntryDetailView";
+import { hasFeature } from "@/lib/features";
 import type {
   DisplayCourse, DisplayEntry, DisplayHole, DisplayTemplate,
 } from "@/components/display-templates/types";
