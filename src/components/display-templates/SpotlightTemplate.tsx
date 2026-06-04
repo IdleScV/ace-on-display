@@ -55,7 +55,12 @@ export function SpotlightTemplate({ course, entries, onSelectEntry }: { course: 
             )}
             <div>
               <p style={{ fontSize: "clamp(16px, 1.6vw, 32px)" }} className="opacity-70 uppercase tracking-widest">Hole-in-One</p>
-              <h2 style={{ fontSize: "clamp(48px, 6.5vw, 130px)" }} className="mt-[1vh] font-extrabold leading-[0.95] tracking-tight">{entry.golfer_name}</h2>
+              <h2
+                onClick={onSelectEntry ? () => onSelectEntry(entry.id) : undefined}
+                role={onSelectEntry ? "button" : undefined}
+                style={{ fontSize: "clamp(48px, 6.5vw, 130px)" }}
+                className={`mt-[1vh] font-extrabold leading-[0.95] tracking-tight ${onSelectEntry ? "cursor-pointer transition hover:opacity-90 active:scale-[0.99]" : ""}`}
+              >{entry.golfer_name}</h2>
               <div className="mt-[3vh] flex flex-wrap items-center justify-center gap-[2vw] lg:justify-start">
                 <SpotStat label="Hole" value={`#${entry.hole_number}`} />
                 {entry.yardage != null && <SpotStat label="Yardage" value={`${entry.yardage} yd`} />}
