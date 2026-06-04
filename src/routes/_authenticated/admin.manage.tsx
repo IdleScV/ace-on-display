@@ -25,11 +25,14 @@ import {
   suspendUser,
   reactivateUser,
   deleteUser,
+  restoreUser,
   sendPasswordResetForUser,
+  exportUsersCSV,
 } from "@/lib/manage.functions";
 import { SubscriptionsTab } from "@/components/manage/subscriptions-tab";
 import { InvitationsTab } from "@/components/manage/invitations-tab";
 import { InviteUserDialog } from "@/components/manage/invite-user-dialog";
+import { ActivityTab } from "@/components/manage/activity-tab";
 import { listAllCourses } from "@/lib/courses.functions";
 import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -40,8 +43,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { downloadCsv } from "@/lib/csv-download";
 
-const TABS = ["users", "courses", "subscriptions", "invitations"] as const;
+const TABS = ["users", "subscriptions", "invitations", "activity"] as const;
 type Tab = (typeof TABS)[number];
 
 const searchSchema = z.object({
