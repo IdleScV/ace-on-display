@@ -159,6 +159,7 @@ export type Database = {
           display_sort: Database["public"]["Enums"]["display_sort"]
           has_touch: boolean
           id: string
+          is_e2e: boolean
           is_multi_board: boolean
           logo_url: string | null
           name: string
@@ -175,6 +176,7 @@ export type Database = {
           display_sort?: Database["public"]["Enums"]["display_sort"]
           has_touch?: boolean
           id?: string
+          is_e2e?: boolean
           is_multi_board?: boolean
           logo_url?: string | null
           name: string
@@ -191,6 +193,7 @@ export type Database = {
           display_sort?: Database["public"]["Enums"]["display_sort"]
           has_touch?: boolean
           id?: string
+          is_e2e?: boolean
           is_multi_board?: boolean
           logo_url?: string | null
           name?: string
@@ -335,6 +338,7 @@ export type Database = {
           handicap_at_time: number | null
           hole_number: number
           id: string
+          is_e2e: boolean
           notes: string | null
           photo_url: string | null
           prior_holes_in_one: number | null
@@ -361,6 +365,7 @@ export type Database = {
           handicap_at_time?: number | null
           hole_number: number
           id?: string
+          is_e2e?: boolean
           notes?: string | null
           photo_url?: string | null
           prior_holes_in_one?: number | null
@@ -387,6 +392,7 @@ export type Database = {
           handicap_at_time?: number | null
           hole_number?: number
           id?: string
+          is_e2e?: boolean
           notes?: string | null
           photo_url?: string | null
           prior_holes_in_one?: number | null
@@ -447,18 +453,21 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_e2e: boolean
           last_login_at: string | null
         }
         Insert: {
           created_at?: string
           email: string
           id: string
+          is_e2e?: boolean
           last_login_at?: string | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          is_e2e?: boolean
           last_login_at?: string | null
         }
         Relationships: []
