@@ -201,12 +201,12 @@ export function PlaqueHeader({
   );
 }
 
-export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean }) {
+export function PlaqueBoard({ aces, spotIdx, skin, hidePhotos = false, onSelectEntry }: { aces: DisplayEntry[]; spotIdx: number; skin: BoardSkin; hidePhotos?: boolean; onSelectEntry?: (id: string) => void }) {
   return (
     <div className="h-full">
       <div className="grid h-full auto-rows-min grid-cols-2 gap-3 overflow-hidden sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {aces.map((ace, i) => (
-          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} />
+          <NamePlate key={ace.id} ace={ace} spotlight={i === spotIdx % aces.length} skin={skin} hidePhoto={hidePhotos} onSelectEntry={onSelectEntry} />
         ))}
       </div>
     </div>
