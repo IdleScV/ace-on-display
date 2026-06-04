@@ -637,3 +637,212 @@ export const sendInvitationEmail = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// ---------------------------------------------------------------------------
+// Activity feed
+// ---------------------------------------------------------------------------
+
+export const listActivity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        entity: z.enum(["all", "user", "subscription", "invitation", "course", "entry"]).optional().default("all"),
+        actor_id: z.string().uuid().nullable().optional(),
+        from: z.string().datetime().nullable().optional(),
+        to: z.string().datetime().nullable().optional(),
+        page: z.number().int().min(1).optional().default(1),
+        pageSize: z.number().int().min(1).max(200).optional().default(50),
+      })
+      .parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    let q = supabaseAdmin.from("audit_logs").select("*", { count: "exact" });
+    if (data.entity !== "all") q = q.eq("entity", data.entity);
+    if (data.actor_id) q = q.eq("user_id", data.actor_id);
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    const from = (data.page - 1) * data.pageSize;
+    q = q.order("created_at", { ascending: false }).range(from, from + data.pageSize - 1);
+    const { data: rows, error, count } = await q;
+    if (error) throw new Error(error.message);
+
+    const actorIds = Array.from(new Set((rows ?? []).map((r) => r.user_id).filter(Boolean))) as string[];
+    const courseIds = Array.from(new Set((rows ?? []).map((r) => r.course_id).filter(Boolean))) as string[];
+    const [{ data: actors }, { data: courses }] = await Promise.all([
+      actorIds.length
+        ? supabaseAdmin.from("profiles").select("id,email,display_name").in("id", actorIds)
+        : Promise.resolve({ data: [] as any[] }),
+      courseIds.length
+        ? supabaseAdmin.from("courses").select("id,name").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const actorMap = new Map((actors ?? []).map((a: any) => [a.id, a]));
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c]));
+    return {
+      rows: (rows ?? []).map((r: any) => ({
+        ...r,
+        actor: r.user_id ? actorMap.get(r.user_id) ?? null : null,
+        course: r.course_id ? courseMap.get(r.course_id) ?? null : null,
+      })),
+      total: count ?? 0,
+    };
+  });
+
+// ---------------------------------------------------------------------------
+// CSV exports
+// ---------------------------------------------------------------------------
+
+function csvCell(v: any): string {
+  if (v === null || v === undefined) return "";
+  const s = String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+function csvRow(cells: any[]): string {
+  return cells.map(csvCell).join(",");
+}
+
+export const exportUsersCSV = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperadmin(context.userId);
+    const [{ data: profiles }, { data: roleRows }, { data: cmRows }, { data: courses }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id,email,display_name,suspended,deleted_at,last_login_at").is("deleted_at", null),
+      supabaseAdmin.from("user_roles").select("user_id,role"),
+      supabaseAdmin.from("course_managers").select("user_id,course_id"),
+      supabaseAdmin.from("courses").select("id,name"),
+    ]);
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c.name]));
+    const rolesByUser = new Map<string, string[]>();
+    for (const r of roleRows ?? []) {
+      const cur = rolesByUser.get(r.user_id) ?? [];
+      cur.push(r.role as string);
+      rolesByUser.set(r.user_id, cur);
+    }
+    const coursesByUser = new Map<string, string[]>();
+    for (const c of cmRows ?? []) {
+      const cur = coursesByUser.get(c.user_id) ?? [];
+      cur.push(courseMap.get(c.course_id) ?? "(unknown)");
+      coursesByUser.set(c.user_id, cur);
+    }
+    const lines = ["email,display_name,roles,courses,last_login_at,status"];
+    for (const p of profiles ?? []) {
+      lines.push(
+        csvRow([
+          p.email,
+          p.display_name ?? "",
+          (rolesByUser.get(p.id) ?? []).join("|"),
+          (coursesByUser.get(p.id) ?? []).join("|"),
+          p.last_login_at ?? "",
+          p.suspended ? "suspended" : "active",
+        ]),
+      );
+    }
+    return { csv: lines.join("\n"), filename: `users-${new Date().toISOString().slice(0, 10)}.csv` };
+  });
+
+const TIER_BASE: Record<string, number> = {
+  classic: 49,
+  interactive: 99,
+  estate: 149,
+  estate_interactive: 199,
+};
+const TIER_PER_BOARD: Record<string, number> = {
+  classic: 10,
+  interactive: 20,
+  estate: 25,
+  estate_interactive: 30,
+};
+function mrrEstimate(s: any): number {
+  if (s.billing_source === "gifted") return 0;
+  if (!["active", "trialing"].includes(s.status)) return 0;
+  const base = TIER_BASE[s.plan_tier] ?? 0;
+  const per = TIER_PER_BOARD[s.plan_tier] ?? 0;
+  const extra = Math.max(0, (s.board_count ?? 1) - 1) * per;
+  return base + extra;
+}
+
+export const exportSubscriptionsCSV = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: subs } = await supabaseAdmin.from("subscriptions").select("*");
+    const courseIds = Array.from(new Set((subs ?? []).map((s: any) => s.course_id))) as string[];
+    const userIds = Array.from(new Set((subs ?? []).map((s: any) => s.billing_user_id))) as string[];
+    const [{ data: courses }, { data: profiles }] = await Promise.all([
+      courseIds.length
+        ? supabaseAdmin.from("courses").select("id,name").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+      userIds.length
+        ? supabaseAdmin.from("profiles").select("id,email").in("id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c.name]));
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p.email]));
+    const lines = [
+      "course,billing_user_email,tier,board_count,source,status,starts_at,ends_at,mrr_estimate",
+    ];
+    for (const s of subs ?? []) {
+      lines.push(
+        csvRow([
+          courseMap.get(s.course_id) ?? "(unknown)",
+          profileMap.get(s.billing_user_id) ?? "",
+          s.plan_tier,
+          s.board_count,
+          s.billing_source,
+          s.status,
+          s.starts_at ?? "",
+          s.ends_at ?? "",
+          mrrEstimate(s).toFixed(2),
+        ]),
+      );
+    }
+    return {
+      csv: lines.join("\n"),
+      filename: `subscriptions-${new Date().toISOString().slice(0, 10)}.csv`,
+    };
+  });
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export const listNotifications = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ unread_only: z.boolean().optional().default(false), limit: z.number().int().min(1).max(100).optional().default(30) }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    // Trigger expiring-soon refresh for superadmins
+    try {
+      await supabaseAdmin.rpc("generate_expiring_subscription_notifications");
+    } catch { /* ignore */ }
+    let q = supabaseAdmin
+      .from("notifications")
+      .select("*", { count: "exact" })
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.unread_only) q = q.is("read_at", null);
+    const { data: rows, count } = await q;
+    const { count: unread } = await supabaseAdmin
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .is("read_at", null);
+    return { rows: rows ?? [], total: count ?? 0, unread: unread ?? 0 };
+  });
+
+export const markNotificationsRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ ids: z.array(z.string().uuid()).optional(), all: z.boolean().optional().default(false) }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    let q = supabaseAdmin.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", context.userId).is("read_at", null);
+    if (!data.all && data.ids?.length) q = q.in("id", data.ids);
+    const { error } = await q;
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
