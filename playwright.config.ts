@@ -12,7 +12,7 @@ export default defineConfig({
   use: {
     baseURL:
       process.env.E2E_BASE_URL ??
-      "https://id-preview--1af734f2-6a3c-4192-ace1-cbd21775e5b6.lovable.app",
+      "https://project--1af734f2-6a3c-4192-ace1-cbd21775e5b6-dev.lovable.app",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
