@@ -102,7 +102,7 @@ function ManagePage() {
         {tab === "subscriptions" && (
           <SubscriptionsTab
             focusSubscriptionId={sub ?? null}
-            onSelect={(id) =>
+            onSelect={(id: string | null) =>
               navigate({
                 to: "/admin/manage",
                 search: id ? { tab: "subscriptions", sub: id } : { tab: "subscriptions" },
