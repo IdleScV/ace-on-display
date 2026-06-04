@@ -221,7 +221,7 @@ export const suspendUser = createServerFn({ method: "POST" })
         suspension_reason: data.reason || null,
       })
       .eq("id", data.user_id);
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(friendlyRoleError(error.message));
     // Best-effort: kick out any active sessions
     try {
       await supabaseAdmin.auth.admin.signOut(data.user_id);
