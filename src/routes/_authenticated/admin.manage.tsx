@@ -14,7 +14,10 @@ import {
   Copy,
   X,
   Plus,
+  Download,
+  RotateCcw,
 } from "lucide-react";
+import { NotificationsBell } from "@/components/notifications-bell";
 import {
   listUsers,
   getUserDetail,
@@ -25,11 +28,14 @@ import {
   suspendUser,
   reactivateUser,
   deleteUser,
+  restoreUser,
   sendPasswordResetForUser,
+  exportUsersCSV,
 } from "@/lib/manage.functions";
 import { SubscriptionsTab } from "@/components/manage/subscriptions-tab";
 import { InvitationsTab } from "@/components/manage/invitations-tab";
 import { InviteUserDialog } from "@/components/manage/invite-user-dialog";
+import { ActivityTab } from "@/components/manage/activity-tab";
 import { listAllCourses } from "@/lib/courses.functions";
 import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -40,8 +46,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { downloadCsv } from "@/lib/csv-download";
 
-const TABS = ["users", "courses", "subscriptions", "invitations"] as const;
+const TABS = ["users", "subscriptions", "invitations", "activity"] as const;
 type Tab = (typeof TABS)[number];
 
 const searchSchema = z.object({
@@ -74,6 +81,7 @@ function ManagePage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Manage</h1>
+        <NotificationsBell />
       </div>
 
       <div className="mt-4 border-b">
@@ -99,7 +107,6 @@ function ManagePage() {
 
       <div className="mt-6">
         {tab === "users" && <UsersTab focusUserId={user ?? null} />}
-        {tab === "courses" && <Placeholder name="Courses" />}
         {tab === "subscriptions" && (
           <SubscriptionsTab
             focusSubscriptionId={sub ?? null}
@@ -122,15 +129,8 @@ function ManagePage() {
             }
           />
         )}
+        {tab === "activity" && <ActivityTab />}
       </div>
-    </div>
-  );
-}
-
-function Placeholder({ name }: { name: string }) {
-  return (
-    <div className="rounded-xl border bg-card p-12 text-center text-sm text-muted-foreground">
-      {name} — coming in next prompt.
     </div>
   );
 }
@@ -146,7 +146,8 @@ function UsersTab({ focusUserId }: { focusUserId: string | null }) {
   const listFn = useServerFn(listUsers);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<"all" | "superadmin" | "course_manager">("all");
-  const [status, setStatus] = useState<"all" | "active" | "suspended">("all");
+  const [status, setStatus] = useState<"all" | "active" | "suspended" | "deleted">("all");
+  const exportFn = useServerFn(exportUsersCSV);
   const [sort, setSort] = useState<"display_name" | "email" | "last_login_at">("email");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
@@ -213,7 +214,21 @@ function UsersTab({ focusUserId }: { focusUserId: string | null }) {
           <option value="all">All statuses</option>
           <option value="active">Active</option>
           <option value="suspended">Suspended</option>
+          <option value="deleted">Deleted</option>
         </select>
+        <button
+          onClick={async () => {
+            try {
+              const res = (await exportFn()) as any;
+              downloadCsv(res.filename, res.csv);
+            } catch (e: any) {
+              toast.error(e.message);
+            }
+          }}
+          className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm hover:bg-accent"
+        >
+          <Download className="h-4 w-4" /> Export CSV
+        </button>
         <button
           onClick={() => setInviteOpen(true)}
           className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -386,6 +401,7 @@ function UserDetailDrawer({
   const unassignCourse = useServerFn(unassignUserCourse);
   const suspend = useServerFn(suspendUser);
   const reactivate = useServerFn(reactivateUser);
+  const restoreFn = useServerFn(restoreUser);
   const delFn = useServerFn(deleteUser);
   const resetFn = useServerFn(sendPasswordResetForUser);
   const listCoursesFn = useServerFn(listAllCourses);
@@ -686,6 +702,20 @@ function UserDetailDrawer({
                     className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs hover:bg-accent"
                   >
                     <ShieldCheck className="h-3.5 w-3.5" /> Reactivate
+                  </button>
+                )}
+                {data.profile.deleted_at && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await restoreFn({ data: { user_id: data.profile.id } } as any);
+                        toast.success("User restored");
+                        refresh();
+                      } catch (e: any) { toast.error(e.message); }
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs hover:bg-accent"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" /> Restore user
                   </button>
                 )}
               </div>

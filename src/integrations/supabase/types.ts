@@ -561,9 +561,46 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          read_at?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
+          deleted_at: string | null
+          deleted_by_user_id: string | null
           display_name: string | null
           email: string
           id: string
@@ -576,6 +613,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
           display_name?: string | null
           email: string
           id: string
@@ -588,6 +627,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
           display_name?: string | null
           email?: string
           id?: string
@@ -599,6 +640,13 @@ export type Database = {
           suspension_reason?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_deleted_by_user_id_fkey"
+            columns: ["deleted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_suspended_by_user_id_fkey"
             columns: ["suspended_by_user_id"]
@@ -782,9 +830,14 @@ export type Database = {
         Returns: boolean
       }
       check_invitation_rate_limit: { Args: { _ip: string }; Returns: boolean }
+      count_active_superadmins: { Args: never; Returns: number }
       finalize_invitation_acceptance: {
         Args: { _token: string; _user_id: string }
         Returns: Json
+      }
+      generate_expiring_subscription_notifications: {
+        Args: never
+        Returns: undefined
       }
       get_active_subscription: {
         Args: { _course_id: string }
@@ -872,6 +925,10 @@ export type Database = {
         Returns: boolean
       }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      notify_superadmins: {
+        Args: { _payload: Json; _type: string }
+        Returns: undefined
+      }
       record_invitation_attempt: {
         Args: { _ip: string; _success: boolean; _token: string }
         Returns: undefined

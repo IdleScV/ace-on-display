@@ -26,7 +26,7 @@ export const listUsers = createServerFn({ method: "POST" })
       .object({
         search: z.string().max(200).optional().default(""),
         role: z.enum(["all", "superadmin", "course_manager"]).optional().default("all"),
-        status: z.enum(["all", "active", "suspended"]).optional().default("all"),
+        status: z.enum(["all", "active", "suspended", "deleted"]).optional().default("all"),
         page: z.number().int().min(1).optional().default(1),
         pageSize: z.number().int().min(1).max(200).optional().default(25),
         sort: z.enum(["display_name", "email", "last_login_at"]).optional().default("email"),
@@ -40,14 +40,17 @@ export const listUsers = createServerFn({ method: "POST" })
 
     let q = supabaseAdmin
       .from("profiles")
-      .select("id,email,display_name,last_login_at,suspended,suspended_at,suspension_reason", {
-        count: "exact",
-      });
+      .select(
+        "id,email,display_name,last_login_at,suspended,suspended_at,suspension_reason,deleted_at",
+        { count: "exact" },
+      );
 
     if (search.trim()) {
       const s = search.trim();
       q = q.or(`email.ilike.%${s}%,display_name.ilike.%${s}%`);
     }
+    if (status === "deleted") q = q.not("deleted_at", "is", null);
+    else q = q.is("deleted_at", null);
     if (status === "active") q = q.eq("suspended", false);
     if (status === "suspended") q = q.eq("suspended", true);
 
@@ -152,9 +155,15 @@ export const changeUserRole = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: data.user_id, role: data.role });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(friendlyRoleError(error.message));
     return { ok: true };
   });
+
+function friendlyRoleError(msg: string): string {
+  if (/last active superadmin/i.test(msg))
+    return "You can't remove the last superadmin. Promote another user first.";
+  return msg;
+}
 
 export const assignUserCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -212,7 +221,7 @@ export const suspendUser = createServerFn({ method: "POST" })
         suspension_reason: data.reason || null,
       })
       .eq("id", data.user_id);
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(friendlyRoleError(error.message));
     // Best-effort: kick out any active sessions
     try {
       await supabaseAdmin.auth.admin.signOut(data.user_id);
@@ -250,32 +259,64 @@ export const deleteUser = createServerFn({ method: "POST" })
     if (data.user_id === context.userId) throw new Error("You cannot delete yourself.");
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("email")
+      .select("email,deleted_at")
       .eq("id", data.user_id)
       .maybeSingle();
     if (!profile) throw new Error("User not found");
+    if (profile.deleted_at) throw new Error("User is already deleted.");
     if (profile.email.toLowerCase() !== data.confirm_email.toLowerCase())
       throw new Error("Email confirmation does not match.");
 
-    const [{ count: activeSubs }, { count: entries }] = await Promise.all([
-      supabaseAdmin
-        .from("subscriptions")
-        .select("*", { count: "exact", head: true })
-        .eq("billing_user_id", data.user_id)
-        .in("status", ["active", "trialing"]),
-      supabaseAdmin
-        .from("entries")
-        .select("*", { count: "exact", head: true })
-        .eq("created_by", data.user_id),
-    ]);
+    const { count: activeSubs } = await supabaseAdmin
+      .from("subscriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("billing_user_id", data.user_id)
+      .in("status", ["active", "trialing"]);
     if ((activeSubs ?? 0) > 0)
       throw new Error("Cannot delete: user has active subscriptions.");
-    if ((entries ?? 0) > 0) throw new Error("Cannot delete: user has authored entries.");
 
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    // Soft delete only — trigger enforces last-superadmin protection
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by_user_id: context.userId,
+        suspended: true,
+        suspended_at: new Date().toISOString(),
+        suspended_by_user_id: context.userId,
+        suspension_reason: "Soft deleted",
+      })
+      .eq("id", data.user_id);
+    if (error) throw new Error(friendlyError(error.message));
+    try { await supabaseAdmin.auth.admin.signOut(data.user_id); } catch { /* ignore */ }
+    return { ok: true };
+  });
+
+export const restoreUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ user_id: z.string().uuid() }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        deleted_at: null,
+        deleted_by_user_id: null,
+        suspended: false,
+        suspended_at: null,
+        suspended_by_user_id: null,
+        suspension_reason: null,
+      })
+      .eq("id", data.user_id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+function friendlyError(msg: string): string {
+  if (/last active superadmin/i.test(msg))
+    return "You can't remove the last superadmin. Promote another user first.";
+  return msg;
+}
 
 export const sendPasswordResetForUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -332,7 +373,26 @@ export const createInvitation = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      const m = error.message;
+      if (/pending invitation already exists/i.test(m)) {
+        // Find existing for client to resend
+        const { data: existing } = await supabaseAdmin
+          .from("invitations")
+          .select("id")
+          .eq("email", data.email.toLowerCase())
+          .eq("role", data.role)
+          .eq("status", "pending")
+          .maybeSingle();
+        throw new Error(
+          `INVITATION_DUPLICATE:${existing?.id ?? ""}:A pending invitation already exists for ${data.email}. Resend it instead.`,
+        );
+      }
+      if (/already a superadmin|already manages this course/i.test(m)) {
+        throw new Error(`USER_EXISTS:${m}`);
+      }
+      throw new Error(m);
+    }
     return { invitation: row };
   });
 
@@ -575,5 +635,214 @@ export const sendInvitationEmail = createServerFn({ method: "POST" })
       const txt = await res.text();
       throw new Error(`Email service error: ${txt || res.status}`);
     }
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Activity feed
+// ---------------------------------------------------------------------------
+
+export const listActivity = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        entity: z.enum(["all", "user", "subscription", "invitation", "course", "entry"]).optional().default("all"),
+        actor_id: z.string().uuid().nullable().optional(),
+        from: z.string().datetime().nullable().optional(),
+        to: z.string().datetime().nullable().optional(),
+        page: z.number().int().min(1).optional().default(1),
+        pageSize: z.number().int().min(1).max(200).optional().default(50),
+      })
+      .parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperadmin(context.userId);
+    let q = supabaseAdmin.from("audit_logs").select("*", { count: "exact" });
+    if (data.entity !== "all") q = q.eq("entity", data.entity);
+    if (data.actor_id) q = q.eq("user_id", data.actor_id);
+    if (data.from) q = q.gte("created_at", data.from);
+    if (data.to) q = q.lte("created_at", data.to);
+    const from = (data.page - 1) * data.pageSize;
+    q = q.order("created_at", { ascending: false }).range(from, from + data.pageSize - 1);
+    const { data: rows, error, count } = await q;
+    if (error) throw new Error(error.message);
+
+    const actorIds = Array.from(new Set((rows ?? []).map((r) => r.user_id).filter(Boolean))) as string[];
+    const courseIds = Array.from(new Set((rows ?? []).map((r) => r.course_id).filter(Boolean))) as string[];
+    const [{ data: actors }, { data: courses }] = await Promise.all([
+      actorIds.length
+        ? supabaseAdmin.from("profiles").select("id,email,display_name").in("id", actorIds)
+        : Promise.resolve({ data: [] as any[] }),
+      courseIds.length
+        ? supabaseAdmin.from("courses").select("id,name").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const actorMap = new Map((actors ?? []).map((a: any) => [a.id, a]));
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c]));
+    return {
+      rows: (rows ?? []).map((r: any) => ({
+        ...r,
+        actor: r.user_id ? actorMap.get(r.user_id) ?? null : null,
+        course: r.course_id ? courseMap.get(r.course_id) ?? null : null,
+      })),
+      total: count ?? 0,
+    };
+  });
+
+// ---------------------------------------------------------------------------
+// CSV exports
+// ---------------------------------------------------------------------------
+
+function csvCell(v: any): string {
+  if (v === null || v === undefined) return "";
+  const s = String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+function csvRow(cells: any[]): string {
+  return cells.map(csvCell).join(",");
+}
+
+export const exportUsersCSV = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperadmin(context.userId);
+    const [{ data: profiles }, { data: roleRows }, { data: cmRows }, { data: courses }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id,email,display_name,suspended,deleted_at,last_login_at").is("deleted_at", null),
+      supabaseAdmin.from("user_roles").select("user_id,role"),
+      supabaseAdmin.from("course_managers").select("user_id,course_id"),
+      supabaseAdmin.from("courses").select("id,name"),
+    ]);
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c.name]));
+    const rolesByUser = new Map<string, string[]>();
+    for (const r of roleRows ?? []) {
+      const cur = rolesByUser.get(r.user_id) ?? [];
+      cur.push(r.role as string);
+      rolesByUser.set(r.user_id, cur);
+    }
+    const coursesByUser = new Map<string, string[]>();
+    for (const c of cmRows ?? []) {
+      const cur = coursesByUser.get(c.user_id) ?? [];
+      cur.push(courseMap.get(c.course_id) ?? "(unknown)");
+      coursesByUser.set(c.user_id, cur);
+    }
+    const lines = ["email,display_name,roles,courses,last_login_at,status"];
+    for (const p of profiles ?? []) {
+      lines.push(
+        csvRow([
+          p.email,
+          p.display_name ?? "",
+          (rolesByUser.get(p.id) ?? []).join("|"),
+          (coursesByUser.get(p.id) ?? []).join("|"),
+          p.last_login_at ?? "",
+          p.suspended ? "suspended" : "active",
+        ]),
+      );
+    }
+    return { csv: lines.join("\n"), filename: `users-${new Date().toISOString().slice(0, 10)}.csv` };
+  });
+
+const TIER_BASE: Record<string, number> = {
+  classic: 49,
+  interactive: 99,
+  estate: 149,
+  estate_interactive: 199,
+};
+const TIER_PER_BOARD: Record<string, number> = {
+  classic: 10,
+  interactive: 20,
+  estate: 25,
+  estate_interactive: 30,
+};
+function mrrEstimate(s: any): number {
+  if (s.billing_source === "gifted") return 0;
+  if (!["active", "trialing"].includes(s.status)) return 0;
+  const base = TIER_BASE[s.plan_tier] ?? 0;
+  const per = TIER_PER_BOARD[s.plan_tier] ?? 0;
+  const extra = Math.max(0, (s.board_count ?? 1) - 1) * per;
+  return base + extra;
+}
+
+export const exportSubscriptionsCSV = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperadmin(context.userId);
+    const { data: subs } = await supabaseAdmin.from("subscriptions").select("*");
+    const courseIds = Array.from(new Set((subs ?? []).map((s: any) => s.course_id))) as string[];
+    const userIds = Array.from(new Set((subs ?? []).map((s: any) => s.billing_user_id))) as string[];
+    const [{ data: courses }, { data: profiles }] = await Promise.all([
+      courseIds.length
+        ? supabaseAdmin.from("courses").select("id,name").in("id", courseIds)
+        : Promise.resolve({ data: [] as any[] }),
+      userIds.length
+        ? supabaseAdmin.from("profiles").select("id,email").in("id", userIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const courseMap = new Map((courses ?? []).map((c: any) => [c.id, c.name]));
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p.email]));
+    const lines = [
+      "course,billing_user_email,tier,board_count,source,status,starts_at,ends_at,mrr_estimate",
+    ];
+    for (const s of subs ?? []) {
+      lines.push(
+        csvRow([
+          courseMap.get(s.course_id) ?? "(unknown)",
+          profileMap.get(s.billing_user_id) ?? "",
+          s.plan_tier,
+          s.board_count,
+          s.billing_source,
+          s.status,
+          s.starts_at ?? "",
+          s.ends_at ?? "",
+          mrrEstimate(s).toFixed(2),
+        ]),
+      );
+    }
+    return {
+      csv: lines.join("\n"),
+      filename: `subscriptions-${new Date().toISOString().slice(0, 10)}.csv`,
+    };
+  });
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export const listNotifications = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ unread_only: z.boolean().optional().default(false), limit: z.number().int().min(1).max(100).optional().default(30) }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    // Trigger expiring-soon refresh for superadmins
+    try {
+      await supabaseAdmin.rpc("generate_expiring_subscription_notifications");
+    } catch { /* ignore */ }
+    let q = supabaseAdmin
+      .from("notifications")
+      .select("*", { count: "exact" })
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.unread_only) q = q.is("read_at", null);
+    const { data: rows, count } = await q;
+    const { count: unread } = await supabaseAdmin
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .is("read_at", null);
+    return { rows: rows ?? [], total: count ?? 0, unread: unread ?? 0 };
+  });
+
+export const markNotificationsRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z.object({ ids: z.array(z.string().uuid()).optional(), all: z.boolean().optional().default(false) }).parse(i ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    let q = supabaseAdmin.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", context.userId).is("read_at", null);
+    if (!data.all && data.ids?.length) q = q.in("id", data.ids);
+    const { error } = await q;
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
