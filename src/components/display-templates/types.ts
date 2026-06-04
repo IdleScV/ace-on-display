@@ -23,6 +23,8 @@ export interface DisplayCourse {
   logo_url: string | null;
   primary_color: string;
   secondary_color: string;
+  has_touch?: boolean;
+  is_multi_board?: boolean;
 }
 
 export interface DisplayHole {
