@@ -704,6 +704,20 @@ function UserDetailDrawer({
                     <ShieldCheck className="h-3.5 w-3.5" /> Reactivate
                   </button>
                 )}
+                {data.profile.deleted_at && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await restoreFn({ data: { user_id: data.profile.id } } as any);
+                        toast.success("User restored");
+                        refresh();
+                      } catch (e: any) { toast.error(e.message); }
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs hover:bg-accent"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" /> Restore user
+                  </button>
+                )}
               </div>
               <div className="mt-4 rounded-md border border-destructive/40 p-3">
                 <p className="text-xs font-medium text-destructive">Danger zone</p>
