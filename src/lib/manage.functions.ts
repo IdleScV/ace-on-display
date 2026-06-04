@@ -40,14 +40,17 @@ export const listUsers = createServerFn({ method: "POST" })
 
     let q = supabaseAdmin
       .from("profiles")
-      .select("id,email,display_name,last_login_at,suspended,suspended_at,suspension_reason", {
-        count: "exact",
-      });
+      .select(
+        "id,email,display_name,last_login_at,suspended,suspended_at,suspension_reason,deleted_at",
+        { count: "exact" },
+      );
 
     if (search.trim()) {
       const s = search.trim();
       q = q.or(`email.ilike.%${s}%,display_name.ilike.%${s}%`);
     }
+    if (status === "deleted") q = q.not("deleted_at", "is", null);
+    else q = q.is("deleted_at", null);
     if (status === "active") q = q.eq("suspended", false);
     if (status === "suspended") q = q.eq("suspended", true);
 
