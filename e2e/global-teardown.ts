@@ -14,9 +14,10 @@ export default async function globalTeardown(config: FullConfig) {
     return;
   }
   try {
-    const { deleted } = await resetTestData(baseURL);
+    const result = await resetTestData(baseURL);
+    const d = result?.deleted ?? { entries: 0, courses: 0, users: 0 };
     console.log(
-      `[e2e:global-teardown] Reset: ${deleted.entries} entries, ${deleted.courses} courses, ${deleted.users} users.`,
+      `[e2e:global-teardown] Reset: ${d.entries} entries, ${d.courses} courses, ${d.users} users.`,
     );
   } catch (err) {
     console.warn(`[e2e:global-teardown] Reset failed:`, err);
