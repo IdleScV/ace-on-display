@@ -26,6 +26,7 @@ function AdminLayout() {
     { to: "/admin/entries", label: "Entries" },
     { to: "/admin/import", label: "Import CSV" },
     { to: "/admin/settings", label: "Settings" },
+    { to: "/admin/subscribers", label: "Subscribers" },
     { to: "/admin/audit", label: "Audit" },
     ...(isSuperadmin ? [{ to: "/admin/health", label: "Display health" }] : []),
   ];
