@@ -141,6 +141,14 @@ function CourseDashboard() {
           </div>
         )}
       </Section>
+      {/* Plan */}
+      <Section
+        title="Plan"
+        desc="Toggle paid add-ons. The tier below is derived from these toggles."
+      >
+        <PlanEditor course={course} />
+      </Section>
+
 
       {/* Display templates + styles */}
       <Section
