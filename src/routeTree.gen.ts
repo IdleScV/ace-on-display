@@ -18,7 +18,6 @@ import { Route as ApiTutorRouteImport } from './routes/api/tutor'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
 import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
-import { Route as SlugEmbedRouteImport } from './routes/$slug.embed'
 import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
 import { Route as SlugEmbedRouteImport } from './routes/$slug.embed'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
@@ -77,6 +76,11 @@ const SlugSubmitRoute = SlugSubmitRouteImport.update({
 const SlugRotateRoute = SlugRotateRouteImport.update({
   id: '/$slug/rotate',
   path: '/$slug/rotate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugEmbedRoute = SlugEmbedRouteImport.update({
+  id: '/$slug/embed',
+  path: '/$slug/embed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlugHoleInOnesRoute = SlugHoleInOnesRouteImport.update({
