@@ -391,7 +391,7 @@ function InvitationDetailDrawer({
               {inv.grant_subscription_tier && (
                 <div className="rounded-md border border-pink-500/30 bg-pink-500/5 p-2 text-xs text-pink-700 dark:text-pink-400">
                   Grants {TIER_LABEL[inv.grant_subscription_tier] ?? inv.grant_subscription_tier}
-                  {inv.grant_subscription_board_count > 1
+                  {(inv.grant_subscription_board_count ?? 1) > 1
                     ? ` · ${inv.grant_subscription_board_count} boards`
                     : ""}
                   {inv.grant_subscription_ends_at
