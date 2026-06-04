@@ -95,7 +95,15 @@ export function InviteUserDialog({
         toast.success("Invitation created");
       }
     } catch (err: any) {
-      toast.error(err.message);
+      const m: string = err.message || "";
+      if (m.startsWith("INVITATION_DUPLICATE:")) {
+        const parts = m.split(":");
+        toast.error(parts.slice(2).join(":"));
+      } else if (m.startsWith("USER_EXISTS:")) {
+        toast.error(m.slice("USER_EXISTS:".length) + " Use the existing user instead.");
+      } else {
+        toast.error(m);
+      }
     } finally {
       setSubmitting(false);
     }
