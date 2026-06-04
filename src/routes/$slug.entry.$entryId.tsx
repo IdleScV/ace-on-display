@@ -1,5 +1,4 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getPublicEntryDetail } from "@/lib/public.functions";
 import { getRequestOrigin } from "@/lib/origin.functions";
