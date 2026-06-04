@@ -2,10 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCourseCtx } from "@/lib/course-context";
-import { listEntries, deleteEntry, createEntry, updateEntry } from "@/lib/entries.functions";
+import { listEntries, deleteEntry, createEntry, updateEntry, countPendingIntake } from "@/lib/entries.functions";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Bell, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin/entries")({
