@@ -131,7 +131,7 @@ async function createEntry(opts: Record<string, unknown>) {
     golfer_email: (opts.golfer_email as string) ?? null,
     photo_url: (opts.photo_url as string) ?? null,
     video_url: (opts.video_url as string) ?? null,
-    status: (opts.status as string) ?? "draft",
+    status: ((opts.status as string) ?? "draft") as "draft" | "published" | "archived",
     submitted_via_intake: (opts.submitted_via_intake as boolean) ?? false,
     is_e2e: true,
   };
