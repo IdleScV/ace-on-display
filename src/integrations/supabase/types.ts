@@ -319,6 +319,7 @@ export type Database = {
           prior_holes_in_one: number | null
           status: Database["public"]["Enums"]["entry_status"]
           story: string | null
+          submitted_via_intake: boolean
           updated_at: string
           updated_by: string | null
           video_url: string | null
@@ -344,6 +345,7 @@ export type Database = {
           prior_holes_in_one?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
           story?: string | null
+          submitted_via_intake?: boolean
           updated_at?: string
           updated_by?: string | null
           video_url?: string | null
@@ -369,6 +371,7 @@ export type Database = {
           prior_holes_in_one?: number | null
           status?: Database["public"]["Enums"]["entry_status"]
           story?: string | null
+          submitted_via_intake?: boolean
           updated_at?: string
           updated_by?: string | null
           video_url?: string | null
@@ -481,6 +484,27 @@ export type Database = {
         Returns: boolean
       }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      resolve_course_id_from_slug: { Args: { _slug: string }; Returns: string }
+      submit_public_entry: {
+        Args: {
+          _club?: string
+          _date_achieved: string
+          _favorite_hole?: number
+          _golfer_email?: string
+          _golfer_name: string
+          _handicap_at_time?: number
+          _hole_number: number
+          _photo_urls?: string[]
+          _prior_holes_in_one?: number
+          _slug: string
+          _story?: string
+          _video_url?: string
+          _witness: string
+          _yardage?: number
+          _years_playing?: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "superadmin" | "course_manager"
