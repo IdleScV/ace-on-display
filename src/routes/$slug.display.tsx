@@ -108,8 +108,89 @@ function DisplayPage() {
   }
 
   const { course, entries, holes } = data;
+  const touchEnabled = hasFeature(
+    { has_touch: !!(course as any).has_touch, is_multi_board: !!(course as any).is_multi_board },
+    "touch_interaction",
+  );
+  const selectHandler = touchEnabled ? ((id: string) => setSelectedId(id)) : undefined;
 
-  if (template === "plaque") return <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} photos={photos} />;
-  if (template === "ultrawide") return <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} />;
-  return <SpotlightTemplate course={course} entries={entries} />;
+  let body: React.ReactNode;
+  if (template === "plaque") body = <PlaqueTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} photos={photos} onSelectEntry={selectHandler} />;
+  else if (template === "ultrawide") body = <UltrawideTemplate course={course} entries={entries} holes={holes ?? []} style={style} muted={muted} onSelectEntry={selectHandler} />;
+  else body = <SpotlightTemplate course={course} entries={entries} onSelectEntry={selectHandler} />;
+
+  return (
+    <>
+      {body}
+      {touchEnabled && selectedId && (
+        <EntryDetailModal
+          slug={slug}
+          entryId={selectedId}
+          style={style}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
+    </>
+  );
+}
+
+function EntryDetailModal({
+  slug, entryId, style, onClose,
+}: {
+  slug: string;
+  entryId: string;
+  style: "walnut" | "mahogany" | "slate" | "modern";
+  onClose: () => void;
+}) {
+  const fn = useServerFn(getPublicEntryDetail);
+  const { data } = useQuery({
+    queryKey: ["public-entry-detail", slug, entryId],
+    queryFn: () => fn({ data: { slug, entryId } } as any),
+  });
+
+  // 30s auto-dismiss, reset on any pointer/touch/key activity inside the modal.
+  const timer = useRef<number | null>(null);
+  const reset = useCallback(() => {
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(onClose, 30_000);
+  }, [onClose]);
+
+  useEffect(() => {
+    reset();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (timer.current) window.clearTimeout(timer.current);
+    };
+  }, [reset, onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-stretch justify-center overflow-y-auto bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+      onPointerDown={reset}
+      onPointerMove={reset}
+      onTouchStart={reset}
+    >
+      <div
+        className="my-4 w-full max-w-5xl overflow-hidden rounded-2xl shadow-2xl sm:my-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {data && data.course && data.entry ? (
+          <EntryDetailView
+            course={data.course}
+            entry={data.entry}
+            style={style}
+            variant="modal"
+            onClose={onClose}
+          />
+        ) : (
+          <div className="flex min-h-[40vh] items-center justify-center bg-neutral-950 text-white">
+            <Trophy className="h-8 w-8 animate-pulse opacity-60" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
