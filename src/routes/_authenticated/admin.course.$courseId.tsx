@@ -15,6 +15,7 @@ import { NameManager } from "@/components/name-manager";
 import { PlateCustomizer } from "@/components/plate-customizer";
 import { HoleMediaEditor } from "@/components/hole-media-editor";
 import { IntakeShare } from "@/components/intake-share";
+import { EmbedShare } from "@/components/embed-share";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
@@ -156,6 +157,14 @@ function CourseDashboard() {
         desc="Share this link or QR code with golfers so they can submit their own holes-in-one."
       >
         <IntakeShare slug={course.slug} courseName={course.name} />
+      </Section>
+
+      {/* Embed on your website */}
+      <Section
+        title="Embed on your website"
+        desc="Drop the board into any HTML page on your course's site."
+      >
+        <EmbedShare slug={course.slug} course={course} />
       </Section>
 
 

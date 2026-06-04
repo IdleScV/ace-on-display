@@ -19,6 +19,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as SlugSubmitRouteImport } from './routes/$slug.submit'
 import { Route as SlugRotateRouteImport } from './routes/$slug.rotate'
 import { Route as SlugHoleInOnesRouteImport } from './routes/$slug.hole-in-ones'
+import { Route as SlugEmbedRouteImport } from './routes/$slug.embed'
 import { Route as SlugDisplayRouteImport } from './routes/$slug.display'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicHeartbeatRouteImport } from './routes/api/public/heartbeat'
@@ -80,6 +81,11 @@ const SlugRotateRoute = SlugRotateRouteImport.update({
 const SlugHoleInOnesRoute = SlugHoleInOnesRouteImport.update({
   id: '/$slug/hole-in-ones',
   path: '/$slug/hole-in-ones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugEmbedRoute = SlugEmbedRouteImport.update({
+  id: '/$slug/embed',
+  path: '/$slug/embed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlugDisplayRoute = SlugDisplayRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/embed': typeof SlugEmbedRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/embed': typeof SlugEmbedRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/$slug/display': typeof SlugDisplayRoute
+  '/$slug/embed': typeof SlugEmbedRoute
   '/$slug/hole-in-ones': typeof SlugHoleInOnesRoute
   '/$slug/rotate': typeof SlugRotateRoute
   '/$slug/submit': typeof SlugSubmitRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/$slug/display'
+    | '/$slug/embed'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/$slug/submit'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/$slug/display'
+    | '/$slug/embed'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/$slug/submit'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/$slug/display'
+    | '/$slug/embed'
     | '/$slug/hole-in-ones'
     | '/$slug/rotate'
     | '/$slug/submit'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SlugDisplayRoute: typeof SlugDisplayRoute
+  SlugEmbedRoute: typeof SlugEmbedRoute
   SlugHoleInOnesRoute: typeof SlugHoleInOnesRoute
   SlugRotateRoute: typeof SlugRotateRoute
   SlugSubmitRoute: typeof SlugSubmitRoute
@@ -389,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/$slug/hole-in-ones'
       fullPath: '/$slug/hole-in-ones'
       preLoaderRoute: typeof SlugHoleInOnesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$slug/embed': {
+      id: '/$slug/embed'
+      path: '/$slug/embed'
+      fullPath: '/$slug/embed'
+      preLoaderRoute: typeof SlugEmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$slug/display': {
@@ -529,6 +549,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SlugDisplayRoute: SlugDisplayRoute,
+  SlugEmbedRoute: SlugEmbedRoute,
   SlugHoleInOnesRoute: SlugHoleInOnesRoute,
   SlugRotateRoute: SlugRotateRoute,
   SlugSubmitRoute: SlugSubmitRoute,
