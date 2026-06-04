@@ -29,6 +29,7 @@ import {
   createInvitation,
   listInvitationsForEmail,
 } from "@/lib/manage.functions";
+import { SubscriptionsTab } from "@/components/manage/subscriptions-tab";
 import { listAllCourses } from "@/lib/courses.functions";
 import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -46,6 +47,7 @@ type Tab = (typeof TABS)[number];
 const searchSchema = z.object({
   tab: z.enum(TABS).catch("users").default("users"),
   user: z.string().uuid().optional(),
+  sub: z.string().uuid().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/admin/manage")({
@@ -57,7 +59,7 @@ export const Route = createFileRoute("/_authenticated/admin/manage")({
 function ManagePage() {
   const { isSuperadmin } = useAuth();
   const navigate = useNavigate();
-  const { tab, user } = Route.useSearch();
+  const { tab, user, sub } = Route.useSearch();
 
   useEffect(() => {
     if (!isSuperadmin) navigate({ to: "/admin", replace: true });
@@ -97,7 +99,17 @@ function ManagePage() {
       <div className="mt-6">
         {tab === "users" && <UsersTab focusUserId={user ?? null} />}
         {tab === "courses" && <Placeholder name="Courses" />}
-        {tab === "subscriptions" && <Placeholder name="Subscriptions" />}
+        {tab === "subscriptions" && (
+          <SubscriptionsTab
+            focusSubscriptionId={sub ?? null}
+            onSelect={(id: string | null) =>
+              navigate({
+                to: "/admin/manage",
+                search: id ? { tab: "subscriptions", sub: id } : { tab: "subscriptions" },
+              })
+            }
+          />
+        )}
         {tab === "invitations" && <Placeholder name="Invitations" />}
       </div>
     </div>
