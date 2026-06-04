@@ -146,7 +146,8 @@ function UsersTab({ focusUserId }: { focusUserId: string | null }) {
   const listFn = useServerFn(listUsers);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<"all" | "superadmin" | "course_manager">("all");
-  const [status, setStatus] = useState<"all" | "active" | "suspended">("all");
+  const [status, setStatus] = useState<"all" | "active" | "suspended" | "deleted">("all");
+  const exportFn = useServerFn(exportUsersCSV);
   const [sort, setSort] = useState<"display_name" | "email" | "last_login_at">("email");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
