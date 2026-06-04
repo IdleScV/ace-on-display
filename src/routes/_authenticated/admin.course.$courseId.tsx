@@ -16,6 +16,7 @@ import { PlateCustomizer } from "@/components/plate-customizer";
 import { HoleMediaEditor } from "@/components/hole-media-editor";
 import { IntakeShare } from "@/components/intake-share";
 import { EmbedShare } from "@/components/embed-share";
+import { CourseManagementPanels } from "@/components/course/management-panels";
 
 export const Route = createFileRoute("/_authenticated/admin/course/$courseId")({
   component: CourseDashboard,
