@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth-context";
 import { CourseProvider, useCourseCtx } from "@/lib/course-context";
 import { Trophy, LogOut } from "lucide-react";
 import { TutorChat } from "@/components/tutor-chat";
+import { AdminChat } from "@/components/admin-chat";
 import { RoleSimulator } from "@/components/role-simulator";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -89,6 +90,7 @@ function AdminLayout() {
         <Outlet />
       </main>
       <TutorChat />
+      <AdminChat />
     </div>
   );
 }
