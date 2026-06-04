@@ -103,7 +103,6 @@ function ManagePage() {
 
       <div className="mt-6">
         {tab === "users" && <UsersTab focusUserId={user ?? null} />}
-        {tab === "courses" && <Placeholder name="Courses" />}
         {tab === "subscriptions" && (
           <SubscriptionsTab
             focusSubscriptionId={sub ?? null}
@@ -126,15 +125,8 @@ function ManagePage() {
             }
           />
         )}
+        {tab === "activity" && <ActivityTab />}
       </div>
-    </div>
-  );
-}
-
-function Placeholder({ name }: { name: string }) {
-  return (
-    <div className="rounded-xl border bg-card p-12 text-center text-sm text-muted-foreground">
-      {name} — coming in next prompt.
     </div>
   );
 }
