@@ -65,14 +65,21 @@ export const Route = createFileRoute("/_authenticated/admin/manage")({
 });
 
 function ManagePage() {
-  const { isSuperadmin } = useAuth();
+  const { isSuperadmin, loading, roles } = useAuth();
   const navigate = useNavigate();
   const { tab, user, sub, invite } = Route.useSearch();
 
-  useEffect(() => {
-    if (!isSuperadmin) navigate({ to: "/admin", replace: true });
-  }, [isSuperadmin, navigate]);
+  // Wait for roles to hydrate before deciding access — otherwise the initial
+  // render (roles=[]) bounces superadmins back to /admin.
+  const rolesReady = !loading && roles.length > 0;
 
+  useEffect(() => {
+    if (rolesReady && !isSuperadmin) navigate({ to: "/admin", replace: true });
+  }, [rolesReady, isSuperadmin, navigate]);
+
+  if (!rolesReady) {
+    return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
+  }
   if (!isSuperadmin) return null;
 
   const setTab = (t: Tab) => navigate({ to: "/admin/manage", search: { tab: t } });
